@@ -1,3 +1,20 @@
 #+title: dotfiles!
 
 neat stuff in here :3
+
+* stuff in here
++ test
+
+* Some personal notes
+** misc
+- Create an alias for ~stow .~ so that I don't accidentally run it in the wrong directory?
+** stow
+- ~stow .~
+- ~stow --dir=~/.dotfiles --target=~/~
+- ~stow -d ~/.dotfiles -t ~/~
+- ~stow -D .~
+- Prevent symlinks of .git files: ~.stow-local-ignore~
+- Always stow after git sync!
+  - ~sync-dotfiles~ script: [[file:.bin/sync-dotfiles]]
+- manual: https://www.gnu.org/software/stow/manual/stow.html
+- more info: https://systemcrafters.net/managing-your-dotfiles/using-gnu-stow/
