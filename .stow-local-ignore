@@ -1,4 +1,7 @@
 \.git
-misc
+.gitignore
+README.org
+
+#misc
 #LICENSE
-^/.*\.org
+#^/.*\.org
