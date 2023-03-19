@@ -1,0 +1,44 @@
+!!-------------!!
+!![Attempt one]!!
+!!-------------!!
+
+!clear lock
+!remove Lock = Caps_Lock !! alternative?
+!clear control
+!clear escape  !! clears all escapes, but no need since keep original esc button?
+
+!keycode 66 = Escape Caps_Lock NoSymbol NoSymbol !! set caps-key to escape
+!------------------ ^ Access using Shift?
+!keycode 66 = Escape NoSymbol Escape
+
+!add lock =  !! don't assign caps lock function onto any keys
+!add control = Control_L Control_R  !! assign control function to Control_L & R
+!add escape =
+
+!!-------------!!
+!![Attempt two]!!
+!!-------------!!
+
+!clear Lock
+!keysym Caps_Lock = Escape NoSymbol Escape
+!! ^^^ S-<esc> does Ctrl ^^^
+
+!keycode 135 = Caps_Lock
+!add Lock = Caps_Lock
+
+!keysym Menu = Control_L
+
+!add Control = Control_L
+
+!add Control = Control_L
+!add Control = Control_R
+
+!!---------------!!
+!![Attempt three]!!
+!!---------------!!
+!! Caps_Lock = Control_L
+!! Shift+Caps_Lock = Escape
+!!
+
+clear lock
+keycode 66 = Control_L Escape

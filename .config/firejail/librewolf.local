@@ -1,0 +1,20 @@
+#whitelist ${RUNUSER}/run/user/$UID/librewolf
+
+## KeepassXC browser integration
+noblacklist ${RUNUSER}/app
+whitelist ${RUNUSER}/kpxc_server
+whitelist ${RUNUSER}/org.keepassxc.KeePassXC.BrowserServer
+#
+noblacklist ${HOME}/.mozilla
+whitelist ${HOME}/.mozilla
+#
+noblacklist ${HOME}/Documents/secure
+#
+
+## ETC
+#
+# native notifications
+dbus-user.talk org.freedesktop.Notifications
+#
+# inhibiting screensavers
+dbus-user.talk org.freedesktop.ScreenSaver

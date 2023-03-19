@@ -1,0 +1,14 @@
+.DS_Store
+.idea
+*.log
+tmp/
+
+dwm/*
+!dwm/config.h
+
+.config/xmonad/*
+!.config/xmonad/xmonad.hs
+!.config/xmonad/xmonad.org
+!.config/xmonad/cabal.project
+
+.config/xmobar/xmobar/*

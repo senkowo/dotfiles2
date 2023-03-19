@@ -1,0 +1,19 @@
+
+## Browser Integration
+# So can access database and keyfile
+noblacklist ${HOME}/Documents/secure
+# Allow browser profile, required for browser integration (i think)
+noblacklist ${HOME}/.librewolf
+# On github wiki for needed
+noblacklist ${RUNUSER}/app
+#
+##
+
+## ETC
+# 
+#dbus-user.talk org.freedesktop.secrets
+#
+dbus-user.talk org.freedesktop.Notifications
+#
+##
+

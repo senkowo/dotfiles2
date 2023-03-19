@@ -1,0 +1,18 @@
+
+with_dbus	
+with_threaded	
+with_xrender	
+with_xpm	
+
+
+with_mpd	
+with_mpris	
+with_inotify
+with_nl80211	
+with_alsa	
+-with_datezone	
+-with_weather	
+
+
+idk, with_mpd with_mpris with_inotify with_nl80211 with_alsa
+maybe with_xrender for transparency would be necessary

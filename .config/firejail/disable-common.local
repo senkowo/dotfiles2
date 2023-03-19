@@ -1,0 +1,2 @@
+blacklist ${HOME}/Documents/secure
+blacklist ${HOME}/Public/School/Important-docs
