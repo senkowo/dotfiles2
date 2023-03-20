@@ -1,4 +1,3 @@
-
 ## Browser Integration
 # So can access database and keyfile
 noblacklist ${HOME}/Documents/secure
@@ -16,4 +15,3 @@ noblacklist ${RUNUSER}/app
 dbus-user.talk org.freedesktop.Notifications
 #
 ##
-

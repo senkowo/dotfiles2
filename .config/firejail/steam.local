@@ -1,6 +1,4 @@
-
 #ignore seccomp
-
 
 # private-bin is disabled while in testing, but is known to work with multiple games.
 # Add the next line to your steam.local to enable private-bin.
