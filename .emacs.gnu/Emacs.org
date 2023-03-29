@@ -10,6 +10,7 @@
 - [[#prevent-littering][Prevent littering]]
 - [[#basic-ui][Basic UI]]
   - [[#line-numbers][line numbers]]
+  - [[#improved-scrolling][improved scrolling]]
   - [[#disable-bell][disable bell]]
   - [[#fonts][fonts]]
 - [[#basic-functionality][Basic functionality]]
@@ -24,6 +25,7 @@
   - [[#ivy--counsel][ivy + counsel]]
   - [[#doom-themes][doom-themes]]
   - [[#doom-modeline][doom-modeline]]
+  - [[#transparency][transparency]]
   - [[#rainbow-delimiters][rainbow-delimiters]]
   - [[#which-key][which-key]]
   - [[#helpful][helpful]]
@@ -36,20 +38,29 @@
   - [[#side-padding][side-padding]]
   - [[#org-babel][org-babel]]
   - [[#table-of-contents][table of contents]]
-- [[#ide][IDE]]
+- [[#development][Development]]
+  - [[#lsp-mode][lsp-mode]]
+  - [[#languages][languages]]
+  - [[#company-mode][company mode]]
   - [[#projectile][projectile]]
   - [[#magit][magit]]
+  - [[#commenting][Commenting]]
+- [[#terminal][Terminal]]
+  - [[#term-mode][term-mode]]
+  - [[#vterm][vterm]]
+  - [[#shell-mode][shell-mode]]
+  - [[#eshell][Eshell]]
 - [[#files][Files]]
   - [[#dired][Dired]]
-- [[#terminal][Terminal]]
 - [[#programs][Programs]]
-  - [[#erc][erc]]
+  - [[#ement][ement]]
   - [[#elfeed][elfeed]]
+  - [[#erc][erc]]
 - [[#applications][Applications]]
   - [[#firejail][Firejail]]
   - [[#mpv][mpv]]
+  - [[#zshrc][zshrc]]
 - [[#special][Special]]
-- [[#performance][Performance]]
 
 * Notes to self
 
@@ -59,6 +70,7 @@ Emacs Config
 + M-: to eval variable
 + M-o in list for options
 + C-w window management
++ evil C-o to go back to prev location!
 
 + check-parens to check for errors
 + emacs-lisp-mode-map for viewing local keybinds
@@ -67,7 +79,11 @@ Emacs Config
 + How does :noweb work? 
 
 Q's
-+ auto-revert-mode <- updates file when it changes on disk. use in some modes/files?
++ auto-revert-mode -- updates file when it changes on disk. use in some modes/files?
++ package-initialize
+
+Look into:
+- Meow since C-j and C-k will be hard in dvorak (could use alt. keys or replace?)
   
 * Startup performance
 
@@ -134,6 +150,10 @@ package management, sources, auto, etc
 
 #+begin_src emacs-lisp
 
+  ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
+  (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
+        url-history-file (expand-file-name "url/history" user-emacs-directory))
+
   ;; no-littering
   (use-package no-littering)
 
@@ -162,17 +182,31 @@ package management, sources, auto, etc
 
 #+begin_src emacs-lisp
 
-;; add line numbers
-(global-display-line-numbers-mode t)
-(column-number-mode) ; (columns on modeline)
+  ;; add line numbers
+  (global-display-line-numbers-mode t)
+  (column-number-mode) ; (columns on modeline)
 
-;; line number mode exceptions
-(dolist (mode '(org-mode-hook
-		term-mode-hook
-		shell-mode-hook
-		eshell-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  ;; line number mode exceptions
+  (dolist (mode '(org-mode-hook
+                  term-mode-hook
+                  vterm-mode-hook
+                  shell-mode-hook
+                  eshell-mode-hook
+                  treemacs-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
+#+end_src
+
+** improved scrolling
+
+#+begin_src emacs-lisp
+
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+  (setq mouse-wheel-progressive-speed t) ;; don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq scroll-step 1) ;; keyboard scroll one line at a time
+  (setq use-dialog-box t) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
+  
 #+end_src
 
 ** disable bell
@@ -310,15 +344,19 @@ https://github.com/noctuid/general.el
     ;;   global-set-key or define-key.
     ;; (keymaps can be swapped with states)
     (general-create-definer ri/leader-keys
-      :keymaps '(normal insert visual emacs)
+      :states '(normal insert visual emacs)
+      ;:keymaps '(normal insert visual emacs)
       :prefix "SPC"
       :global-prefix "C-SPC")
 
-    ;; the modes under keymaps can be put under states, right?
-    (general-create-definer ri/leader-keys-mode-map
-      :states '(normal insert visual emacs)
-      :prefix "SPC"
-      :global-prefix "C-SPC"))
+    ;; ;; the modes under keymaps can be put under states, right?
+    ;; (general-create-definer ri/leader-keys-mode-map
+    ;;   :states '(normal insert visual emacs)
+    ;;   :prefix "SPC"
+    ;;   :global-prefix "C-SPC")
+
+    (general-create-definer ri/ctrl-c-keys
+      :prefix "C-c"))
 
 #+end_src
 
@@ -335,9 +373,9 @@ https://github.com/noctuid/general.el
 
 #+begin_src emacs-lisp
 
-(ri/leader-keys
-  "q"  '(:ignore t :which-key "quit/session")
-  "qq" '(save-buffers-kill-terminal :which-key "quit emacs"))
+  (ri/leader-keys
+    "q"  '(:ignore t :which-key "quit/session")
+    "qq" '(save-buffers-kill-terminal :which-key "quit emacs"))
 
 #+end_src
 
@@ -437,6 +475,10 @@ Fast, transient keybinds
     :config
     (ivy-mode 1))
 
+  (use-package ivy-rich
+    :init
+    (ivy-rich-mode 1))
+
   ;; counsel 
   (use-package counsel
     :after (ivy)
@@ -468,10 +510,15 @@ Fast, transient keybinds
   ;; doom-themes
   ;; recommended: henna, palenight, snazzy
   (use-package doom-themes
-    :init (load-theme 'doom-Iosvkem t))
+    :init (load-theme 'doom-snazzy t))
+
+  (defun ri/load-theme-and-font-setup ()
+    (interactive)
+    (counsel-load-theme)
+    (ri/org-font-setup))
 
   (ri/leader-keys
-    "ht" '(counsel-load-theme :which-key "choose theme"))
+    "ht" '(ri/load-theme-and-font-setup :which-key "choose theme"))
 
 #+end_src
 
@@ -483,6 +530,18 @@ Fast, transient keybinds
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom (doom-modeline-height 35))
+
+#+end_src
+
+** transparency
+
+#+begin_src emacs-lisp
+
+  ;; Set frame transparency and maximize windows by default. 
+  (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+  (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+  (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 #+end_src
 
@@ -542,6 +601,9 @@ Shows more info in help menu
     "hf" 'describe-function
     "hv" 'describe-variable
     "hk" 'describe-key
+    ;"hb" 'describe-bindings
+    "hb" 'counsel-descbinds
+    "hm" 'describe-mode
     "hP" 'describe-package
     "hp" 'helpful-at-point)
 
@@ -556,23 +618,24 @@ org-fonts, bullets, side-padding, tangle, toc, etc.
 
 #+begin_src emacs-lisp
 
-  ;; org
-  (defun ri/org-mode-setup ()
-    (org-indent-mode)
-    (variable-pitch-mode 1)
-    (visual-line-mode 1))
+    ;; org
+    (defun ri/org-mode-setup ()
+      (org-indent-mode)
+      (variable-pitch-mode 1)
+      (visual-line-mode 1))
 
-  (use-package org
-    :hook (org-mode . ri/org-mode-setup)
-    ;:custom ; do all setq's go in custom?
-    :config
-    (setq org-ellipsis " ▼"
-          org-hide-emphasis-markers nil) ; hide formatting chars
-    (setq doom-modeline-enable-word-count t))
+    (use-package org
+      :hook (org-mode . ri/org-mode-setup)
+      ;:custom ; do all setq's go in custom?
+      :config
+      (setq org-ellipsis " ▼"
+            org-hide-emphasis-markers nil) ; hide formatting chars
+      (setq doom-modeline-enable-word-count t))
 
-  (ri/leader-keys
-    "o"  '(:ignore t :which-key "org")
-    "ox" '(eval-last-sexp :which-key "eval-last-sexp"))
+    (ri/leader-keys
+      "o"  '(:ignore t :which-key "org")
+      "ox" '(eval-last-sexp :which-key "eval-last-sexp")
+      "oX" '(eval-region :which-key "eval-region"))
 
 #+end_src
 
@@ -732,17 +795,17 @@ to add tags to a heading,
     "oac" '(org-capture :which-key "org-capture")
     "oar" '(org-refile :which-key "org-refile")) ; put refile in org-mode-map?
 
-  (ri/leader-keys-mode-map
+  (ri/leader-keys
     :keymaps 'org-mode-map
     "md"  '(:ignore t :which-key "date/schedule")
     "mds" 'org-schedule
     "mdd" 'org-deadline
     "mdt" 'org-time-stamp
-    "mt" '(org-todo :which-key "org-todo")
+    "mt" '(org-todo :which-key "todo state set")
     "mq" '(org-set-tags-command :which-key "set tags menu")
-    "mQ" '(counsel-org-tag :which-key "set tags")
-    "mp" 'org-set-property
-    "me" 'org-set-effort)
+    "mQ" '(counsel-org-tag :which-key "set tags list menu")
+    "mp" '(org-set-property :which-key "set property")
+    "me" '(org-set-effort :which-key "set effort"))
   ; C-c org schedule and deadline and time-stamp and org-tags, etc
   ; for tag multi-add alt-enter!
 
@@ -756,6 +819,7 @@ maybe move org-fonts below org-mode, then have a use-package org inside it to ru
 #+begin_src emacs-lisp
 
   (defun ri/org-font-setup ()
+    (interactive)
     (dolist (face '((org-level-1 . 1.2)
                     (org-level-2 . 1.1)
                     (org-level-3 . 1.05)
@@ -864,7 +928,8 @@ code blocks and stuff
   ;; Automatically tangle our Emacs.org config file when we save it
   (defun ri/org-babel-tangle-config ()
     (when (string-equal (file-name-directory (buffer-file-name))
-                        (expand-file-name user-emacs-directory))
+                        (expand-file-name "~/.dotfiles/.emacs.gnu/"))
+      ;;                                  ^ Formerly user-emacs-directory (now .cache/emacs/)
       ;; Dynamic scoping to the rescue
       (let ((org-confirm-babel-evaluate nil))
         (org-babel-tangle))))
@@ -889,7 +954,183 @@ https://github.com/snosov1/toc-org
 
 #+end_src
 
-* IDE
+* Development
+
+** lsp-mode
+
+https://emacs-lsp.github.io/lsp-mode/
+
+Cool commands:
++ lsp-find-definition
++ lsp-find-references
+  + lsp-ui-peek-find-references
+  + lsp-treemacs-references
++ lsp-rename
++ flymake-show-buffer-diagnostics
++ lsp-execute-code-actions
++ lsp-format-buffer
++ lsp-ui-doc-focus-frame
++ lsp-ivy-workspace-symbol
+  + lsp-ivy-global-workspace-symbol
++ lsp-treemacs-symbols
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :init
+    (setq lsp-keymap-prefix "C-c l")
+    :config
+    (lsp-enable-which-key-integration t))
+
+  ;; change these later...
+  ;; prefix is the keys that come before?!?!
+  ;; maybe i just don't have the right packages to make lsp-mode-map
+  ;(ri/ctrl-c-keys
+  ;; (general-define-key
+  ;;   :keymaps 'lsp-mode-map
+  ;;   :prefix lsp-keymap-prefix
+  ;;   "l"   '(:ignore t :which-key "lsp")
+  ;;   "lg"  '(:ignore t :which-key "find")
+  ;;   "lgd" 'lsp-find-definition
+  ;;   "lgr" 'lsp-find-references)
+
+  ;; ;; maybe 
+  ;; ;
+                                          ; can't define same keys twice? naw.
+  ;; ok what the heck
+  ;; (ri/leader-keys
+  ;;   :keymaps 'lsp-mode-map
+  ;;   "ml"  '(:ignore t :which-key "lsp-find")
+  ;;   "mgd" '(lsp-find-definition :wk "definition")
+  ;;   "mgr" '(lsp-find-references :wk "references")
+  ;;   "mrr" '(lsp-rename :wk "rename all"))
+
+#+end_src
+
+*** lsp-ui
+
+https://emacs-lsp.github.io/lsp-ui/
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom ;; defcustom !!
+    (lsp-ui-doc-position 'bottom))
+
+#+end_src
+
+*** lsp-treemacs
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-treemacs
+    :after lsp)
+
+#+end_src
+
+*** lsp-ivy
+
+special ivy search functionality for lsp
++ lsp-ivy-workspace-symbol
+
+#+begin_src emacs-lisp
+
+  (use-package lsp-ivy)
+  
+#+end_src
+
+** languages
+
+*** Rust
+
+https://robert.kra.hn/posts/rust-emacs-setup/
+
+most rustic features are accessible with C-c C-c
+|-------------+-----------|
+| C-c C-c C-r | cargo run |
+| C-c C-p     | popup     |
+|             |           |
+
+
+#+begin_src emacs-lisp
+
+    ;; rust-analyzer required. gnu guix package?
+  (use-package rustic
+    :ensure t
+    :hook (rust-mode . lsp-deferred)
+    :config
+    (setq rustic-format-on-save nil))
+
+  (use-package lsp-mode
+    :custom
+    ;; what to use when checking on-save. use clippy instead?
+    (lsp-rust-analyzer-cargo-watch-command "check")
+    ;; enable / disable the hints as you prefer:
+    (lsp-rust-analyzer-server-display-inlay-hints nil)
+    (lsp-rust-analyzer-display-lifetime-elision-hints-enable "never") ; skip_trivial
+    (lsp-rust-analyzer-display-chaining-hints nil)
+    (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil) ; def nil
+    (lsp-rust-analyzer-display-closure-return-type-hints nil)
+    (lsp-rust-analyzer-display-parameter-hints nil) ; def nil
+    (lsp-rust-analyzer-display-reborrow-hints "never"))
+
+  (use-package lsp-ui
+    :custom
+    (lsp-ui-peek-always-show nil)
+    (lsp-ui-sideline-show-hover nil)
+    (lsp-ui-doc-enable t)) 
+
+#+end_src
+
+*** Python
+
+#+begin_src emacs-lisp
+
+  (use-package python-mode
+    :ensure t
+    :hook (python-mode . lsp-deferred)
+    :custom
+     ;; NOTE: Set these if Python 3 is called "python3" on your system!
+    ;; (python-shell-interpreter "python3")
+    ;; (dap-python-executable "python3")
+    (dap-python-debugger 'debugpy)
+    :config
+    (require 'dap-python))
+
+#+end_src
+
+** company mode
+
+another completion framework similar to ivy.
+code completion in lsp-mode.
+
+#+begin_src emacs-lisp
+
+  (use-package company
+    :after lsp-mode
+    :hook (lsp-mode . company-mode)
+    :bind (:map company-active-map
+           ("<tab>" . company-complete-selection))
+          (:map lsp-mode-map
+           ("<tab>" . company-indent-or-complete-common))
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.0))
+    :config
+    ;; fixes evil-normal and cancel company autocomplete when escape
+    ;; doesn't work if escape hit very quickly
+    (add-hook 'company-mode-hook
+     (lambda ()
+       (add-hook 'evil-normal-state-entry-hook
+                 (lambda ()
+                   (company-abort)))))
+
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+
+#+end_src
 
 ** projectile
 
@@ -955,6 +1196,135 @@ learn more about projectile for better project management
 
 #+end_src
 
+** Commenting
+
+#+begin_src emacs-lisp
+  
+  (use-package evil-nerd-commenter
+    :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+
+#+end_src
+
+* Terminal
+
+** term-mode
+
+term works on basically any device.
+
+next and previous prompts:
++ C-c C-n
++ C-c C-p
++ [ [
++ ] ]
+
+toggle between char and line mode:
++ C-c C-k
++ C-c C-j
+
+if type in char and make evil edits in line mode, does not update.
+- consider disabling evil completely while in term, and use zsh's vim?
+
+#+begin_src emacs-lisp
+
+  (use-package term
+    :config
+    (setq explicit-shell-file-name "zsh")
+    (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *"))
+
+#+end_src
+
+*** more colors
+
+makes ranger work.
+(depends on ncurses)
+
+#+begin_src emacs-lisp
+
+  (use-package eterm-256color
+    :hook (term-mode . eterm-256color-mode))
+
+#+end_src
+
+*** ansi-term
+
+basically the same as term but automatically renames buffers so you can spawn a bunch of them.
+also prefix key changed from C-c to C-x.
+
+** vterm
+
+(depends on cmake, libtool-bin, and libvterm (and gcc-toolchain))
+
+maybe try disabling evil in here? actually, it works in bash! but why no zsh?
+
+#+begin_src emacs-lisp
+
+  (use-package vterm
+    :commands vterm
+    :config
+    ;; vv already set vv
+    ;;(setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+    (setq vterm-shell "bash")
+    (setq vterm-max-scrollback 10000))
+
+#+end_src
+
+** shell-mode
+
+in between system shell and emacs...
+- kinda broken
+- can use evil editing
+- counsel-shell-history
+
+- M-p
+- M-n
+
+- not good, but works great on windows...
+
+** Eshell
+
+fix neofetch
++ C-r
+
+#+begin_src emacs-lisp
+
+  ;; eshell config
+  (defun ri/configure-eshell ()
+    ;; Save command history when commands are entered.
+    ;;   Commands usually don't save until close, so if crashes, loses all progress.
+    (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+
+    ;; Truncate buffer for performance
+    (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
+
+    ;; Bind some useful keys for evil-mode
+    (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-r") 'counsel-esh-history)
+    ;; fixes the issue with cursor going to the beginning... fixed?
+    (evil-define-key '(normal insert visual) eshell-mode-map (kbd "<home>") 'eshell-bol)
+    (evil-normalize-keymaps)
+
+    (setq eshell-history-size         10000
+          eshell-buffer-maximum-lines 10000
+          eshell-hist-ignoredups t
+          eshell-scroll-to-bottom-on-input t))
+
+  ;; themes
+  (use-package eshell-git-prompt
+    :after eshell)
+
+  (use-package eshell
+    :hook (eshell-first-time-mode . ri/configure-eshell)
+    :config
+    (with-eval-after-load 'esh-opt
+      (setq eshell-destroy-buffer-when-process-dies t)
+      (setq eshell-visual-commands '("htop" "zsh" "vim" "ssh")))
+
+    (eshell-git-prompt-use-theme 'powerline))
+
+  (ri/leader-keys
+    "oe" '(eshell :which-key "eshell"))
+
+#+end_src
+
 * Files
 
 file management, etc
@@ -969,32 +1339,103 @@ file management, etc
 
 ** Dired
 
+- Keybinds:
+ |-----+------------+---+---------+----------------------+---+------+---------------------|
+ |     | Marking    |   |         | Open/view/quit       |   |      | Copying/deleting/   |
+ |     |            |   |         |                      |   |      | compressing         |
+ |-----+------------+---+---------+----------------------+---+------+---------------------|
+ | J   | search     |   | <ret>   | open file            |   | C    | copy file           |
+ | m   | mark       |   | g o     | view file            |   | R    | rename/Move         |
+ | %   | mark regex |   | S-<ret> | open in split window |   | % R  | rename regex        |
+ | \*  | mark type  |   | M-<ret> | view file (scan)     |   | d/x  | delete selection    |
+ | t   | inverts    |   | (       | hide info            |   | D    | delete/Trash file   |
+ | u/U | unmark     |   | g r     | refresh dired        |   | Z    | compress/uncompress |
+ | k/K | kill       |   | C-M-J   | ivy-immediate-done   |   | c    | compress advanced   |
+ |     |            |   |         |                      |   |      |                     |
+ |-----+------------+---+---------+----------------------+---+------+---------------------|
+ |     |            |   |         |                      |   |      |                     |
+ |-----+------------+---+---------+----------------------+---+------+---------------------|
+ |     | Others     |   |         | Misc                 |   |      | Regex               |
+ |-----+------------+---+---------+----------------------+---+------+---------------------|
+ | T   | timestamp  |   | C-x C-q | Read only mode (ZZ)  |   | \&   | previous expression |
+ | M   | -rw-r--r-- |   | &       | run program on file  |   | \1   |                     |
+ | O   | owner      |   | I       | appends dired buffer |   | %s// |   |
+ | G   | group      |   |         |                      |   |      |                     |
+ | S   | symlink    |   |         |                      |   |      |                     |
+ | L   | load lisp  |   |         |                      |   |      |                     |
+ |     |            |   |         |                      |   |      |                     |
+ |-----+------------+---+---------+----------------------+---+------+---------------------|
+
+
+
+
+
+#+begin_src emacs-lisp
+
+  ;; provides dired-single commands
+  (use-package dired-single)
+
+  ;; dired 
+  (use-package dired
+    :ensure nil ; make sure use-package doesn't try to install it.
+    :commands (dired dired-jump) ; defer loading of this config until a command is executed.
+    :bind (("C-x C-j" . dired-jump))
+    :custom
+    (dired-listing-switches "-agho --group-directories-first")
+    (dired-dwim-target t) ; auto select dir to move to if another dired window open.
+    (delete-by-moving-to-trash t)
+    ;;(dired-compress-files-alist) ; add more file types to compression.
+    :config
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "h" 'dired-single-up-directory
+      "l" 'dired-single-buffer))
+    ;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
+
+  (use-package all-the-icons-dired
+    :hook (dired-mode . all-the-icons-dired-mode))
+
+  (use-package dired-open
+    :commands (dired dired-jump)
+    :config
+    (setq dired-open-extensions
+      '(("mkv" . "mpv")
+        ("png" . "feh"))))
+
+  (use-package dired-hide-dotfiles
+    :hook (dired-mode . dired-hide-dotfiles-mode)
+    :config
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "H" 'dired-hide-dotfiles-mode))
+
+#+end_src
+
+Leader keys:
+
 #+begin_src emacs-lisp
 
   (ri/leader-keys
     "d"  '(:ignore t :which-key "dired")
-    "dd" 'dired)
-
-#+end_src
-
-* Terminal
-
-#+begin_src emacs-lisp
+    "dd" 'dired
+    "dj" 'dired-jump)
 
 #+end_src
 
 * Programs
 
-** erc
+** ement
+
+a matrix client for emacs
 
 #+begin_src emacs-lisp
 
-  ;; erc
-  (use-package erc)
+  ;; matrix client
+  (use-package ement)
 
 #+end_src
 
 ** elfeed
+
+an rss feed reader for emacs
 
 #+begin_src emacs-lisp
 
@@ -1002,6 +1443,19 @@ file management, etc
   ;; maybe don't need, phone is enough?
   ;; maybe syncthing and import from database?
   (use-package elfeed)
+
+#+end_src
+
+** erc
+
+an irc client for emacs
+
+https://github.com/alphapapa/ement.el
+
+#+begin_src emacs-lisp
+
+  ;; erc
+  (use-package erc)
 
 #+end_src
 
@@ -1095,6 +1549,97 @@ unix applications go here
 
 #+end_src
 
+** zshrc
+
+#+begin_src conf-unix :tangle ~/.dotfiles/.zshrc
+
+  #
+  ## config for .zshrc
+  #
+
+  # Enable colors and change prompt:
+  autoload -U colors && colors
+  PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$reset_color%}$%b "
+
+  # History in cache directory:
+  HISTFILE=~/.cache/zsh/history		# note: do "mkdir -p ~/.cache/zsh/" first!
+  HISTSIZE=100000
+  SAVEHIST=100000
+
+  # Basic auto/tab complete:
+  autoload -U compinit
+  zstyle ':completion:*' menu select
+  zmodload zsh/complist
+  compinit
+  _comp_options+=(globdots)		# Include hidden files.
+
+  #--------------------------------------------------------------
+
+  # vi mode
+  bindkey -e # emacs, not -v (vim)
+  # export KEYTIMEOUT=1
+
+  # # Change cursor shape for different vi modes.
+  # function zle-keymap-select () {
+  #     case $KEYMAP in
+  #         vicmd) echo -ne '\e[1 q';;      # block
+  #         viins|main) echo -ne '\e[5 q';; # beam
+  #     esac
+  # }
+  # zle-line-init() {
+  #     zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
+  #     echo -ne "\e[5 q"
+  # }
+
+  # zle -N zle-keymap-select
+  # zle -N zle-line-init
+  # echo -ne '\e[5 q' # Use beam shape cursor on startup.
+  # preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+
+
+  #--------------------------------------------------------------
+
+  #
+  ## End of main
+  #
+
+  # Export 
+  export HISTORY_IGNORE="(ls|cd|pwd|exit|doas reboot|history|cd -| cd ..)"
+  #export EDITOR="emacsclient -t -a ''"
+  #export VISUAL="emacsclient -c -a emacs"
+  #export VISUAL="emacsclient -t -a ''"
+  export VISUAL="emacsclient"
+  export EDITOR="$VISUAL"
+  #export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+
+  # Import aliases
+  [ -f "$HOME/.aliasrc" ] && source "$HOME/.aliasrc"
+
+  # syntax highlighting plugin (https://github.com/zsh-users/zsh-syntax-highlighting)
+  source /usr/share/zsh/site-functions/zsh-syntax-highlighting.zsh
+
+  # Disable bell
+  unsetopt BEEP
+
+
+  # vterm integration
+
+  vterm_printf() {
+      if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ]); then
+          # Tell tmux to pass the escape sequences through
+          printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+      elif [ "${TERM%%-*}" = "screen" ]; then
+          # GNU screen (screen, screen-256color, screen-256color-bce)
+          printf "\eP\e]%s\007\e\\" "$1"
+      else
+          printf "\e]%s\e\\" "$1"
+      fi
+  }
+
+
+#+end_src
+
 * Special
 
 Not sure if this works or not lol
@@ -1110,4 +1655,3 @@ Not sure if this works or not lol
 
 #+end_src
 
-* Performance

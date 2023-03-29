@@ -39,6 +39,10 @@
   (auto-package-update-maybe)
   (auto-package-update-at-time "14:00"))
 
+;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
+(setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
+      url-history-file (expand-file-name "url/history" user-emacs-directory))
+
 ;; no-littering
 (use-package no-littering)
 
@@ -62,10 +66,18 @@
 
 ;; line number mode exceptions
 (dolist (mode '(org-mode-hook
-		term-mode-hook
-		shell-mode-hook
-		eshell-mode-hook))
+                term-mode-hook
+                vterm-mode-hook
+                shell-mode-hook
+                eshell-mode-hook
+                treemacs-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+(setq mouse-wheel-progressive-speed t) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1) ;; keyboard scroll one line at a time
+(setq use-dialog-box t) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
 
 ;; disable bell
 (setq ring-bell-function 'ignore) ; TURN OFF ONCE AND FOR ALL?
@@ -151,15 +163,19 @@
   ;;   global-set-key or define-key.
   ;; (keymaps can be swapped with states)
   (general-create-definer ri/leader-keys
-    :keymaps '(normal insert visual emacs)
+    :states '(normal insert visual emacs)
+    ;:keymaps '(normal insert visual emacs)
     :prefix "SPC"
     :global-prefix "C-SPC")
 
-  ;; the modes under keymaps can be put under states, right?
-  (general-create-definer ri/leader-keys-mode-map
-    :states '(normal insert visual emacs)
-    :prefix "SPC"
-    :global-prefix "C-SPC"))
+  ;; ;; the modes under keymaps can be put under states, right?
+  ;; (general-create-definer ri/leader-keys-mode-map
+  ;;   :states '(normal insert visual emacs)
+  ;;   :prefix "SPC"
+  ;;   :global-prefix "C-SPC")
+
+  (general-create-definer ri/ctrl-c-keys
+    :prefix "C-c"))
 
 (ri/leader-keys
   "t" '(:ignore t :which-key "toggles"))
@@ -238,6 +254,10 @@
   :config
   (ivy-mode 1))
 
+(use-package ivy-rich
+  :init
+  (ivy-rich-mode 1))
+
 ;; counsel 
 (use-package counsel
   :after (ivy)
@@ -263,15 +283,26 @@
 ;; doom-themes
 ;; recommended: henna, palenight, snazzy
 (use-package doom-themes
-  :init (load-theme 'doom-Iosvkem t))
+  :init (load-theme 'doom-snazzy t))
+
+(defun ri/load-theme-and-font-setup ()
+  (interactive)
+  (counsel-load-theme)
+  (ri/org-font-setup))
 
 (ri/leader-keys
-  "ht" '(counsel-load-theme :which-key "choose theme"))
+  "ht" '(ri/load-theme-and-font-setup :which-key "choose theme"))
 
 ;; doom-modeline
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom (doom-modeline-height 35))
+
+;; Set frame transparency and maximize windows by default. 
+(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; rainbow delimiters
 (use-package rainbow-delimiters
@@ -301,6 +332,9 @@
   "hf" 'describe-function
   "hv" 'describe-variable
   "hk" 'describe-key
+  ;"hb" 'describe-bindings
+  "hb" 'counsel-descbinds
+  "hm" 'describe-mode
   "hP" 'describe-package
   "hp" 'helpful-at-point)
 
@@ -320,7 +354,8 @@
 
 (ri/leader-keys
   "o"  '(:ignore t :which-key "org")
-  "ox" '(eval-last-sexp :which-key "eval-last-sexp"))
+  "ox" '(eval-last-sexp :which-key "eval-last-sexp")
+  "oX" '(eval-region :which-key "eval-region"))
 
 ;; org-agenda ----
 (use-package org
@@ -464,21 +499,22 @@
   "oac" '(org-capture :which-key "org-capture")
   "oar" '(org-refile :which-key "org-refile")) ; put refile in org-mode-map?
 
-(ri/leader-keys-mode-map
+(ri/leader-keys
   :keymaps 'org-mode-map
   "md"  '(:ignore t :which-key "date/schedule")
   "mds" 'org-schedule
   "mdd" 'org-deadline
   "mdt" 'org-time-stamp
-  "mt" '(org-todo :which-key "org-todo")
+  "mt" '(org-todo :which-key "todo state set")
   "mq" '(org-set-tags-command :which-key "set tags menu")
-  "mQ" '(counsel-org-tag :which-key "set tags")
-  "mp" 'org-set-property
-  "me" 'org-set-effort)
+  "mQ" '(counsel-org-tag :which-key "set tags list menu")
+  "mp" '(org-set-property :which-key "set property")
+  "me" '(org-set-effort :which-key "set effort"))
 ; C-c org schedule and deadline and time-stamp and org-tags, etc
 ; for tag multi-add alt-enter!
 
 (defun ri/org-font-setup ()
+  (interactive)
   (dolist (face '((org-level-1 . 1.2)
                   (org-level-2 . 1.1)
                   (org-level-3 . 1.05)
@@ -553,7 +589,8 @@
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun ri/org-babel-tangle-config ()
   (when (string-equal (file-name-directory (buffer-file-name))
-                      (expand-file-name user-emacs-directory))
+                      (expand-file-name "~/.dotfiles/.emacs.gnu/"))
+    ;;                                  ^ Formerly user-emacs-directory (now .cache/emacs/)
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
@@ -567,6 +604,105 @@
 
 (use-package toc-org
   :hook (org-mode . toc-org-mode))
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (lsp-enable-which-key-integration t))
+
+;; change these later...
+;; prefix is the keys that come before?!?!
+;; maybe i just don't have the right packages to make lsp-mode-map
+;(ri/ctrl-c-keys
+;; (general-define-key
+;;   :keymaps 'lsp-mode-map
+;;   :prefix lsp-keymap-prefix
+;;   "l"   '(:ignore t :which-key "lsp")
+;;   "lg"  '(:ignore t :which-key "find")
+;;   "lgd" 'lsp-find-definition
+;;   "lgr" 'lsp-find-references)
+
+;; ;; maybe 
+;; ;
+                                        ; can't define same keys twice? naw.
+;; ok what the heck
+;; (ri/leader-keys
+;;   :keymaps 'lsp-mode-map
+;;   "ml"  '(:ignore t :which-key "lsp-find")
+;;   "mgd" '(lsp-find-definition :wk "definition")
+;;   "mgr" '(lsp-find-references :wk "references")
+;;   "mrr" '(lsp-rename :wk "rename all"))
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom ;; defcustom !!
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-treemacs
+  :after lsp)
+
+(use-package lsp-ivy)
+
+;; rust-analyzer required. gnu guix package?
+(use-package rustic
+  :ensure t
+  :hook (rust-mode . lsp-deferred)
+  :config
+  (setq rustic-format-on-save nil))
+
+(use-package lsp-mode
+  :custom
+  ;; what to use when checking on-save. use clippy instead?
+  (lsp-rust-analyzer-cargo-watch-command "check")
+  ;; enable / disable the hints as you prefer:
+  (lsp-rust-analyzer-server-display-inlay-hints nil)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "never") ; skip_trivial
+  (lsp-rust-analyzer-display-chaining-hints nil)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil) ; def nil
+  (lsp-rust-analyzer-display-closure-return-type-hints nil)
+  (lsp-rust-analyzer-display-parameter-hints nil) ; def nil
+  (lsp-rust-analyzer-display-reborrow-hints "never"))
+
+(use-package lsp-ui
+  :custom
+  (lsp-ui-peek-always-show nil)
+  (lsp-ui-sideline-show-hover nil)
+  (lsp-ui-doc-enable t))
+
+(use-package python-mode
+  :ensure t
+  :hook (python-mode . lsp-deferred)
+  :custom
+   ;; NOTE: Set these if Python 3 is called "python3" on your system!
+  ;; (python-shell-interpreter "python3")
+  ;; (dap-python-executable "python3")
+  (dap-python-debugger 'debugpy)
+  :config
+  (require 'dap-python))
+
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+  :config
+  ;; fixes evil-normal and cancel company autocomplete when escape
+  ;; doesn't work if escape hit very quickly
+  (add-hook 'company-mode-hook
+   (lambda ()
+     (add-hook 'evil-normal-state-entry-hook
+               (lambda ()
+                 (company-search-abort)))))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
 
 ;; projectile
 ;; (project management)
@@ -615,23 +751,115 @@
 ;; (need to create a token first, then put in .authinfo)
 (use-package forge)
 
+(use-package evil-nerd-commenter
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+
+(use-package term
+  :config
+  (setq explicit-shell-file-name "zsh")
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *"))
+
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))
+
+(use-package vterm
+  :commands vterm
+  :config
+  ;; vv already set vv
+  ;;(setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  (setq vterm-shell "bash")
+  (setq vterm-max-scrollback 10000))
+
+;; eshell config
+(defun ri/configure-eshell ()
+  ;; Save command history when commands are entered.
+  ;;   Commands usually don't save until close, so if crashes, loses all progress.
+  (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+
+  ;; Truncate buffer for performance
+  (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
+
+  ;; Bind some useful keys for evil-mode
+  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-r") 'counsel-esh-history)
+  ;; fixes the issue with cursor going to the beginning... fixed?
+  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "<home>") 'eshell-bol)
+  (evil-normalize-keymaps)
+
+  (setq eshell-history-size         10000
+        eshell-buffer-maximum-lines 10000
+        eshell-hist-ignoredups t
+        eshell-scroll-to-bottom-on-input t))
+
+;; themes
+(use-package eshell-git-prompt
+  :after eshell)
+
+(use-package eshell
+  :hook (eshell-first-time-mode . ri/configure-eshell)
+  :config
+  (with-eval-after-load 'esh-opt
+    (setq eshell-destroy-buffer-when-process-dies t)
+    (setq eshell-visual-commands '("htop" "zsh" "vim" "ssh")))
+
+  (eshell-git-prompt-use-theme 'powerline))
+
+(ri/leader-keys
+  "oe" '(eshell :which-key "eshell"))
+
 (ri/leader-keys
   "f"  '(:ignore t :which-key "files")
   "fr" '(counsel-recentf :which-key "recent files"))
 
+;; provides dired-single commands
+(use-package dired-single)
+
+;; dired 
+(use-package dired
+  :ensure nil ; make sure use-package doesn't try to install it.
+  :commands (dired dired-jump) ; defer loading of this config until a command is executed.
+  :bind (("C-x C-j" . dired-jump))
+  :custom
+  (dired-listing-switches "-agho --group-directories-first")
+  (dired-dwim-target t) ; auto select dir to move to if another dired window open.
+  (delete-by-moving-to-trash t)
+  ;;(dired-compress-files-alist) ; add more file types to compression.
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-single-up-directory
+    "l" 'dired-single-buffer))
+  ;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
+
+(use-package all-the-icons-dired
+  :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package dired-open
+  :commands (dired dired-jump)
+  :config
+  (setq dired-open-extensions
+    '(("mkv" . "mpv")
+      ("png" . "feh"))))
+
+(use-package dired-hide-dotfiles
+  :hook (dired-mode . dired-hide-dotfiles-mode)
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "H" 'dired-hide-dotfiles-mode))
+
 (ri/leader-keys
   "d"  '(:ignore t :which-key "dired")
-  "dd" 'dired)
+  "dd" 'dired
+  "dj" 'dired-jump)
 
-
-
-;; erc
-(use-package erc)
+;; matrix client
+(use-package ement)
 
 ;; rss
 ;; maybe don't need, phone is enough?
 ;; maybe syncthing and import from database?
 (use-package elfeed)
+
+;; erc
+(use-package erc)
 
 ;; Keep customization settings in a temporary file (does this even work?)
 (setq custom-file

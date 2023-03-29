@@ -68,4 +68,5 @@ alias dots='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 alias istatus='iwctl station wlan0 show | bat'
 alias iscan='iwctl station wlan0 scan && iwctl station wlan0 get-networks'
-alias ireconnect='doas rc-service iwd stop && doas rc-service iwd start'
+#alias ireconnect='doas rc-service iwd stop && doas rc-service iwd start'
+alias ireconnect='ireconnect.sh'
