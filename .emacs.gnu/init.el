@@ -30,6 +30,7 @@
 ;; setup use-package ----
 (require 'use-package) 
 (setq use-package-always-ensure t) ;; no need to add :ensure t on every package that needs it
+;(setq use-package-always-defer t) ;; explicitly state which to ensure, might break, save first
 (setq use-package-verbose t)
 
 ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
