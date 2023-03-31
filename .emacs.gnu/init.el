@@ -23,21 +23,14 @@
  (package-refresh-contents)) 
 
 ;; non-Linux setup use-package ----
-(unless (package-installed-p 'use-package) ; -p function (predicate: true/nil) is this installed?
-   (package-install 'use-package)) ; install use-package using package-install if not installed.
+;; if use-package isn't installed or new update, then package-install it
+(unless (package-installed-p 'use-package) 
+   (package-install 'use-package)) 
 
 ;; setup use-package ----
 (require 'use-package) 
 (setq use-package-always-ensure t) ;; no need to add :ensure t on every package that needs it
-
-(use-package auto-package-update
-  :custom
-  (auto-package-update-interval 7)
-  (auto-package-update-prompt-before-update t)
-  (auto-package-update-hide-results nil)
-  :config
-  (auto-package-update-maybe)
-  (auto-package-update-at-time "14:00"))
+(setq use-package-verbose t)
 
 ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
@@ -60,6 +53,10 @@
 (set-fringe-mode 10) ; give some breathing room
 (menu-bar-mode -1)   ; disable menu bar
 
+;; disable bell
+(setq ring-bell-function 'ignore) ; TURN OFF ONCE AND FOR ALL?
+(setq visual-bell 1)
+
 ;; add line numbers
 (global-display-line-numbers-mode t)
 (column-number-mode) ; (columns on modeline)
@@ -73,16 +70,6 @@
                 treemacs-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-(setq mouse-wheel-progressive-speed t) ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-(setq scroll-step 1) ;; keyboard scroll one line at a time
-(setq use-dialog-box t) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
-
-;; disable bell
-(setq ring-bell-function 'ignore) ; TURN OFF ONCE AND FOR ALL?
-(setq visual-bell 1)
-
 ;; default font (modeline, minibuffer, default for applications, etc)
 (set-face-attribute 'default nil :font "Fira Code" :height 110)
 ;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115) 
@@ -95,9 +82,30 @@
 ;; (bullets are configured in org-fonts)
 (set-face-attribute 'variable-pitch nil :font "DejaVu Sans" :height 120 :weight 'regular)
 
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+(setq mouse-wheel-progressive-speed t) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1) ;; keyboard scroll one line at a time
+(setq use-dialog-box t) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
+
+;; Set frame transparency and maximize windows by default. 
+(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 ;; all-the-icons
 ;; note: on a new machine, must run M-x all-the-icons-install-fonts
 (use-package all-the-icons)
+
+(use-package auto-package-update
+  :custom
+  (auto-package-update-interval 7)
+  (auto-package-update-prompt-before-update t)
+  (auto-package-update-hide-results nil) ; hide pane to see what packages were updated
+  :config
+  (auto-package-update-maybe)
+  (auto-package-update-at-time "15:00"))
 
 ;; ESC to quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -148,6 +156,7 @@
 
 ;; undo-tree for evil-undo
 (use-package undo-tree
+  :after evil
   :init
   (global-undo-tree-mode 1)
   :config
@@ -155,6 +164,7 @@
 
 ;; general.el
 (use-package general
+  :after evil
   :config
   (general-evil-setup t)
 
@@ -185,7 +195,8 @@
   "qq" '(save-buffers-kill-terminal :which-key "quit emacs"))
 
 ;; hydra (fast, transient keybinds)
-(use-package hydra)
+(use-package hydra
+  :defer t)
 
 (defhydra hydra-text-scale (:timeout 5) 
   "scale text"
@@ -252,33 +263,38 @@
          ("C-k" . ivy-previous-line)
          ("C-d" . ivy-reverse-i-search-kill))
   :config
+  (message "Ivy got loaded!")
   (ivy-mode 1))
 
 (use-package ivy-rich
+  :after ivy
   :init
   (ivy-rich-mode 1))
 
 ;; counsel 
 (use-package counsel
-  :after (ivy)
-  :bind (("M-x" . counsel-M-x)
-         ("C-x b" . counsel-ibuffer)
-         ("C-x C-f" . counsel-find-file)
+  :bind (;("M-x" . counsel-M-x)
+         ;("C-x b" . counsel-ibuffer)
+         ;("C-x C-f" . counsel-find-file)
          ("C-M-j" . 'counsel-switch-buffer)
          :map minibuffer-local-map
          ("C-r" . 'counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
   :config
-  (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
+  (setq ivy-initial-inputs-alist nil) ;; Don't start searches with ^
+  (message "Counsel loaded!")
+  (counsel-mode 1))
 
 ;; ivy completion regex and order by last used
 (use-package ivy-prescient
-:after counsel
-:custom
-(ivy-prescient-enable-filtering nil)
-:config
-;; Uncomment the following line to have sorting remembered across sessions!
-(prescient-persist-mode 1)
-(ivy-prescient-mode 1))
+  :after counsel
+  :custom
+  (ivy-prescient-enable-filtering nil)
+  :config
+  ;; Uncomment the following line to have sorting remembered across sessions!
+  (prescient-persist-mode 1)
+  (ivy-prescient-mode 1))
 
 ;; doom-themes
 ;; recommended: henna, palenight, snazzy
@@ -298,12 +314,6 @@
   :init (doom-modeline-mode 1)
   :custom (doom-modeline-height 35))
 
-;; Set frame transparency and maximize windows by default. 
-(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
-(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
-(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-
 ;; rainbow delimiters
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -311,21 +321,23 @@
 ;; which-key (lists keybinds)
 ;; (add links above source blocks later)
 (use-package which-key
-  :init (which-key-mode) 
+  :defer 0
   :diminish which-key-mode
   :config
+  (which-key-mode) 
   (setq which-key-idle-delay 0.3))
 
 ;; helpful (improves help menu)
 (use-package helpful
- :custom
- (counsel-describe-function-function #'helpful-callable)
- (counsel-describe-variable-function #'helpful-variable)
- :bind ;; change the function of the command
- ([remap describe-function] . counsel-describe-function)
- ([remap describe-command] . helpful-command)
- ([remap describe-variable] . counsel-describe-variable)
- ([remap describe-key] . helpful-key))
+  :commands (helpful-callable helpful-variable helpful-command helpful-key)
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind ;; change the function of the command
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
 
 (ri/leader-keys
   "h" '(:ignore t :which-key "help")
@@ -338,28 +350,55 @@
   "hP" 'describe-package
   "hp" 'helpful-at-point)
 
+(defun ri/org-font-setup ()
+  (interactive)
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    ;; font for bullets
+    (set-face-attribute (car face) nil :font "Fira Code" :weight 'regular :height (cdr face)))
+
+;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
+
 ;; org
 (defun ri/org-mode-setup ()
   (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1))
 
-(use-package org
-  :hook (org-mode . ri/org-mode-setup)
-  ;:custom ; do all setq's go in custom?
-  :config
-  (setq org-ellipsis " ▼"
-        org-hide-emphasis-markers nil) ; hide formatting chars
-  (setq doom-modeline-enable-word-count t))
-
 (ri/leader-keys
   "o"  '(:ignore t :which-key "org")
   "ox" '(eval-last-sexp :which-key "eval-last-sexp")
   "oX" '(eval-region :which-key "eval-region"))
 
-;; org-agenda ----
 (use-package org
+  :commands (org-capture org-agenda)
+  :hook (org-mode . ri/org-mode-setup)
+  ;:custom ; do all setq's go in custom?
   :config
+  (message "Org Mode loaded!")
+
+  (setq org-ellipsis " ▼")
+  (setq org-hide-emphasis-markers t) ; hide formatting chars
+  (setq doom-modeline-enable-word-count t)
+
+  ;; org-agenda ----
   (setq org-deadline-warning-days 14)
   (setq org-agenda-start-with-log-mode t) ; enable log-mode by def
   (setq org-log-done 'time)
@@ -481,10 +520,12 @@
 
       ("m" "Metrics Capture")
       ("mw" "Weight" table-line (file+headline "~/org/agenda/metrics.org" "Weight")
-       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))
+       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
+  ;; set up org-fonts
+  (ri/org-font-setup))
 
-;; keybinds! ----
+;; keybinds! -----
 
 ;; mostly just an example
 (define-key global-map (kbd "C-c j")
@@ -513,40 +554,7 @@
 ; C-c org schedule and deadline and time-stamp and org-tags, etc
 ; for tag multi-add alt-enter!
 
-(defun ri/org-font-setup ()
-  (interactive)
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    ;; font for bullets
-    (set-face-attribute (car face) nil :font "Fira Code" :weight 'regular :height (cdr face)))
-
-;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
-  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
-
-(use-package org
-  ;; setup org-fonts after loading org
-  ;; set up in :after keyword
-  :config
-  (ri/org-font-setup))
-
 (use-package org-bullets
-  :after org
   :hook (org-mode . org-bullets-mode)
   :custom
   ;(org-bullets-bullet-list '("⁖" "◉" "○" "✸" "✿")))
@@ -605,12 +613,19 @@
 (use-package toc-org
   :hook (org-mode . toc-org-mode))
 
+;; breadcrumb automatically enables...
+;; also "file symbols" is already default args...
+(defun ri/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols)))
+
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
+  :hook (lsp-mode . ri/lsp-mode-setup)
   :init
   (setq lsp-keymap-prefix "C-c l")
   :config
-  (lsp-enable-which-key-integration t))
+  (lsp-enable-which-key-integration t)
+  (message "lsp-mode loaded!"))
 
 ;; change these later...
 ;; prefix is the keys that come before?!?!
@@ -622,7 +637,7 @@
 ;;   "l"   '(:ignore t :which-key "lsp")
 ;;   "lg"  '(:ignore t :which-key "find")
 ;;   "lgd" 'lsp-find-definition
-;;   "lgr" 'lsp-find-references)
+;;   "lgr" 'lsp-find-references))
 
 ;; ;; maybe 
 ;; ;
@@ -643,18 +658,17 @@
 (use-package lsp-treemacs
   :after lsp)
 
-(use-package lsp-ivy)
+(use-package lsp-ivy
+  :after lsp)
 
 ;; rust-analyzer required. gnu guix package?
 (use-package rustic
-  :ensure t
+  ;:ensure t ;; no need *
   :hook (rust-mode . lsp-deferred)
   :config
-  (setq rustic-format-on-save nil))
+  (setq rustic-format-on-save nil)
 
-(use-package lsp-mode
-  :custom
-  ;; what to use when checking on-save. use clippy instead?
+  ;; lsp-mode ----
   (lsp-rust-analyzer-cargo-watch-command "check")
   ;; enable / disable the hints as you prefer:
   (lsp-rust-analyzer-server-display-inlay-hints nil)
@@ -663,16 +677,15 @@
   (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil) ; def nil
   (lsp-rust-analyzer-display-closure-return-type-hints nil)
   (lsp-rust-analyzer-display-parameter-hints nil) ; def nil
-  (lsp-rust-analyzer-display-reborrow-hints "never"))
+  (lsp-rust-analyzer-display-reborrow-hints "never")
 
-(use-package lsp-ui
-  :custom
+  ;; lsp-ui ----
   (lsp-ui-peek-always-show nil)
   (lsp-ui-sideline-show-hover nil)
   (lsp-ui-doc-enable t))
 
 (use-package python-mode
-  :ensure t
+  ;:ensure t ;; no need *
   :hook (python-mode . lsp-deferred)
   :custom
    ;; NOTE: Set these if Python 3 is called "python3" on your system!
@@ -683,7 +696,6 @@
   (require 'dap-python))
 
 (use-package company
-  :after lsp-mode
   :hook (lsp-mode . company-mode)
   :bind (:map company-active-map
          ("<tab>" . company-complete-selection))
@@ -699,7 +711,7 @@
    (lambda ()
      (add-hook 'evil-normal-state-entry-hook
                (lambda ()
-                 (company-search-abort)))))
+                 (company-abort)))))
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
@@ -710,6 +722,7 @@
 ;; (dir-locals are pretty cool)
 ;; (learn more about projectile for better project management)
 (use-package projectile
+  ;:defer 0
   :diminish projectile-mode
   :config (projectile-mode)
   :custom ((projectile-completion-system 'ivy)) ;; by default auto
@@ -724,6 +737,7 @@
 ;; (more options in M-o... already installed?)
 ;; (counsel-projectile-rg + M-o for a massive search in project)
 (use-package counsel-projectile
+  :after projectile
   :config (counsel-projectile-mode))
 
 (ri/leader-keys
@@ -737,9 +751,10 @@
 ;; (hunks, "?" for all commands, C-c C-k to quit commit, push to remote, ssh?)
 ;; (learn more about magit...)
 (use-package magit
-  ;:custom
-  ;(magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  )
+  :commands magit-status
+  :custom
+  ;; what does this do? fullscreen?
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (ri/leader-keys
   "g"  '(:ignore t :which-key "magit")
@@ -749,12 +764,16 @@
 ;; (run forge-pull in a repo to pull down)
 ;; (pull down all issues, pull-reqs, etc)
 ;; (need to create a token first, then put in .authinfo)
-(use-package forge)
+;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+(use-package forge
+  :after magit)
 
 (use-package evil-nerd-commenter
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 
 (use-package term
+  :commands term
   :config
   (setq explicit-shell-file-name "zsh")
   (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *"))
@@ -808,16 +827,17 @@
 
 (ri/leader-keys
   "f"  '(:ignore t :which-key "files")
-  "fr" '(counsel-recentf :which-key "recent files"))
+  "fr" '(counsel-recentf :which-key "recent files")
+  "fp" '(lambda () (interactive)
+         (find-file (expand-file-name "~/.emacs.gnu/Emacs.org"))
+           :which-key "open Emacs.org"))
 
-;; provides dired-single commands
-(use-package dired-single)
-
+(message "BEFORE DIRED!")
 ;; dired 
 (use-package dired
   :ensure nil ; make sure use-package doesn't try to install it.
   :commands (dired dired-jump) ; defer loading of this config until a command is executed.
-  :bind (("C-x C-j" . dired-jump))
+  :bind ("C-x C-j" . dired-jump)
   :custom
   (dired-listing-switches "-agho --group-directories-first")
   (dired-dwim-target t) ; auto select dir to move to if another dired window open.
@@ -828,6 +848,12 @@
     "h" 'dired-single-up-directory
     "l" 'dired-single-buffer))
   ;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
+
+(message "AFTER DIRED!")
+;; provides dired-single commands
+;; HAS TO COME AFTER dired because using ":after dired"
+(use-package dired-single
+  :after dired)
 
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
@@ -851,15 +877,20 @@
   "dj" 'dired-jump)
 
 ;; matrix client
-(use-package ement)
+(use-package ement
+  :commands ement)
 
 ;; rss
 ;; maybe don't need, phone is enough?
 ;; maybe syncthing and import from database?
-(use-package elfeed)
+;; dont use commands elfeed, scan at startup?
+(use-package elfeed
+  :commands elfeed)
 
 ;; erc
-(use-package erc)
+;; make erc start after startup?
+(use-package erc
+  :commands erc)
 
 ;; Keep customization settings in a temporary file (does this even work?)
 (setq custom-file
@@ -867,3 +898,6 @@
           (expand-file-name "custom.el" server-socket-dir)
         (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
 (load custom-file t)
+
+;; make gc pauses faster by decreaseing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))

@@ -1,23 +1,27 @@
 #+title: Emacs config
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
-;#+startup content
+#+startup contents
 
 * Table of Contents :TOC:
 - [[#notes-to-self][Notes to self]]
 - [[#startup-performance][Startup performance]]
 - [[#package-management][Package management]]
-  - [[#auto-update-packages][auto-update packages]]
 - [[#prevent-littering][Prevent littering]]
 - [[#basic-ui][Basic UI]]
-  - [[#line-numbers][line numbers]]
-  - [[#improved-scrolling][improved scrolling]]
   - [[#disable-bell][disable bell]]
+  - [[#line-numbers][line numbers]]
   - [[#fonts][fonts]]
+  - [[#improved-scrolling][improved scrolling]]
+  - [[#transparency][transparency]]
 - [[#basic-functionality][Basic functionality]]
   - [[#all-the-icons][all-the-icons]]
+  - [[#auto-update-packages][auto-update packages]]
 - [[#keybindings][Keybindings]]
+  - [[#global-set-key][global-set-key]]
   - [[#evil-mode][evil-mode]]
+  - [[#undo-tree][undo-tree]]
   - [[#generalel][general.el]]
+  - [[#generalel-generic-binds][general.el generic binds]]
   - [[#hydra][hydra]]
   - [[#window-management][window management]]
   - [[#buffer-management][buffer management]]
@@ -25,15 +29,13 @@
   - [[#ivy--counsel][ivy + counsel]]
   - [[#doom-themes][doom-themes]]
   - [[#doom-modeline][doom-modeline]]
-  - [[#transparency][transparency]]
   - [[#rainbow-delimiters][rainbow-delimiters]]
   - [[#which-key][which-key]]
   - [[#helpful][helpful]]
-  - [[#help-menu][help menu]]
+  - [[#help-keybinds][help keybinds]]
 - [[#org][Org]]
-  - [[#org-mode][org-mode]]
-  - [[#org-agenda][org-agenda]]
   - [[#org-fonts][org-fonts]]
+  - [[#org--agenda][org + agenda]]
   - [[#bullets][bullets]]
   - [[#side-padding][side-padding]]
   - [[#org-babel][org-babel]]
@@ -61,6 +63,7 @@
   - [[#mpv][mpv]]
   - [[#zshrc][zshrc]]
 - [[#special][Special]]
+- [[#runtime-performance][Runtime performance]]
 
 * Notes to self
 
@@ -76,7 +79,8 @@ Emacs Config
 + emacs-lisp-mode-map for viewing local keybinds
 
 + :mkdirp yes to create directories when tangling... disabled?
-+ How does :noweb work? 
++ How does :noweb work?
++ keybind to search toc for link?
 
 Q's
 + auto-revert-mode -- updates file when it changes on disk. use in some modes/files?
@@ -84,6 +88,17 @@ Q's
 
 Look into:
 - Meow since C-j and C-k will be hard in dvorak (could use alt. keys or replace?)
+
+Reduce Emacs startup time:
+- :hook
+- :bind
+- :commands
+- :mode
+- :after
+- :defer
+
+To update:
+- hydra
   
 * Startup performance
 
@@ -122,27 +137,14 @@ package management, sources, auto, etc
    (package-refresh-contents)) 
 
   ;; non-Linux setup use-package ----
-  (unless (package-installed-p 'use-package) ; -p function (predicate: true/nil) is this installed?
-     (package-install 'use-package)) ; install use-package using package-install if not installed.
+  ;; if use-package isn't installed or new update, then package-install it
+  (unless (package-installed-p 'use-package) 
+     (package-install 'use-package)) 
 
   ;; setup use-package ----
   (require 'use-package) 
   (setq use-package-always-ensure t) ;; no need to add :ensure t on every package that needs it
-
-#+end_src
-
-** auto-update packages
-
-#+begin_src emacs-lisp
-
-  (use-package auto-package-update
-    :custom
-    (auto-package-update-interval 7)
-    (auto-package-update-prompt-before-update t)
-    (auto-package-update-hide-results nil)
-    :config
-    (auto-package-update-maybe)
-    (auto-package-update-at-time "14:00"))
+  (setq use-package-verbose t)
 
 #+end_src
 
@@ -165,6 +167,14 @@ package management, sources, auto, etc
 
 * Basic UI
 
+Basic configuration of user interface.
+Includes:
++ disable bell
++ line numbers
++ fonts
++ improved scrolling
++ transparency
+
 #+begin_src emacs-lisp 
   ;; disable startup screen
   (setq inhibit-startup-message nil) 
@@ -175,6 +185,16 @@ package management, sources, auto, etc
   (tooltip-mode 1)     ; disable tooltips
   (set-fringe-mode 10) ; give some breathing room
   (menu-bar-mode -1)   ; disable menu bar
+
+#+end_src
+
+** disable bell
+
+#+begin_src emacs-lisp
+
+;; disable bell
+(setq ring-bell-function 'ignore) ; TURN OFF ONCE AND FOR ALL?
+(setq visual-bell 1) 
 
 #+end_src
 
@@ -194,28 +214,6 @@ package management, sources, auto, etc
                   eshell-mode-hook
                   treemacs-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-#+end_src
-
-** improved scrolling
-
-#+begin_src emacs-lisp
-
-  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-  (setq mouse-wheel-progressive-speed t) ;; don't accelerate scrolling
-  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-  (setq scroll-step 1) ;; keyboard scroll one line at a time
-  (setq use-dialog-box t) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
-  
-#+end_src
-
-** disable bell
-
-#+begin_src emacs-lisp
-
-;; disable bell
-(setq ring-bell-function 'ignore) ; TURN OFF ONCE AND FOR ALL?
-(setq visual-bell 1) 
 
 #+end_src
 
@@ -240,6 +238,30 @@ General fonts for emacs.
 
 #+end_src 
 
+** improved scrolling
+
+#+begin_src emacs-lisp
+
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+  (setq mouse-wheel-progressive-speed t) ;; don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq scroll-step 1) ;; keyboard scroll one line at a time
+  (setq use-dialog-box t) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
+  
+#+end_src
+
+** transparency
+
+#+begin_src emacs-lisp
+
+  ;; Set frame transparency and maximize windows by default. 
+  (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+  (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+  (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+#+end_src
+
 * Basic functionality
 
 basic functionality 
@@ -254,7 +276,38 @@ basic functionality
 
 #+end_src
 
+** auto-update packages
+
++ M-x auto-update-package-now to run immediately
++ Updates can break Emacs, so only update when 
+
+#+begin_src emacs-lisp
+
+  (use-package auto-package-update
+    :custom
+    (auto-package-update-interval 7)
+    (auto-package-update-prompt-before-update t)
+    (auto-package-update-hide-results nil) ; hide pane to see what packages were updated
+    :config
+    (auto-package-update-maybe)
+    (auto-package-update-at-time "15:00"))
+
+#+end_src
+
 * Keybindings
+
+Set keybind related things here.
+Includes:
++ global-set-key (<escape> as quit)
++ evil-mode
++ general.el
++ hydra
++ window management
++ buffer management
+
+** global-set-key
+
+Make <escape> quit.
 
 #+begin_src emacs-lisp
 
@@ -313,7 +366,7 @@ basic functionality
 
 #+end_src
 
-*** undo-tree
+** undo-tree
 
 https://github.com/apchamberlain/undo-tree.el
 
@@ -321,6 +374,7 @@ https://github.com/apchamberlain/undo-tree.el
 
   ;; undo-tree for evil-undo
   (use-package undo-tree
+    :after evil
     :init
     (global-undo-tree-mode 1)
     :config
@@ -336,6 +390,7 @@ https://github.com/noctuid/general.el
 
   ;; general.el
   (use-package general
+    :after evil
     :config
     (general-evil-setup t)
 
@@ -360,7 +415,9 @@ https://github.com/noctuid/general.el
 
 #+end_src
 
-*** general.el toggles
+** general.el generic binds
+
+Generic toggles
 
 #+begin_src emacs-lisp
 
@@ -369,7 +426,7 @@ https://github.com/noctuid/general.el
 
 #+end_src
 
-*** general.el quit/session
+Quit emacs / session
 
 #+begin_src emacs-lisp
 
@@ -386,7 +443,8 @@ Fast, transient keybinds
 #+begin_src emacs-lisp
 
   ;; hydra (fast, transient keybinds)
-  (use-package hydra)
+  (use-package hydra
+    :defer t)
 
   (defhydra hydra-text-scale (:timeout 5) 
     "scale text"
@@ -452,6 +510,17 @@ Fast, transient keybinds
 
 * UI Configuration
 
+Here we have the UI configuration.
+Includes:
++ ivy
++ counsel
++ doom-themes
++ doom-modeline
++ rainbow-delimiters
++ which-key
++ helpful
++ help menu
+
 ** ivy + counsel
 
 #+begin_src emacs-lisp
@@ -473,33 +542,38 @@ Fast, transient keybinds
            ("C-k" . ivy-previous-line)
            ("C-d" . ivy-reverse-i-search-kill))
     :config
+    (message "Ivy got loaded!")
     (ivy-mode 1))
 
   (use-package ivy-rich
+    :after ivy
     :init
     (ivy-rich-mode 1))
 
   ;; counsel 
   (use-package counsel
-    :after (ivy)
-    :bind (("M-x" . counsel-M-x)
-           ("C-x b" . counsel-ibuffer)
-           ("C-x C-f" . counsel-find-file)
+    :bind (;("M-x" . counsel-M-x)
+           ;("C-x b" . counsel-ibuffer)
+           ;("C-x C-f" . counsel-find-file)
            ("C-M-j" . 'counsel-switch-buffer)
            :map minibuffer-local-map
            ("C-r" . 'counsel-minibuffer-history))
+    :custom
+    (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
     :config
-    (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
+    (setq ivy-initial-inputs-alist nil) ;; Don't start searches with ^
+    (message "Counsel loaded!")
+    (counsel-mode 1))
 
   ;; ivy completion regex and order by last used
   (use-package ivy-prescient
-  :after counsel
-  :custom
-  (ivy-prescient-enable-filtering nil)
-  :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-  (prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
+    :after counsel
+    :custom
+    (ivy-prescient-enable-filtering nil)
+    :config
+    ;; Uncomment the following line to have sorting remembered across sessions!
+    (prescient-persist-mode 1)
+    (ivy-prescient-mode 1))
 
 #+end_src
 
@@ -533,18 +607,6 @@ Fast, transient keybinds
 
 #+end_src
 
-** transparency
-
-#+begin_src emacs-lisp
-
-  ;; Set frame transparency and maximize windows by default. 
-  (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
-  (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
-  (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-  (add-to-list 'default-frame-alist '(fullscreen . maximized))
-
-#+end_src
-
 ** rainbow-delimiters
 
 #+begin_src emacs-lisp
@@ -566,9 +628,10 @@ https://github.com/justbur/emacs-which-key
   ;; which-key (lists keybinds)
   ;; (add links above source blocks later)
   (use-package which-key
-    :init (which-key-mode) 
+    :defer 0
     :diminish which-key-mode
     :config
+    (which-key-mode) 
     (setq which-key-idle-delay 0.3))
 
 #+end_src
@@ -581,18 +644,19 @@ Shows more info in help menu
 
   ;; helpful (improves help menu)
   (use-package helpful
-   :custom
-   (counsel-describe-function-function #'helpful-callable)
-   (counsel-describe-variable-function #'helpful-variable)
-   :bind ;; change the function of the command
-   ([remap describe-function] . counsel-describe-function)
-   ([remap describe-command] . helpful-command)
-   ([remap describe-variable] . counsel-describe-variable)
-   ([remap describe-key] . helpful-key)) 
+    :commands (helpful-callable helpful-variable helpful-command helpful-key)
+    :custom
+    (counsel-describe-function-function #'helpful-callable)
+    (counsel-describe-variable-function #'helpful-variable)
+    :bind ;; change the function of the command
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-key] . helpful-key)) 
 
 #+end_src
 
-** help menu
+** help keybinds
 
 #+begin_src emacs-lisp
 
@@ -611,35 +675,46 @@ Shows more info in help menu
 
 * Org
 
-org mode stuff
-org-fonts, bullets, side-padding, tangle, toc, etc.
+Configuration for org-mode
+Includes:
++ org-fonts
++ bullets, side-padding, tangle, toc, etc.
 
-** org-mode
+** org-fonts
+
+maybe move org-fonts below org-mode, then have a use-package org inside it to run ri/org-font-setup...
 
 #+begin_src emacs-lisp
 
-    ;; org
-    (defun ri/org-mode-setup ()
-      (org-indent-mode)
-      (variable-pitch-mode 1)
-      (visual-line-mode 1))
+  (defun ri/org-font-setup ()
+    (interactive)
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      ;; font for bullets
+      (set-face-attribute (car face) nil :font "Fira Code" :weight 'regular :height (cdr face)))
 
-    (use-package org
-      :hook (org-mode . ri/org-mode-setup)
-      ;:custom ; do all setq's go in custom?
-      :config
-      (setq org-ellipsis " ▼"
-            org-hide-emphasis-markers nil) ; hide formatting chars
-      (setq doom-modeline-enable-word-count t))
-
-    (ri/leader-keys
-      "o"  '(:ignore t :which-key "org")
-      "ox" '(eval-last-sexp :which-key "eval-last-sexp")
-      "oX" '(eval-region :which-key "eval-region"))
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+    (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+    (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
+    (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+    (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
 
 #+end_src
 
-** org-agenda
+** org + agenda
 
 agenda query (custom-agenda-views) documentation: https://orgmode.org/manual/Custom-Agenda-Views.html#Custom-Agenda-Views
 
@@ -653,9 +728,29 @@ to add tags to a heading,
 
 #+begin_src emacs-lisp
 
-  ;; org-agenda ----
+  ;; org
+  (defun ri/org-mode-setup ()
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (visual-line-mode 1))
+
+  (ri/leader-keys
+    "o"  '(:ignore t :which-key "org")
+    "ox" '(eval-last-sexp :which-key "eval-last-sexp")
+    "oX" '(eval-region :which-key "eval-region"))
+
   (use-package org
+    :commands (org-capture org-agenda)
+    :hook (org-mode . ri/org-mode-setup)
+    ;:custom ; do all setq's go in custom?
     :config
+    (message "Org Mode loaded!")
+
+    (setq org-ellipsis " ▼")
+    (setq org-hide-emphasis-markers t) ; hide formatting chars
+    (setq doom-modeline-enable-word-count t)
+
+    ;; org-agenda ----
     (setq org-deadline-warning-days 14)
     (setq org-agenda-start-with-log-mode t) ; enable log-mode by def
     (setq org-log-done 'time)
@@ -777,10 +872,18 @@ to add tags to a heading,
 
         ("m" "Metrics Capture")
         ("mw" "Weight" table-line (file+headline "~/org/agenda/metrics.org" "Weight")
-         "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t))))
+         "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
+    ;; set up org-fonts
+    (ri/org-font-setup))
 
-  ;; keybinds! ----
+#+end_src
+
+*Keybinds:*
+
+#+begin_src emacs-lisp
+
+  ;; keybinds! -----
 
   ;; mostly just an example
   (define-key global-map (kbd "C-c j")
@@ -809,47 +912,6 @@ to add tags to a heading,
   ; C-c org schedule and deadline and time-stamp and org-tags, etc
   ; for tag multi-add alt-enter!
 
-
-#+end_src
-
-** org-fonts
-
-maybe move org-fonts below org-mode, then have a use-package org inside it to run ri/org-font-setup...
-
-#+begin_src emacs-lisp
-
-  (defun ri/org-font-setup ()
-    (interactive)
-    (dolist (face '((org-level-1 . 1.2)
-                    (org-level-2 . 1.1)
-                    (org-level-3 . 1.05)
-                    (org-level-4 . 1.0)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-level-7 . 1.1)
-                    (org-level-8 . 1.1)))
-      ;; font for bullets
-      (set-face-attribute (car face) nil :font "Fira Code" :weight 'regular :height (cdr face)))
-
-  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-    (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
-    (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-    (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
-    (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
-    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-    (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
-    (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
-    (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
-
-  (use-package org
-    ;; setup org-fonts after loading org
-    ;; set up in :after keyword
-    :config
-    (ri/org-font-setup))
-
 #+end_src
 
 ** bullets
@@ -857,7 +919,6 @@ maybe move org-fonts below org-mode, then have a use-package org inside it to ru
 #+begin_src emacs-lisp
 
   (use-package org-bullets
-    :after org
     :hook (org-mode . org-bullets-mode)
     :custom
     ;(org-bullets-bullet-list '("⁖" "◉" "○" "✸" "✿")))
@@ -976,12 +1037,19 @@ Cool commands:
 
 #+begin_src emacs-lisp
 
+  ;; breadcrumb automatically enables...
+  ;; also "file symbols" is already default args...
+  (defun ri/lsp-mode-setup ()
+    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols)))
+
   (use-package lsp-mode
     :commands (lsp lsp-deferred)
+    :hook (lsp-mode . ri/lsp-mode-setup)
     :init
     (setq lsp-keymap-prefix "C-c l")
     :config
-    (lsp-enable-which-key-integration t))
+    (lsp-enable-which-key-integration t)
+    (message "lsp-mode loaded!"))
 
   ;; change these later...
   ;; prefix is the keys that come before?!?!
@@ -993,7 +1061,7 @@ Cool commands:
   ;;   "l"   '(:ignore t :which-key "lsp")
   ;;   "lg"  '(:ignore t :which-key "find")
   ;;   "lgd" 'lsp-find-definition
-  ;;   "lgr" 'lsp-find-references)
+  ;;   "lgr" 'lsp-find-references))
 
   ;; ;; maybe 
   ;; ;
@@ -1037,8 +1105,9 @@ special ivy search functionality for lsp
 
 #+begin_src emacs-lisp
 
-  (use-package lsp-ivy)
-  
+  (use-package lsp-ivy
+    :after lsp)
+
 #+end_src
 
 ** languages
@@ -1056,16 +1125,14 @@ most rustic features are accessible with C-c C-c
 
 #+begin_src emacs-lisp
 
-    ;; rust-analyzer required. gnu guix package?
+  ;; rust-analyzer required. gnu guix package?
   (use-package rustic
-    :ensure t
+    ;:ensure t ;; no need *
     :hook (rust-mode . lsp-deferred)
     :config
-    (setq rustic-format-on-save nil))
+    (setq rustic-format-on-save nil)
 
-  (use-package lsp-mode
-    :custom
-    ;; what to use when checking on-save. use clippy instead?
+    ;; lsp-mode ----
     (lsp-rust-analyzer-cargo-watch-command "check")
     ;; enable / disable the hints as you prefer:
     (lsp-rust-analyzer-server-display-inlay-hints nil)
@@ -1074,13 +1141,12 @@ most rustic features are accessible with C-c C-c
     (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil) ; def nil
     (lsp-rust-analyzer-display-closure-return-type-hints nil)
     (lsp-rust-analyzer-display-parameter-hints nil) ; def nil
-    (lsp-rust-analyzer-display-reborrow-hints "never"))
+    (lsp-rust-analyzer-display-reborrow-hints "never")
 
-  (use-package lsp-ui
-    :custom
+    ;; lsp-ui ----
     (lsp-ui-peek-always-show nil)
     (lsp-ui-sideline-show-hover nil)
-    (lsp-ui-doc-enable t)) 
+    (lsp-ui-doc-enable t))
 
 #+end_src
 
@@ -1089,7 +1155,7 @@ most rustic features are accessible with C-c C-c
 #+begin_src emacs-lisp
 
   (use-package python-mode
-    :ensure t
+    ;:ensure t ;; no need *
     :hook (python-mode . lsp-deferred)
     :custom
      ;; NOTE: Set these if Python 3 is called "python3" on your system!
@@ -1109,7 +1175,6 @@ code completion in lsp-mode.
 #+begin_src emacs-lisp
 
   (use-package company
-    :after lsp-mode
     :hook (lsp-mode . company-mode)
     :bind (:map company-active-map
            ("<tab>" . company-complete-selection))
@@ -1147,6 +1212,7 @@ learn more about projectile for better project management
   ;; (dir-locals are pretty cool)
   ;; (learn more about projectile for better project management)
   (use-package projectile
+    ;:defer 0
     :diminish projectile-mode
     :config (projectile-mode)
     :custom ((projectile-completion-system 'ivy)) ;; by default auto
@@ -1161,6 +1227,7 @@ learn more about projectile for better project management
   ;; (more options in M-o... already installed?)
   ;; (counsel-projectile-rg + M-o for a massive search in project)
   (use-package counsel-projectile
+    :after projectile
     :config (counsel-projectile-mode))
 
   (ri/leader-keys
@@ -1173,33 +1240,37 @@ learn more about projectile for better project management
 
 #+begin_src emacs-lisp
 
-;; magit
-;; (add several links...)
-;; (magit-status is C-x g)
-;; (tab to see diff of files)
-;; (hunks, "?" for all commands, C-c C-k to quit commit, push to remote, ssh?)
-;; (learn more about magit...)
-(use-package magit
-  ;:custom
-  ;(magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  )
+  ;; magit
+  ;; (add several links...)
+  ;; (magit-status is C-x g)
+  ;; (tab to see diff of files)
+  ;; (hunks, "?" for all commands, C-c C-k to quit commit, push to remote, ssh?)
+  ;; (learn more about magit...)
+  (use-package magit
+    :commands magit-status
+    :custom
+    ;; what does this do? fullscreen?
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-(ri/leader-keys
-  "g"  '(:ignore t :which-key "magit")
-  "gg" '(magit-status :which-key "magit")) ; (same as magit)
+  (ri/leader-keys
+    "g"  '(:ignore t :which-key "magit")
+    "gg" '(magit-status :which-key "magit")) ; (same as magit)
 
-;; forge
-;; (run forge-pull in a repo to pull down)
-;; (pull down all issues, pull-reqs, etc)
-;; (need to create a token first, then put in .authinfo)
-(use-package forge)
+  ;; forge
+  ;; (run forge-pull in a repo to pull down)
+  ;; (pull down all issues, pull-reqs, etc)
+  ;; (need to create a token first, then put in .authinfo)
+  ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+  ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+  (use-package forge
+    :after magit)
 
 #+end_src
 
 ** Commenting
 
 #+begin_src emacs-lisp
-  
+
   (use-package evil-nerd-commenter
     :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 
@@ -1227,6 +1298,7 @@ if type in char and make evil edits in line mode, does not update.
 #+begin_src emacs-lisp
 
   (use-package term
+    :commands term
     :config
     (setq explicit-shell-file-name "zsh")
     (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *"))
@@ -1333,8 +1405,11 @@ file management, etc
 
   (ri/leader-keys
     "f"  '(:ignore t :which-key "files")
-    "fr" '(counsel-recentf :which-key "recent files"))
-  
+    "fr" '(counsel-recentf :which-key "recent files")
+    "fp" '(lambda () (interactive)
+           (find-file (expand-file-name "~/.emacs.gnu/Emacs.org"))
+             :which-key "open Emacs.org"))
+
 #+end_src
 
 ** Dired
@@ -1348,7 +1423,7 @@ file management, etc
  | m   | mark       |   | g o     | view file            |   | R    | rename/Move         |
  | %   | mark regex |   | S-<ret> | open in split window |   | % R  | rename regex        |
  | \*  | mark type  |   | M-<ret> | view file (scan)     |   | d/x  | delete selection    |
- | t   | inverts    |   | (       | hide info            |   | D    | delete/Trash file   |
+ | t   | inverts    |   | (    \) | hide info            |   | D    | delete/Trash file   |
  | u/U | unmark     |   | g r     | refresh dired        |   | Z    | compress/uncompress |
  | k/K | kill       |   | C-M-J   | ivy-immediate-done   |   | c    | compress advanced   |
  |     |            |   |         |                      |   |      |                     |
@@ -1372,14 +1447,12 @@ file management, etc
 
 #+begin_src emacs-lisp
 
-  ;; provides dired-single commands
-  (use-package dired-single)
-
+  (message "BEFORE DIRED!")
   ;; dired 
   (use-package dired
     :ensure nil ; make sure use-package doesn't try to install it.
     :commands (dired dired-jump) ; defer loading of this config until a command is executed.
-    :bind (("C-x C-j" . dired-jump))
+    :bind ("C-x C-j" . dired-jump)
     :custom
     (dired-listing-switches "-agho --group-directories-first")
     (dired-dwim-target t) ; auto select dir to move to if another dired window open.
@@ -1390,6 +1463,12 @@ file management, etc
       "h" 'dired-single-up-directory
       "l" 'dired-single-buffer))
     ;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
+
+  (message "AFTER DIRED!")
+  ;; provides dired-single commands
+  ;; HAS TO COME AFTER dired because using ":after dired"
+  (use-package dired-single
+    :after dired)
 
   (use-package all-the-icons-dired
     :hook (dired-mode . all-the-icons-dired-mode))
@@ -1429,7 +1508,8 @@ a matrix client for emacs
 #+begin_src emacs-lisp
 
   ;; matrix client
-  (use-package ement)
+  (use-package ement
+    :commands ement)
 
 #+end_src
 
@@ -1442,7 +1522,9 @@ an rss feed reader for emacs
   ;; rss
   ;; maybe don't need, phone is enough?
   ;; maybe syncthing and import from database?
-  (use-package elfeed)
+  ;; dont use commands elfeed, scan at startup?
+  (use-package elfeed
+    :commands elfeed)
 
 #+end_src
 
@@ -1455,7 +1537,9 @@ https://github.com/alphapapa/ement.el
 #+begin_src emacs-lisp
 
   ;; erc
-  (use-package erc)
+  ;; make erc start after startup?
+  (use-package erc
+    :commands erc)
 
 #+end_src
 
@@ -1653,5 +1737,14 @@ Not sure if this works or not lol
           (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
   (load custom-file t)
 
+#+end_src
+
+* Runtime performance
+
+#+begin_src emacs-lisp
+
+  ;; make gc pauses faster by decreaseing the threshold.
+  (setq gc-cons-threshold (* 2 1000 1000))
+  
 #+end_src
 
