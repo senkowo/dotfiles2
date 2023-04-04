@@ -313,11 +313,17 @@
 ;; doom-modeline
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :custom (doom-modeline-height 35))
+  :custom (doom-modeline-height 40))
 
 ;; rainbow delimiters
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+
+;; (use-package modus-themes
+;;   :custom
+;;   ;(modus-themes-mode-line '(borderless))
+;;   :config
+;;   (load-theme 'modus-vivendi t))
 
 ;; which-key (lists keybinds)
 ;; (add links above source blocks later)
@@ -348,6 +354,7 @@
   ;"hb" 'describe-bindings
   "hb" 'counsel-descbinds
   "hm" 'describe-mode
+  "hg" 'customize-group
   "hP" 'describe-package
   "hp" 'helpful-at-point)
 
@@ -592,7 +599,7 @@
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
-  (add-to-list 'org-structure-template-alist '("co" . "src conf-unix")))
+  (add-to-list 'org-structure-template-alist '("un" . "src conf-unix")))
 
 ;; org-babel (tangle n stuff)
 ;; Automatically tangle our Emacs.org config file when we save it
@@ -790,6 +797,21 @@
   (setq vterm-shell "bash")
   (setq vterm-max-scrollback 10000))
 
+(use-package shell
+  :commands shell-pop
+  :custom
+  (shell-pop-default-directory "/home/mio")
+  (shell-pop-shell-type (quote ("vterm" "*vterm*" (lambda nil (vterm shell-pop-term-shell)))))
+  (shell-pop-term-shell "/bin/zsh")
+  (shell-pop-universal-key "C-t")
+  (shell-pop-window-size 40)
+  (shell-pop-window-position "bottom"))
+
+;; (shell-pop-full-span t)
+;; (shell-pop-autocd-to-working-dir t)
+;; (shell-pop-restore-window-configuration t)
+;; (shell-pop-cleanup-buffer-at-process-exit t))
+
 ;; eshell config
 (defun ri/configure-eshell ()
   ;; Save command history when commands are entered.
@@ -824,16 +846,17 @@
   (eshell-git-prompt-use-theme 'powerline))
 
 (ri/leader-keys
+  "ot" '(vterm :which-key "vterm")
   "oe" '(eshell :which-key "eshell"))
 
 (ri/leader-keys
   "f"  '(:ignore t :which-key "files")
   "fr" '(counsel-recentf :which-key "recent files")
+  "ff" '(find-file :which-key "find-file")
   "fp" '(lambda () (interactive)
-         (find-file (expand-file-name "~/.emacs.gnu/Emacs.org"))
+         (find-file (expand-file-name "~/.emacs.gnu/"))
            :which-key "open Emacs.org"))
 
-(message "BEFORE DIRED!")
 ;; dired 
 (use-package dired
   :ensure nil ; make sure use-package doesn't try to install it.
@@ -847,10 +870,10 @@
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
     "h" 'dired-single-up-directory
-    "l" 'dired-single-buffer))
+    "l" 'dired-single-buffer
+    "f" 'dired-create-empty-file))
   ;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
 
-(message "AFTER DIRED!")
 ;; provides dired-single commands
 ;; HAS TO COME AFTER dired because using ":after dired"
 (use-package dired-single
@@ -867,10 +890,17 @@
       ("png" . "feh"))))
 
 (use-package dired-hide-dotfiles
-  :hook (dired-mode . dired-hide-dotfiles-mode)
+  :commands (dired dired-jump)
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
     "H" 'dired-hide-dotfiles-mode))
+
+(defun my-dired-mode-hook ()
+  "My `dired` mode hook."
+  ;; hide dotfiles by default
+  (dired-hide-dotfiles-mode))
+;
+(add-hook 'dired-mode-hook #'my-dired-mode-hook)
 
 (ri/leader-keys
   "d"  '(:ignore t :which-key "dired")

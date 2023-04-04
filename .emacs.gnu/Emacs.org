@@ -1,6 +1,6 @@
 #+title: Emacs config
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
-#+startup contents
+#+startup: content
 
 * Table of Contents :TOC:
 - [[#notes-to-self][Notes to self]]
@@ -17,7 +17,7 @@
   - [[#all-the-icons][all-the-icons]]
   - [[#auto-update-packages][auto-update packages]]
 - [[#keybindings][Keybindings]]
-  - [[#global-set-key][global-set-key]]
+  - [[#make-escape-quit][make escape quit]]
   - [[#evil-mode][evil-mode]]
   - [[#undo-tree][undo-tree]]
   - [[#generalel][general.el]]
@@ -30,6 +30,7 @@
   - [[#doom-themes][doom-themes]]
   - [[#doom-modeline][doom-modeline]]
   - [[#rainbow-delimiters][rainbow-delimiters]]
+  - [[#modus-themes][modus-themes]]
   - [[#which-key][which-key]]
   - [[#helpful][helpful]]
   - [[#help-keybinds][help keybinds]]
@@ -51,6 +52,7 @@
   - [[#term-mode][term-mode]]
   - [[#vterm][vterm]]
   - [[#shell-mode][shell-mode]]
+  - [[#shell-pop][shell-pop]]
   - [[#eshell][Eshell]]
 - [[#files][Files]]
   - [[#dired][Dired]]
@@ -59,9 +61,10 @@
   - [[#elfeed][elfeed]]
   - [[#erc][erc]]
 - [[#applications][Applications]]
-  - [[#firejail][Firejail]]
+  - [[#xmodmap][Xmodmap]]
   - [[#mpv][mpv]]
   - [[#zshrc][zshrc]]
+  - [[#firejail][Firejail]]
 - [[#special][Special]]
 - [[#runtime-performance][Runtime performance]]
 
@@ -305,8 +308,8 @@ Includes:
 + hydra
 + window management
 + buffer management
-
-** global-set-key
+  
+** make escape quit
 
 Make <escape> quit.
 
@@ -604,7 +607,7 @@ Includes:
 ;; doom-modeline
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :custom (doom-modeline-height 35))
+  :custom (doom-modeline-height 40))
 
 #+end_src
 
@@ -615,6 +618,18 @@ Includes:
 ;; rainbow delimiters
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
+
+#+end_src
+
+** modus-themes
+
+#+begin_src emacs-lisp
+
+  ;; (use-package modus-themes
+  ;;   :custom
+  ;;   ;(modus-themes-mode-line '(borderless))
+  ;;   :config
+  ;;   (load-theme 'modus-vivendi t))
 
 #+end_src
 
@@ -669,6 +684,7 @@ Shows more info in help menu
     ;"hb" 'describe-bindings
     "hb" 'counsel-descbinds
     "hm" 'describe-mode
+    "hg" 'customize-group
     "hP" 'describe-package
     "hp" 'helpful-at-point)
 
@@ -978,7 +994,7 @@ code blocks and stuff
     (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
     (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
     (add-to-list 'org-structure-template-alist '("py" . "src python"))
-    (add-to-list 'org-structure-template-alist '("co" . "src conf-unix")))
+    (add-to-list 'org-structure-template-alist '("un" . "src conf-unix")))
 
 #+end_src
 
@@ -1353,6 +1369,26 @@ in between system shell and emacs...
 
 - not good, but works great on windows...
 
+** shell-pop
+
+Hit s-<return> to bring up scratchpad terminal.
+
+https://github.com/kyagi/shell-pop-el
+
+#+begin_src emacs-lisp
+
+  (use-package shell
+    :commands shell-pop
+    :custom
+    (shell-pop-default-directory "/home/mio")
+    (shell-pop-shell-type (quote ("vterm" "*vterm*" (lambda nil (vterm shell-pop-term-shell)))))
+    (shell-pop-term-shell "/bin/zsh")
+    (shell-pop-universal-key "C-t")
+    (shell-pop-window-size 40)
+    (shell-pop-window-position "bottom"))
+
+#+end_src
+
 ** Eshell
 
 fix neofetch
@@ -1394,6 +1430,7 @@ fix neofetch
     (eshell-git-prompt-use-theme 'powerline))
 
   (ri/leader-keys
+    "ot" '(vterm :which-key "vterm")
     "oe" '(eshell :which-key "eshell"))
 
 #+end_src
@@ -1407,8 +1444,9 @@ file management, etc
   (ri/leader-keys
     "f"  '(:ignore t :which-key "files")
     "fr" '(counsel-recentf :which-key "recent files")
+    "ff" '(find-file :which-key "find-file")
     "fp" '(lambda () (interactive)
-           (find-file (expand-file-name "~/.emacs.gnu/Emacs.org"))
+           (find-file (expand-file-name "~/.emacs.gnu/"))
              :which-key "open Emacs.org"))
 
 #+end_src
@@ -1427,6 +1465,7 @@ file management, etc
  | t   | inverts    |   | (    \) | hide info            |   | D    | delete/Trash file   |
  | u/U | unmark     |   | g r     | refresh dired        |   | Z    | compress/uncompress |
  | k/K | kill       |   | C-M-J   | ivy-immediate-done   |   | c    | compress advanced   |
+ |     |            |   | H       | show/hide dots       |   |      | create empty file   |
  |     |            |   |         |                      |   |      |                     |
  |-----+------------+---+---------+----------------------+---+------+---------------------|
  |     |            |   |         |                      |   |      |                     |
@@ -1435,7 +1474,7 @@ file management, etc
  |-----+------------+---+---------+----------------------+---+------+---------------------|
  | T   | timestamp  |   | C-x C-q | Read only mode (ZZ)  |   | \&   | previous expression |
  | M   | -rw-r--r-- |   | &       | run program on file  |   | \1   |                     |
- | O   | owner      |   | I       | appends dired buffer |   | %s// |   |
+ | O   | owner      |   | I       | appends dired buffer |   | %s// |                     |
  | G   | group      |   |         |                      |   |      |                     |
  | S   | symlink    |   |         |                      |   |      |                     |
  | L   | load lisp  |   |         |                      |   |      |                     |
@@ -1448,7 +1487,6 @@ file management, etc
 
 #+begin_src emacs-lisp
 
-  (message "BEFORE DIRED!")
   ;; dired 
   (use-package dired
     :ensure nil ; make sure use-package doesn't try to install it.
@@ -1462,10 +1500,10 @@ file management, etc
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
       "h" 'dired-single-up-directory
-      "l" 'dired-single-buffer))
+      "l" 'dired-single-buffer
+      "f" 'dired-create-empty-file))
     ;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
 
-  (message "AFTER DIRED!")
   ;; provides dired-single commands
   ;; HAS TO COME AFTER dired because using ":after dired"
   (use-package dired-single
@@ -1482,14 +1520,21 @@ file management, etc
         ("png" . "feh"))))
 
   (use-package dired-hide-dotfiles
-    :hook (dired-mode . dired-hide-dotfiles-mode)
+    :commands (dired dired-jump)
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
       "H" 'dired-hide-dotfiles-mode))
 
+  (defun my-dired-mode-hook ()
+    "My `dired` mode hook."
+    ;; hide dotfiles by default
+    (dired-hide-dotfiles-mode))
+  ;
+  (add-hook 'dired-mode-hook #'my-dired-mode-hook)
+
 #+end_src
 
-Leader keys:
+*Leader keys:*
 
 #+begin_src emacs-lisp
 
@@ -1549,81 +1594,13 @@ https://github.com/alphapapa/ement.el
 unix applications go here
 + firejail
 
-** Firejail
+** Xmodmap
 
-*** disable-common.local
+#+begin_src conf-unix :tangle ~/.dotfiles/.Xmodmap
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/disable-common.local
-
-  blacklist ${HOME}/Documents/secure
-  blacklist ${HOME}/Public/School/Important-docs
-
-#+end_src
-
-*** keepassxc.local
-
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/keepassxc.local
+  clear lock
+  keycode 66 = Control_L Escape
   
-  ## Browser Integration
-  # So can access database and keyfile
-  noblacklist ${HOME}/Documents/secure
-  # Allow browser profile, required for browser integration (i think)
-  noblacklist ${HOME}/.librewolf
-  # On github wiki for needed
-  noblacklist ${RUNUSER}/app
-  #
-  ##
-
-  ## ETC
-  # 
-  #dbus-user.talk org.freedesktop.secrets
-  #
-  dbus-user.talk org.freedesktop.Notifications
-  #
-  ##
-
-#+end_src
-
-*** librewolf.local
-
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/librewolf.local
-
-  #whitelist ${RUNUSER}/run/user/$UID/librewolf
-
-  ## KeepassXC browser integration
-  noblacklist ${RUNUSER}/app
-  whitelist ${RUNUSER}/kpxc_server
-  whitelist ${RUNUSER}/org.keepassxc.KeePassXC.BrowserServer
-  #
-  noblacklist ${HOME}/.mozilla
-  whitelist ${HOME}/.mozilla
-  #
-  noblacklist ${HOME}/Documents/secure
-  #
-
-  ## ETC
-  #
-  # native notifications
-  dbus-user.talk org.freedesktop.Notifications
-  #
-  # inhibiting screensavers
-  dbus-user.talk org.freedesktop.ScreenSaver
-
-#+end_src
-
-*** steam.local
-
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/steam.local
-  
-  #ignore seccomp
-
-  # private-bin is disabled while in testing, but is known to work with multiple games.
-  # Add the next line to your steam.local to enable private-bin.
-  #private-bin awk,basename,bash,bsdtar,bzip2,cat,chmod,cksum,cmp,comm,compress,cp,curl,cut,date,dbus-launch,dbus-send,desktop-file-edit,desktop-file-install,desktop-file-validate,dirname,echo,env,expr,file,find,getopt,grep,gtar,gzip,head,hostname,id,lbzip2,ldconfig,ldd,ln,ls,lsb_release,lsof,lspci,lz4,lzip,lzma,lzop,md5sum,mkdir,mktemp,mv,netstat,ps,pulseaudio,python*,readlink,realpath,rm,sed,sh,sha1sum,sha256sum,sha512sum,sleep,sort,steam,steamdeps,steam-native,steam-runtime,sum,tail,tar,tclsh,test,touch,tr,umask,uname,update-desktop-database,wc,wget,wget2,which,whoami,xterm,xz,zenity
-
-  # To view screenshots add the next line to your steam.local.
-  #private-bin eog,eom,gthumb,pix,viewnior,xviewer
-
 #+end_src
 
 ** mpv
@@ -1722,6 +1699,83 @@ unix applications go here
       fi
   }
 
+
+#+end_src
+
+** Firejail
+
+*** disable-common.local
+
+#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/disable-common.local
+
+  blacklist ${HOME}/Documents/secure
+  blacklist ${HOME}/Public/School/Important-docs
+
+#+end_src
+
+*** keepassxc.local
+
+#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/keepassxc.local
+  
+  ## Browser Integration
+  # So can access database and keyfile
+  noblacklist ${HOME}/Documents/secure
+  # Allow browser profile, required for browser integration (i think)
+  noblacklist ${HOME}/.librewolf
+  # On github wiki for needed
+  noblacklist ${RUNUSER}/app
+  #
+  ##
+
+  ## ETC
+  # 
+  #dbus-user.talk org.freedesktop.secrets
+  #
+  dbus-user.talk org.freedesktop.Notifications
+  #
+  ##
+
+#+end_src
+
+*** librewolf.local
+
+#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/librewolf.local
+
+  #whitelist ${RUNUSER}/run/user/$UID/librewolf
+
+  ## KeepassXC browser integration
+  noblacklist ${RUNUSER}/app
+  whitelist ${RUNUSER}/kpxc_server
+  whitelist ${RUNUSER}/org.keepassxc.KeePassXC.BrowserServer
+  #
+  noblacklist ${HOME}/.mozilla
+  whitelist ${HOME}/.mozilla
+  #
+  noblacklist ${HOME}/Documents/secure
+  #
+
+  ## ETC
+  #
+  # native notifications
+  dbus-user.talk org.freedesktop.Notifications
+  #
+  # inhibiting screensavers
+  dbus-user.talk org.freedesktop.ScreenSaver
+
+#+end_src
+
+*** steam.local
+
+#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/steam.local
+  
+  #ignore seccomp
+
+  # private-bin is disabled while in testing, but is known to work with multiple games.
+  # Add the next line to your steam.local to enable private-bin.
+  #private-bin awk,basename,bash,bsdtar,bzip2,cat,chmod,cksum,cmp,comm,compress,cp,curl,cut,date,dbus-launch,dbus-send,desktop-file-edit,desktop-file-install,desktop-file-validate,dirname,echo,env,expr,file,find,getopt,grep,gtar,gzip,head,hostname,id,lbzip2,ldconfig,ldd,ln,ls,lsb_release,lsof,lspci,lz4,lzip,lzma,lzop,md5sum,mkdir,mktemp,mv,netstat,ps,pulseaudio,python*,readlink,realpath,rm,sed,sh,sha1sum,sha256sum,sha512sum,sleep,sort,steam,steamdeps,steam-native,steam-runtime,sum,tail,tar,tclsh,test,touch,tr,umask,uname,update-desktop-database,wc,wget,wget2,which,whoami,xterm,xz,zenity
+
+  # To view screenshots add the next line to your steam.local.
+  #private-bin eog,eom,gthumb,pix,viewnior,xviewer
 
 #+end_src
 

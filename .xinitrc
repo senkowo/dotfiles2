@@ -27,20 +27,43 @@ fi
 
 defaultserverargs="-nolisten tcp"
 
-## Start system utils 
+## Start Emacs?
+
+startemacs=false
+
+
+#
+# Uncomment line to start emacs
+# (else false)
+#
+ startemacs=true
+#
+#
+
+
+## Start system utils (ALL WM)
 
 gentoo-pipewire-launcher & # Disabled for EXWM, also has to start after booting up wm...?
+
+
+if [ "$startemacs" = true ] ; then
+    echo "Starting emacs..."
+    exec ~/.dotfiles/.emacs.gnu/exwm/start-exwm.sh
+
+    exit 0
+fi
+
+
+
+## Start userspace utils (NOT EXWM (Emacs))
+
 xsetroot -cursor_name left_ptr & # cursor
-#setxkbmap -option caps:escape
-#setxkbmap -layout "us,us" -variant ",dvp" -option grp:alts_toggle
-#setxkbmap -layout "us,us" -variant ",dvp" -option grp:alts_toggle ctrl:nocaps
 setxkbmap -layout "us,us" -variant ",dvorak" -option grp:alts_toggle ctrl:nocaps
-xmodmap ~/.Xmodmap
+#setxkbmap -layout "us,us" -variant ",dvp" -option grp:alts_toggle ctrl:nocaps
+#setxkbmap -option caps:escape
 xset r rate 300 40
+xmodmap ~/.Xmodmap
 #sh ~/.local/bin/sct-auto-adjust.sh & # redshift
-
-## Start userspace utils
-
 xrdb ~/.Xresources &
 exec urxvtd --quiet --opendisplay --fork & # term
 
@@ -57,7 +80,7 @@ exec urxvtd --quiet --opendisplay --fork & # term
 #setxkbmap
 
 # Display
-#xrandr --output Virtual-1 --mode 1920x1080 &
+xrandr --output eDP-1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output HDMI-1 --off --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --off &
 
 ##-------------------
 ## xmonad only?
@@ -85,6 +108,7 @@ exec urxvtd --quiet --opendisplay --fork & # term
 #emacs --daemon -f exwm-enable && exec dbus-launch --sh-syntax --exit-with-session emacsclient -c
 #exec i3
 exec dbus-launch --sh-syntax --exit-with-session emacs
+#exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.gnu/init.el" -mm --debug-init
 #exec dbus-launch --sh-syntax --exit-with-session $HOME/.cache/xmonad/xmonad-x86_64-linux >& /tmp/.xmonad-errors
 
 
