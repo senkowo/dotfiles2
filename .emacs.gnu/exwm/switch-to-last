@@ -1,0 +1,12 @@
+(defvar exwm-workspace--switch-history-hack (cons exwm-workspace-current-index '()))
+
+(defun exwm/workspace-switch-to-last ()
+  (interactive)
+  "Switch to the workspace that was used before current workspace"
+  (exwm-workspace-switch (cdr exwm-workspace--switch-history-hack)))
+
+(add-hook 'exwm-workspace-switch-hook
+          (lambda ()
+            (setq exwm-workspace--switch-history-hack
+                  (cons exwm-workspace-current-index
+                        (car exwm-workspace--switch-history-hack)))))
