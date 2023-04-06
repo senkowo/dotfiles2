@@ -588,7 +588,10 @@ Includes:
   ;; doom-themes
   ;; recommended: henna, palenight, snazzy
   (use-package doom-themes
-    :init (load-theme 'doom-snazzy t))
+    :init 
+    (load-theme 'doom-dracula t))
+    ;;(load-theme 'doom-monokai-spectrum t))
+    ;;(load-theme 'doom-snazzy t))
 
   (defun ri/load-theme-and-font-setup ()
     (interactive)

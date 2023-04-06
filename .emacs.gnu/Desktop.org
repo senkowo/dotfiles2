@@ -1,0 +1,399 @@
+#+title: Emacs Desktop Configuration
+#+property: header-args:emacs-lisp :tangle ./desktop.el
+#+startup: showeverything
+
+* Window Management
+
+EXWM wiki:
+https://github.com/ch11ng/exwm/wiki
+
+|----------+----------------------------------|
+| Keybinds |                                  |
+|----------+----------------------------------|
+| C-c RET  | move window to another workspace |
+| C-M-j    | view buffers                     |
+|----------+----------------------------------|
+
+** Main configuration
+
+#+begin_src emacs-lisp
+
+  (defun ri/run-in-background (command)
+    (let ((command-parts (split-string command "[ ]+")))
+      (apply #'call-process `(,(car command-parts) nil 0 nil ,@(cdr command-parts)))))
+
+  (defun ri/set-wallpaper ()
+    (interactive)
+    (start-process-shell-command
+      "feh" nil "feh --bg-fill ~/Pictures/wallpapers/oneshot-wallpaper1.jpg"))
+
+  ;; also preview themes package
+  ;(defun ri/random-wallpaper ()
+  ;  (interactive)
+
+
+  ;; depends on nm-applet, pasystray(?), pavucontrol(?), and blueman
+  (defun ri/exwm-init-hook ()
+    ;; Make workspace 1 be the one where we land at startup
+    (exwm-workspace-switch-create 1)
+    ;; Launch programs at startup 
+    ;(eshell)
+    ;; Run programs in background at startup 
+    ;(ri/run-in-background "nm-applet")
+    ;(ri/run-in-background "pasystray")
+    (ri/run-in-background "blueman-applet"))
+
+  ;; switch to last workspace (hack)
+  (defun ri/exwm-workspace-switch-to-last ()
+    "Switch to the workspace that was used before current workspace"
+    (interactive)
+    (exwm-workspace-switch (cdr ri/exwm-workspace--switch-history-hack)))
+
+  ;; switch to next workspace
+  (defun ri/exwm-workspace-switch-to-next ()
+    "Switch to the next workspace"
+    (interactive)
+    (exwm-workspace-switch (+ exwm-workspace-current-index 1)))
+
+  ;; switch to previous workspace
+  (defun ri/exwm-workspace-switch-to-previous ()
+    "Switch to the previous workspace"
+    (interactive)
+    (exwm-workspace-switch (- exwm-workspace-current-index 1)))
+
+  (defun ri/exwm-update-class ()
+    (exwm-workspace-rename-buffer (format "EXWM: %s" exwm-class-name)))
+
+  (defun ri/exwm-update-title ()
+    (pcase exwm-class-name
+      ("librewolf" (exwm-workspace-rename-buffer (format "Librewolf: %s" exwm-title)))))
+
+  (defun ri/exwm-configure-window-by-class ()
+    (interactive)
+    (message "Window '%s' appeared!" exwm-class-name)
+    (pcase exwm-class-name
+      ("librewolf" (exwm-workspace-move-window 2))
+      ("discord" (exwm-workspace-move-window 3))
+      ("keepassxc" (exwm-workspace-move-window 4))
+      ("mpv" (exwm-floating-toggle-floating)
+             (exwm-layout-toggle-mode-line))
+      ;;; if game has trouble put it in exwm-input-release-keyboard, and then s-r to reset.
+      ("gimp" (exwm-workspace-move-window 3))))
+
+  ;; very annoying?
+  ;; makes the cursor visible? 
+  ;; only warp when on X window buffer!
+  (use-package exwm-mff
+    :config
+    (exwm-mff-mode nil))
+
+  ;; warp cursor to center when switch to a X window buffer.
+  (add-hook 'exwm-manage-finish-hook (lambda () (exwm-mff-warp-to-selected)))
+
+  ;; -------
+
+  (use-package exwm
+    :bind 
+    ("C-M-h" . 'ri/exwm-workspace-switch-to-previous)
+    ("C-M-l" . 'ri/exwm-workspace-switch-to-next)
+    ("C-M-k" . 'ri/exwm-workspace-switch-to-last)
+    :custom
+    ;; Systray addons
+    (display-time-day-and-date t)
+    (display-time-mode t)
+    (display-battery-mode t)
+    (display-time-default-load-average nil)
+    :config
+    (setq exwm-workspace-number 5 ; 0-5
+          ;mouse-autoselect-window nil ; autoselect when hover?
+          ;focus-follows-mouse t
+          ;exwm-workspace-warp-cursor t ;?
+          exwm-debug nil) ;enable for debug mode
+
+    ;; -------
+
+    ;; When EXWM starts up, run some functions
+    (add-hook 'exwm-update-class-hook #'ri/exwm-init-hook)
+
+    ;; When window "class" updates, use it to set the buffer name
+    (add-hook 'exwm-update-class-hook #'ri/exwm-update-class)
+
+    ;; When window title updates, use it to set the buffer name
+    (add-hook 'exwm-update-title-hook #'ri/exwm-update-title)
+
+    ;; Configure windows as they're created (includes spawn in certain wkspaces)
+    ;; For automoving to workspace, use a function.
+    (add-hook 'exwm-manage-finish-hook #'ri/exwm-configure-window-by-class)
+
+    ;; Hide the modeline on all floating windows
+    (add-hook 'exwm-floating-setup-hook (lambda () (exwm-layout-hide-mode-line)))
+
+    ;; hook and command to go to the previous workspace
+    (defvar ri/exwm-workspace--switch-history-hack (cons exwm-workspace-current-index '()))
+    ;;
+    (add-hook 'exwm-workspace-switch-hook
+       (lambda ()
+         (setq ri/exwm-workspace--switch-history-hack
+                (cons exwm-workspace-current-index
+                  (car ri/exwm-workspace--switch-history-hack)))))
+
+    ;; --------
+
+    ;; Sets up dvorak keybinds (also does ctrl:nocaps?)
+    (start-process-shell-command "setxkbmap" nil "setxkbmap -layout 'us,us' -variant ',dvorak' -option grp:alts_toggle ctrl:nocaps")
+    ;;
+    ;; Rebind Ctrl to CapsLock 
+    (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/exwm/Xmodmap")
+
+    ;; set hold type startup and speed
+    (start-process-shell-command "type speed" nil "xset r rate 300 40")
+
+    ;; set cursor type (what if not enabled?)
+    (start-process-shell-command "cursor type" nil "xsetroot -cursor_name left_ptr")
+
+    ;; -------
+
+    ;; See all X windows with exwm-switch-to-buffer, so can pull into current workspace
+    (setq exwm-layout-show-all-buffers nil)
+
+    ;; Display all EXWM buffers in every workspace buffer list
+    ;; Could always have another keybind that shows all active EXWM buffers...
+    (setq exwm-workspace-show-all-buffers nil)
+
+    ;; Detach the minibuffer (show it with exwm-workspace-toggle-minibuffer)
+    (setq exwm-workspace-minibuffer-position 'nil)
+
+    ;; -------
+
+    ;; set screen resolution (arandr to graphically extract xrandr command).
+    (require 'exwm-randr)
+    (exwm-randr-enable) ; set resolution before init.
+    (start-process-shell-command "xrandr" nil "xrandr --output eDP-1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --output HDMI-1 --off --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --off")
+
+    ;; set wallpaper (after xrandr so can get correct dimensions)
+    (ri/set-wallpaper)
+
+    ;; Load the system tray before exwm-init
+    (require 'exwm-systemtray)
+    (setq exwm-systemtray-height nil)
+    (exwm-systemtray-enable)
+
+    ;; ---------
+
+    ;; send to emacs instead of X application
+    (setq exwm-input-prefix-keys
+          '(?\M-x
+            ?\M-:
+            ?\M-`
+            ?\M-&
+            ?\C-x
+            ?\C-h
+            ?\C-u
+            ?\C-\M-j  ;;  buffer list 
+            ?\C-\M-h  ;;  previous workspace
+            ?\C-\M-l  ;;  next workspace
+            ?\C-\M-k  ;;  last workspace
+            ?\C-\ ))  ;;  C-<space>
+
+    ;; C-q to send next key to X-applicaiton
+    (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+
+    ;; Set up global key bindings.  These always work, no matter the input state!
+    ;; Keep in mind that changing this list after EXWM initializes has no effect.
+    (setq exwm-input-global-keys
+          `(
+            ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+            ([?\s-r] . exwm-reset)
+
+            ;; Move between windows
+            ([?\s-h] . windmove-left)
+            ([?\s-l] . windmove-right)
+            ([?\s-k] . windmove-up)
+            ([?\s-j] . windmove-down)
+
+            ;; Move windows 
+            ([?\s-H] . windmove-swap-states-left)
+            ([?\s-L] . windmove-swap-states-right)
+            ([?\s-K] . windmove-swap-states-up)
+            ([?\s-J] . windmove-swap-states-down)
+
+            ;; Shortcuts for windows 
+            ([?\s-u] . evil-window-prev)
+            ([?\s-U] . evil-window-prev)
+            ([?\s-c] . evil-window-delete)
+            ;;;; alternatively, s-u + s-S-u for windows, and s-i for launcher or sum (comfy?)
+            ;;;; or maybe s-o for windows and s-u s-i for buffers?
+
+            ;; buffers and more
+            ([?\s-o] . evil-switch-to-windows-last-buffer)
+            ([?\s-b] . counsel-switch-buffer)
+
+            ;; Toggles
+            ([?\s-t] . exwm-floating-toggle-floating)
+            ([?\s-f] . exwm-layout-toggle-fullscreen)
+            ([?\s-m] . exwm-layout-toggle-mode-line)
+
+            ;; Launch applications via shell command
+            ([?\s-&] . (lambda (command)
+                         (interactive (list (read-shell-command "$ ")))
+                         (start-process-shell-command command nil command)))
+
+            ;; Special
+            ([?\s-\C-\S-l] . (lambda () (interactive) (desktop-environment-lock-screen)))
+            ([?\s-m] . exwm-layout-toggle-mode-line)
+
+            ;; Programs
+
+            ;; Switch workspace
+            ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
+            ([?\s-w] . exwm-workspace-switch)
+            ([?\s-\C-o] . (lambda () (interactive) (ri/exwm-workspace-switch-to-last)))
+            ([?\s-\C-k] . (lambda () (interactive) (ri/exwm-workspace-switch-to-next)))
+            ([?\s-\C-j] . (lambda () (interactive) (ri/exwm-workspace-switch-to-previous)))
+
+            ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+            ,@(mapcar (lambda (i)
+                        `(,(kbd (format "s-%d" i)) .
+                          (lambda ()
+                            (interactive)
+                            (exwm-workspace-switch-create ,i))))
+                      (number-sequence 0 9))))
+
+    ;; s-i instead?
+    (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
+    (exwm-input-set-key (kbd "s-i") 'counsel-linux-app)
+    (exwm-input-set-key (kbd "s-<return>") 'shell-pop)
+
+    (exwm-enable))
+
+  ;; depends on scrot (screenshot), brightnessctl (brightness), and playerctl (player)
+  (use-package desktop-environment
+    :after exwm
+    :config 
+    (setq desktop-environment-update-exwm-global-keys :prefix)
+    (define-key desktop-environment-mode-map (kbd "s-l") nil)
+    (desktop-environment-mode)
+    :custom
+    ;; brightness
+    (desktop-environment-brightness-normal-increment "10%+")
+    (desktop-environment-brightness-normal-decrement "10%-")
+    (desktop-environment-brightness-small-increment "5%+")
+    (desktop-environment-brightness-small-decrement "5%-")
+    ;; volume
+    (desktop-environment-volume-normal-decrement "-10%")
+    (desktop-environment-volume-normal-increment "+10%")
+    (desktop-environment-volume-small-decrement "-5%")
+    (desktop-environment-volume-small-increment "+5%")
+    (desktop-environment-volume-set-command "pactl set-sink-volume @DEFAULT_SINK@ %s")
+    (desktop-environment-volume-get-command "bash ~/.emacs.gnu/exwm/pactl-print-volume-w-mute.sh")
+    (desktop-environment-volume-get-regexp "\\(.*\\)")
+    (desktop-environment-volume-toggle-command "pactl set-sink-mute @DEFAULT_SINK@ toggle && bash ~/.emacs.gnu/exwm/pactl-print-mute.sh")
+    (desktop-environment-volume-toggle-regexp "\\(.*\\)" )
+    ;; screenshot
+    (desktop-environment-screenshot-command "flameshot gui"))
+
+
+
+
+#+end_src
+
+** After Load
+
+#+begin_src emacs-lisp
+
+#+end_src
+
+* Desktop Environment
+
+** EXWM Launcher
+
+#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/start-exwm.sh :shebang #!/bin/sh
+
+  # Set screen DPI (for high DPI displays) (before compton)
+  #xrdb ~/.emacs.gnu/exwm/Xresources
+
+  # Screen compositor
+  picom &
+
+  # Enable screen locking on suspend
+  xss-lock -- slock &
+
+  # Start Emacs w/ EXWM
+  exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.gnu/init.el" -mm --debug-init -l ~/.emacs.gnu/desktop.el
+
+#+end_src
+
+** Get volume command
+
+*Prints current volume and "mute" if muted:*
+
+#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/pactl-print-volume-w-mute.sh :shebang #!/bin/bash
+
+  volume=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | sed s/%//)
+  muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
+
+  if [[ "$muted" == "yes" ]]; then
+          echo "$volume | muted "
+  else
+          echo "$volume"
+  fi
+
+#+end_src
+
+
+*Prints the current mute status when toggling:*
+
+#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/pactl-print-mute.sh :shebang #!/bin/bash
+
+muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
+
+if [[ "$muted" == "yes" ]]; then
+	echo "MUTED"
+else
+	echo "ENABLED"
+fi
+
+#+end_src
+
+** Keyboard remapping
+
+#+begin_src conf-unix :tangle ~/.dotfiles/.emacs.gnu/exwm/Xmodmap
+
+  clear lock
+  keycode 66 = Control_L Escape
+
+#+end_src
+
+** High DPI setting
+
+#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/Xresources
+
+  Xft:dpi:  100  # set this to your desired DPI
+
+#+end_src
+
+** Session file
+
+For login manager
+
+*You must create a symbolic link with the command for xsessions file!*
+
+#+begin_src sh :tangle no
+
+  doas ln -f ~/.emacs.gnu/exwm/EXWM.desktop /usr/share/xsessions/EXWM.desktop
+
+#+end_src
+
+#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/EXWM.desktop 
+
+  [Desktop Entry]
+  Name=EXWM
+  Comment=Emacs Window Manager
+  Exec=sh /home/mio/.emacs.gnu/exwm/start-exwm.sh
+  TryExec=sh
+  Type=Application
+  X-LightDM-DesktopName=exwm
+  DesktopName=exwm
+
+#+end_src
+

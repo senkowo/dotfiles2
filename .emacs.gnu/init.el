@@ -300,7 +300,10 @@
 ;; doom-themes
 ;; recommended: henna, palenight, snazzy
 (use-package doom-themes
-  :init (load-theme 'doom-snazzy t))
+  :init 
+  (load-theme 'doom-dracula t))
+  ;;(load-theme 'doom-monokai-spectrum t))
+  ;;(load-theme 'doom-snazzy t))
 
 (defun ri/load-theme-and-font-setup ()
   (interactive)
@@ -806,11 +809,6 @@
   (shell-pop-universal-key "C-t")
   (shell-pop-window-size 40)
   (shell-pop-window-position "bottom"))
-
-;; (shell-pop-full-span t)
-;; (shell-pop-autocd-to-working-dir t)
-;; (shell-pop-restore-window-configuration t)
-;; (shell-pop-cleanup-buffer-at-process-exit t))
 
 ;; eshell config
 (defun ri/configure-eshell ()
