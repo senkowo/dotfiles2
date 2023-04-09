@@ -246,9 +246,9 @@ https://github.com/ch11ng/exwm/wiki
             ;; Shortcuts for windows 
             ;([?\s-u] . (lambda) () (interactive) (other-window 1))
             ;([?\s-i] . (lambda) () (interactive) (other-window -1))
-            ([?\s-u] . (other-window 1))
-            ([?\s-i] . (other-window -1))
-            ([?\s-\S-c] . delete-window)
+            ([?\s-u] . (lambda () (interactive) (other-window 1)))
+            ([?\s-i] . ((lambda () (interactive) (other-window -1)))
+            ([?\s-C] . delete-window)
             ;;;; alternatively, s-u + s-S-u for windows, and s-i for launcher or sum (comfy?)
             ;;;; or maybe s-o for windows and s-u s-i for buffers?
 

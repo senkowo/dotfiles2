@@ -128,7 +128,15 @@ https://www.masteringemacs.org/article/mastering-key-bindings-emacs
 List of useful packages:
 https://github.com/emacs-tw/awesome-emacs#windows
 Good packages to consider:
-+ 
++ rcirc
++ discover-my-major
++ discover.el
++ cheatsheet.el
++ speed-type
++ emacs-fireplace
+Poetry and journaling buffer and system...
+one general input, then sent over to different categories...
+would be nice on android termux too...
 
 * Startup performance
 
@@ -716,7 +724,7 @@ Shows more info in help menu
 
 #+begin_src emacs-lisp
 
-  (defun ri/which-key-show-major-mode-shortcut
+  (defun ri/which-key-show-major-mode-shortcut ()
     (interactive)
     (which-key-show-major-mode))
 
@@ -1582,16 +1590,24 @@ file management, etc
       '(("mkv" . "mpv")
         ("png" . "feh"))))
 
+  (defvar ri/dired-hide-dotfiles-mode--assistant t)
+
+  (defvar test-var nil)
+
+  (defun ri/dired-hide-dotfiles-mode--toggle ()
+    ;; when run, toggles dired-hide-dotfiles-mode and assistant var
+    (interactive)
+    (setq dired-hide-dotfiles-mode (not dired-hide-dotfiles-mode))
+    (setq ri/dired-hide-dotfiles-mode--assistant dired-hide-dotfiles-mode))
+
   (use-package dired-hide-dotfiles
     :commands (dired dired-jump)
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
-      "H" 'dired-hide-dotfiles-mode))
+     "H" '(ri/dired-hide-dotfiles-mode--toggle)))
 
   (defun my-dired-mode-hook ()
-    "My `dired` mode hook."
-    ;; hide dotfiles by default
-    (dired-hide-dotfiles-mode))
+    (cond (ri/dired-hide-dotfiles-mode--assistant dired-hide-dotfiles-mode)))
   ;
   (add-hook 'dired-mode-hook #'my-dired-mode-hook)
 
@@ -1640,6 +1656,8 @@ an rss feed reader for emacs
 
 ** gnus
 
+Usenet newsgroup reader
+
 https://www.maketecheasier.com/emacs-usenet-reader-with-gnus/
 
 #+begin_src emacs-lisp
@@ -1650,13 +1668,10 @@ https://www.maketecheasier.com/emacs-usenet-reader-with-gnus/
     (setq user-full-name '"aili")
     (setq user-mail-address '"yourname@email.invalid")
     (setq gnus-select-method '(nnnil))
-    (setq gnus-secondary-select-methods '(
-                                          (nntp "news.gmane.io")
+    (setq gnus-secondary-select-methods '((nntp "news.gmane.io")
                                           ;(nntp "news.alt.religion.emacs")
-                                          ;(nntp "news.comp.emacs")
                                           ;(nntp "gnu.emacs.sex")
-                                         ))
-  )
+                                         )))
 
     ;(setq gnus-directory ("~/.emacs.d/News/")
     ;    gnus-startup-file (concat user-emacs-directory "News/.newsrc")

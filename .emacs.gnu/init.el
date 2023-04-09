@@ -359,7 +359,7 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
-(defun ri/which-key-show-major-mode-shortcut
+(defun ri/which-key-show-major-mode-shortcut ()
   (interactive)
   (which-key-show-major-mode))
 
@@ -908,16 +908,24 @@
     '(("mkv" . "mpv")
       ("png" . "feh"))))
 
+(defvar ri/dired-hide-dotfiles-mode--assistant t)
+
+(defvar test-var nil)
+
+(defun ri/dired-hide-dotfiles-mode--toggle ()
+  ;; when run, toggles dired-hide-dotfiles-mode and assistant var
+  (interactive)
+  (setq dired-hide-dotfiles-mode (not dired-hide-dotfiles-mode))
+  (setq ri/dired-hide-dotfiles-mode--assistant dired-hide-dotfiles-mode))
+
 (use-package dired-hide-dotfiles
   :commands (dired dired-jump)
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
-    "H" 'dired-hide-dotfiles-mode))
+   "H" '(ri/dired-hide-dotfiles-mode--toggle)))
 
 (defun my-dired-mode-hook ()
-  "My `dired` mode hook."
-  ;; hide dotfiles by default
-  (dired-hide-dotfiles-mode))
+  (cond (ri/dired-hide-dotfiles-mode--assistant dired-hide-dotfiles-mode)))
 ;
 (add-hook 'dired-mode-hook #'my-dired-mode-hook)
 
@@ -946,13 +954,10 @@
   (setq user-full-name '"aili")
   (setq user-mail-address '"yourname@email.invalid")
   (setq gnus-select-method '(nnnil))
-  (setq gnus-secondary-select-methods '(
-                                        (nntp "news.gmane.io")
+  (setq gnus-secondary-select-methods '((nntp "news.gmane.io")
                                         ;(nntp "news.alt.religion.emacs")
-                                        ;(nntp "news.comp.emacs")
                                         ;(nntp "gnu.emacs.sex")
-                                       ))
-)
+                                       )))
 
   ;(setq gnus-directory ("~/.emacs.d/News/")
   ;    gnus-startup-file (concat user-emacs-directory "News/.newsrc")
