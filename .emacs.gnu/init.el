@@ -10,6 +10,8 @@
 
 (add-hook 'emacs-startup-hook #'ri/display-startup-time)
 
+(setq native-comp-async-report-warnings-errors 'silent)
+
 ;; Package sources ----
 (require 'package) ; package management functions (autoloaded?)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -131,7 +133,7 @@
   (setq evil-want-C-i-jump t)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
-  (setq evil-undo-system 'undo-tree)
+  (setq evil-undo-system 'undo-fu)
   :config
   (add-hook 'evil-mode-hook 'ri/evil-hook)
   (evil-mode 1)
@@ -155,13 +157,21 @@
   :config
   (evil-collection-init))
 
+;; To change to undo-tree, update evil-undo-system above.
 ;; undo-tree for evil-undo
-(use-package undo-tree
-  :after evil
-  :init
-  (global-undo-tree-mode 1)
+;; (use-package undo-tree
+;;   :after evil
+;;   :init
+;;   (global-undo-tree-mode 1)
+;;   :config
+;;   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.gnu/undo"))))
+
+(use-package undo-fu)
+
+(use-package undo-fu-session
+  :after undo-fu
   :config
-  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.gnu/undo"))))
+  (undo-fu-session-global-mode t))
 
 ;; general.el
 (use-package general
@@ -302,8 +312,8 @@
 (use-package doom-themes
   :init 
   (load-theme 'doom-dracula t))
-  ;;(load-theme 'doom-monokai-spectrum t))
-  ;;(load-theme 'doom-snazzy t))
+  ;;(load-theme 'doom-monokai-spectrum t)
+  ;;(load-theme 'doom-snazzy t)
 
 (defun ri/load-theme-and-font-setup ()
   (interactive)
@@ -349,14 +359,20 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
+(defun ri/which-key-show-major-mode-shortcut
+  (interactive)
+  (which-key-show-major-mode))
+
 (ri/leader-keys
   "h" '(:ignore t :which-key "help")
   "hf" 'describe-function
   "hv" 'describe-variable
   "hk" 'describe-key
-  ;"hb" 'describe-bindings
+  "hm" '(:ignore t :which-key "key")
+  "hmm" '(which-key-show-major-mode :which-key "which-key major")
+  "hmk" '(describe-keymap :which-key "search keymap")
+  "hma" '(describe-mode :which-key "show all modes")
   "hb" 'counsel-descbinds
-  "hm" 'describe-mode
   "hg" 'customize-group
   "hP" 'describe-package
   "hp" 'helpful-at-point)
@@ -672,6 +688,8 @@
 (use-package lsp-ivy
   :after lsp)
 
+(add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+
 ;; rust-analyzer required. gnu guix package?
 (use-package rustic
   ;:ensure t ;; no need *
@@ -726,6 +744,9 @@
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
+
+(use-package flycheck
+  :hook (lsp-mode . flycheck-mode))
 
 ;; projectile
 ;; (project management)
@@ -905,9 +926,12 @@
   "dd" 'dired
   "dj" 'dired-jump)
 
-;; matrix client
-(use-package ement
-  :commands ement)
+;; doesn't work... what is tramp?
+(use-package sudo-edit
+  :custom
+  (sudo-edit-local-method "doas")
+  :config
+  (global-set-key (kbd "C-c C-r") 'sudo-edit))
 
 ;; rss
 ;; maybe don't need, phone is enough?
@@ -916,10 +940,40 @@
 (use-package elfeed
   :commands elfeed)
 
+(use-package gnus
+  :commands gnus
+  :config
+  (setq user-full-name '"aili")
+  (setq user-mail-address '"yourname@email.invalid")
+  (setq gnus-select-method '(nnnil))
+  (setq gnus-secondary-select-methods '(
+                                        (nntp "news.gmane.io")
+                                        ;(nntp "news.alt.religion.emacs")
+                                        ;(nntp "news.comp.emacs")
+                                        ;(nntp "gnu.emacs.sex")
+                                       ))
+)
+
+  ;(setq gnus-directory ("~/.emacs.d/News/")
+  ;    gnus-startup-file (concat user-emacs-directory "News/.newsrc")
+  ;    message-directory (concat user-emacs-directory "Mail/")))
+
+  ;;(setq gnus-secondary-select-methods '((nntp "alt.religion.emacs")))
+
+;; matrix client
+(use-package ement
+  :commands ement)
+
+(use-package jabber
+   :commands jabber)
+
 ;; erc
 ;; make erc start after startup?
 (use-package erc
   :commands erc)
+
+(use-package mastodon
+  :commands mastodon)
 
 ;; Keep customization settings in a temporary file (does this even work?)
 (setq custom-file

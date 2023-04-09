@@ -4,6 +4,11 @@
 
 * Table of Contents :TOC:
 - [[#notes-to-self][Notes to self]]
+  - [[#general-useful-keybinds][General Useful Keybinds]]
+  - [[#configuration-notes][Configuration notes]]
+  - [[#questions][Questions]]
+  - [[#configuring-emacs-wo-evil-the-vanilla-way][Configuring Emacs w/o Evil, the Vanilla way]]
+  - [[#package-research][Package research]]
 - [[#startup-performance][Startup performance]]
 - [[#package-management][Package management]]
 - [[#prevent-littering][Prevent littering]]
@@ -19,7 +24,7 @@
 - [[#keybindings][Keybindings]]
   - [[#make-escape-quit][make escape quit]]
   - [[#evil-mode][evil-mode]]
-  - [[#undo-tree][undo-tree]]
+  - [[#evil-undo-system-undo-treefu][evil-undo-system (undo-tree/fu)]]
   - [[#generalel][general.el]]
   - [[#generalel-generic-binds][general.el generic binds]]
   - [[#hydra][hydra]]
@@ -33,33 +38,38 @@
   - [[#modus-themes][modus-themes]]
   - [[#which-key][which-key]]
   - [[#helpful][helpful]]
-  - [[#help-keybinds][help keybinds]]
+  - [[#help-general-keybinds][help general keybinds]]
 - [[#org][Org]]
-  - [[#org-fonts][org-fonts]]
-  - [[#org--agenda][org + agenda]]
-  - [[#bullets][bullets]]
+  - [[#org-fonts][Org-fonts]]
+  - [[#org--agenda][Org + agenda]]
+  - [[#bullets][Bullets]]
   - [[#side-padding][side-padding]]
-  - [[#org-babel][org-babel]]
-  - [[#table-of-contents][table of contents]]
+  - [[#org-babel][Org-babel]]
+  - [[#toc][TOC]]
 - [[#development][Development]]
   - [[#lsp-mode][lsp-mode]]
   - [[#languages][languages]]
-  - [[#company-mode][company mode]]
-  - [[#projectile][projectile]]
-  - [[#magit][magit]]
-  - [[#commenting][Commenting]]
+  - [[#company-mode][Company mode]]
+  - [[#flycheck][Flycheck]]
+  - [[#projectile][Projectile]]
+  - [[#magit][Magit]]
+  - [[#commenting][commenting]]
 - [[#terminal][Terminal]]
   - [[#term-mode][term-mode]]
   - [[#vterm][vterm]]
   - [[#shell-mode][shell-mode]]
-  - [[#shell-pop][shell-pop]]
+  - [[#shell-pop-pop-up][shell-pop (pop-up)]]
   - [[#eshell][Eshell]]
 - [[#files][Files]]
   - [[#dired][Dired]]
+  - [[#sudo-edit][sudo-edit]]
 - [[#programs][Programs]]
-  - [[#ement][ement]]
   - [[#elfeed][elfeed]]
+  - [[#gnus][gnus]]
+  - [[#ement][ement]]
+  - [[#emacs-jabber][emacs-jabber]]
   - [[#erc][erc]]
+  - [[#mastodonel][mastodon.el]]
 - [[#applications][Applications]]
   - [[#xmodmap][Xmodmap]]
   - [[#mpv][mpv]]
@@ -72,25 +82,17 @@
 
 Emacs Config
 
+** General Useful Keybinds
+
 + C-x C-e to eval at point
 + M-: to eval variable
 + M-o in list for options
 + C-w window management
 + evil C-o to go back to prev location!
-
 + check-parens to check for errors
 + emacs-lisp-mode-map for viewing local keybinds
 
-+ :mkdirp yes to create directories when tangling... disabled?
-+ How does :noweb work?
-+ keybind to search toc for link?
-
-Q's
-+ auto-revert-mode -- updates file when it changes on disk. use in some modes/files?
-+ package-initialize
-
-Look into:
-- Meow since C-j and C-k will be hard in dvorak (could use alt. keys or replace?)
+** Configuration notes
 
 Reduce Emacs startup time:
 - :hook
@@ -100,9 +102,34 @@ Reduce Emacs startup time:
 - :after
 - :defer
 
-To update:
-- hydra
-  
+** Questions
+
+:mkdirp, :noweb, toc link
++ :mkdirp yes to create directories when tangling... disabled?
++ How does :noweb work?
++ keybind to search toc for link?
+
+auto-revert-mode, package-initialize
++ auto-revert-mode -- updates file when it changes on disk. use in some modes/files?
++ package-initialize
+
+Look into (meow/god, C-n C-p, ditch evil):
+- Meow/God-mode since C-j and C-k (up/down) will be hard in dvorak (could use alt. keys or C-n C-p?)
+
+** Configuring Emacs w/o Evil, the Vanilla way
+
+Emacs keybinds:
+https://www.masteringemacs.org/article/mastering-key-bindings-emacs
++ C-h m --- describe-mode
++ M-x describe-keymap
+
+** Package research
+
+List of useful packages:
+https://github.com/emacs-tw/awesome-emacs#windows
+Good packages to consider:
++ 
+
 * Startup performance
 
 #+begin_src emacs-lisp
@@ -118,7 +145,9 @@ To update:
              gcs-done))
 
   (add-hook 'emacs-startup-hook #'ri/display-startup-time)
-    
+
+  (setq native-comp-async-report-warnings-errors 'silent)
+
 #+end_src
 
 * Package management
@@ -344,7 +373,7 @@ Make <escape> quit.
     (setq evil-want-C-i-jump t)
     (setq evil-want-integration t)
     (setq evil-want-keybinding nil)
-    (setq evil-undo-system 'undo-tree)
+    (setq evil-undo-system 'undo-fu)
     :config
     (add-hook 'evil-mode-hook 'ri/evil-hook)
     (evil-mode 1)
@@ -370,19 +399,27 @@ Make <escape> quit.
 
 #+end_src
 
-** undo-tree
+** evil-undo-system (undo-tree/fu)
 
 https://github.com/apchamberlain/undo-tree.el
 
 #+begin_src emacs-lisp
 
+  ;; To change to undo-tree, update evil-undo-system above.
   ;; undo-tree for evil-undo
-  (use-package undo-tree
-    :after evil
-    :init
-    (global-undo-tree-mode 1)
+  ;; (use-package undo-tree
+  ;;   :after evil
+  ;;   :init
+  ;;   (global-undo-tree-mode 1)
+  ;;   :config
+  ;;   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.gnu/undo"))))
+
+  (use-package undo-fu)
+
+  (use-package undo-fu-session
+    :after undo-fu
     :config
-    (setq undo-tree-history-directory-alist '(("." . "~/.emacs.gnu/undo"))))
+    (undo-fu-session-global-mode t))
 
 #+end_src
 
@@ -590,8 +627,8 @@ Includes:
   (use-package doom-themes
     :init 
     (load-theme 'doom-dracula t))
-    ;;(load-theme 'doom-monokai-spectrum t))
-    ;;(load-theme 'doom-snazzy t))
+    ;;(load-theme 'doom-monokai-spectrum t)
+    ;;(load-theme 'doom-snazzy t)
 
   (defun ri/load-theme-and-font-setup ()
     (interactive)
@@ -675,18 +712,24 @@ Shows more info in help menu
 
 #+end_src
 
-** help keybinds
+** help general keybinds
 
 #+begin_src emacs-lisp
+
+  (defun ri/which-key-show-major-mode-shortcut
+    (interactive)
+    (which-key-show-major-mode))
 
   (ri/leader-keys
     "h" '(:ignore t :which-key "help")
     "hf" 'describe-function
     "hv" 'describe-variable
     "hk" 'describe-key
-    ;"hb" 'describe-bindings
+    "hm" '(:ignore t :which-key "key")
+    "hmm" '(which-key-show-major-mode :which-key "which-key major")
+    "hmk" '(describe-keymap :which-key "search keymap")
+    "hma" '(describe-mode :which-key "show all modes")
     "hb" 'counsel-descbinds
-    "hm" 'describe-mode
     "hg" 'customize-group
     "hP" 'describe-package
     "hp" 'helpful-at-point)
@@ -700,7 +743,7 @@ Includes:
 + org-fonts
 + bullets, side-padding, tangle, toc, etc.
 
-** org-fonts
+** Org-fonts
 
 maybe move org-fonts below org-mode, then have a use-package org inside it to run ri/org-font-setup...
 
@@ -734,7 +777,7 @@ maybe move org-fonts below org-mode, then have a use-package org inside it to ru
 
 #+end_src
 
-** org + agenda
+** Org + agenda
 
 agenda query (custom-agenda-views) documentation: https://orgmode.org/manual/Custom-Agenda-Views.html#Custom-Agenda-Views
 
@@ -934,7 +977,7 @@ to add tags to a heading,
 
 #+end_src
 
-** bullets
+** Bullets
 
 #+begin_src emacs-lisp
 
@@ -968,7 +1011,7 @@ to add tags to a heading,
 
 #+end_src
 
-** org-babel
+** Org-babel
 
 code blocks and stuff
 
@@ -1024,7 +1067,7 @@ code blocks and stuff
 
 #+end_src
 
-** table of contents
+** TOC
 
 https://github.com/snosov1/toc-org
 
@@ -1132,6 +1175,14 @@ special ivy search functionality for lsp
 
 ** languages
 
+*** Emacs lisp
+
+#+begin_src emacs-lisp
+
+  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+  
+#+end_src
+
 *** Rust
 
 https://robert.kra.hn/posts/rust-emacs-setup/
@@ -1187,7 +1238,7 @@ most rustic features are accessible with C-c C-c
 
 #+end_src
 
-** company mode
+** Company mode
 
 another completion framework similar to ivy.
 code completion in lsp-mode.
@@ -1217,7 +1268,16 @@ code completion in lsp-mode.
 
 #+end_src
 
-** projectile
+** Flycheck
+
+#+begin_src emacs-lisp
+
+  (use-package flycheck
+    :hook (lsp-mode . flycheck-mode))
+
+#+end_src
+
+** Projectile
 
 project management
 bound to C-p
@@ -1256,7 +1316,7 @@ learn more about projectile for better project management
 
 #+end_src
 
-** magit
+** Magit
 
 #+begin_src emacs-lisp
 
@@ -1287,7 +1347,7 @@ learn more about projectile for better project management
 
 #+end_src
 
-** Commenting
+** commenting
 
 #+begin_src emacs-lisp
 
@@ -1372,7 +1432,7 @@ in between system shell and emacs...
 
 - not good, but works great on windows...
 
-** shell-pop
+** shell-pop (pop-up)
 
 Hit s-<return> to bring up scratchpad terminal.
 
@@ -1548,19 +1608,20 @@ file management, etc
 
 #+end_src
 
-* Programs
-
-** ement
-
-a matrix client for emacs
+** sudo-edit
 
 #+begin_src emacs-lisp
 
-  ;; matrix client
-  (use-package ement
-    :commands ement)
+  ;; doesn't work... what is tramp?
+  (use-package sudo-edit
+    :custom
+    (sudo-edit-local-method "doas")
+    :config
+    (global-set-key (kbd "C-c C-r") 'sudo-edit))
 
 #+end_src
+
+* Programs
 
 ** elfeed
 
@@ -1577,10 +1638,62 @@ an rss feed reader for emacs
 
 #+end_src
 
+** gnus
+
+https://www.maketecheasier.com/emacs-usenet-reader-with-gnus/
+
+#+begin_src emacs-lisp
+
+  (use-package gnus
+    :commands gnus
+    :config
+    (setq user-full-name '"aili")
+    (setq user-mail-address '"yourname@email.invalid")
+    (setq gnus-select-method '(nnnil))
+    (setq gnus-secondary-select-methods '(
+                                          (nntp "news.gmane.io")
+                                          ;(nntp "news.alt.religion.emacs")
+                                          ;(nntp "news.comp.emacs")
+                                          ;(nntp "gnu.emacs.sex")
+                                         ))
+  )
+
+    ;(setq gnus-directory ("~/.emacs.d/News/")
+    ;    gnus-startup-file (concat user-emacs-directory "News/.newsrc")
+    ;    message-directory (concat user-emacs-directory "Mail/")))
+
+    ;;(setq gnus-secondary-select-methods '((nntp "alt.religion.emacs")))
+
+#+end_src
+
+** ement
+
+a matrix client for emacs
+https://github.com/alphapapa/ement.el
+
+#+begin_src emacs-lisp
+
+  ;; matrix client
+  (use-package ement
+    :commands ement)
+
+#+end_src
+
+** emacs-jabber
+
+An XMPP client for Emacs.
+https://codeberg.org/emacs-jabber/emacs-jabber/
+
+#+begin_src emacs-lisp
+
+  (use-package jabber
+     :commands jabber)
+
+#+end_src
+
 ** erc
 
 an irc client for emacs
-
 https://github.com/alphapapa/ement.el
 
 #+begin_src emacs-lisp
@@ -1589,6 +1702,18 @@ https://github.com/alphapapa/ement.el
   ;; make erc start after startup?
   (use-package erc
     :commands erc)
+
+#+end_src
+
+** mastodon.el
+
+A mastodon/fediverse client for Emacs.
+https://codeberg.org/martianh/mastodon.el
+
+#+begin_src emacs-lisp
+
+  (use-package mastodon
+    :commands mastodon)
 
 #+end_src
 
@@ -1658,8 +1783,8 @@ unix applications go here
 
   # zle -N zle-keymap-select
   # zle -N zle-line-init
-  # echo -ne '\e[5 q' # Use beam shape cursor on startup.
-  # preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+  # echo -ne '\e[5 q' # Use beam shape cursor on startup. ]
+  # preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.}
 
 
   #--------------------------------------------------------------

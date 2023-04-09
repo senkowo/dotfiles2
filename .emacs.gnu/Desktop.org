@@ -29,7 +29,7 @@ https://github.com/ch11ng/exwm/wiki
 
   ;; also preview themes package
   ;(defun ri/random-wallpaper ()
-  ;  (interactive)
+  ;  (interactive))
 
 
   ;; depends on nm-applet, pasystray(?), pavucontrol(?), and blueman
@@ -61,6 +61,23 @@ https://github.com/ch11ng/exwm/wiki
     (interactive)
     (exwm-workspace-switch (- exwm-workspace-current-index 1)))
 
+  ;; switch to last window (any frame inclusive)
+  (defun ri/switch-to-last-window-any-frame ()
+    "Switch to the last window, including "
+    (interactive)
+    (let ((win (get-mru-window t t t)))
+      (unless win (error "Last window not found"))
+      (let ((frame (window-frame win)))
+        (select-frame-set-input-focus frame)
+        (select-window win))))
+
+  ;; switch to last window
+  (defvar ri/last-window-direction 1)
+  (defun ri/switch-to-last-window ()
+    (interactive)
+    (other-window ri/last-window-direction)
+    (setq ri/last-window-direction (- 0 ri/last-window-direction)))
+
   (defun ri/exwm-update-class ()
     (exwm-workspace-rename-buffer (format "EXWM: %s" exwm-class-name)))
 
@@ -86,9 +103,15 @@ https://github.com/ch11ng/exwm/wiki
   (use-package exwm-mff
     :config
     (exwm-mff-mode nil))
+    ;; ^ should already be nil...
 
   ;; warp cursor to center when switch to a X window buffer.
   (add-hook 'exwm-manage-finish-hook (lambda () (exwm-mff-warp-to-selected)))
+
+  ;; automatically balance windows after splitting
+  (use-package balanced-windows
+    :config
+    (balanced-windows-mode))
 
   ;; -------
 
@@ -105,8 +128,7 @@ https://github.com/ch11ng/exwm/wiki
     (display-time-default-load-average nil)
     :config
     (setq exwm-workspace-number 5 ; 0-5
-          ;mouse-autoselect-window nil ; autoselect when hover?
-          ;focus-follows-mouse t
+          focus-follows-mouse nil
           ;exwm-workspace-warp-cursor t ;?
           exwm-debug nil) ;enable for debug mode
 
@@ -140,16 +162,19 @@ https://github.com/ch11ng/exwm/wiki
     ;; --------
 
     ;; Sets up dvorak keybinds (also does ctrl:nocaps?)
-    (start-process-shell-command "setxkbmap" nil "setxkbmap -layout 'us,us' -variant ',dvorak' -option grp:alts_toggle ctrl:nocaps")
+    (start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant ',dvorak' -option grp:alts_toggle ctrl:nocaps")
     ;;
     ;; Rebind Ctrl to CapsLock 
-    (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/exwm/Xmodmap")
+    (start-process-shell-command "Xmodmap S-C Esc" nil "xmodmap ~/.emacs.d/exwm/Xmodmap")
 
     ;; set hold type startup and speed
-    (start-process-shell-command "type speed" nil "xset r rate 300 40")
+    (start-process-shell-command "xset typing speed" nil "xset r rate 300 40")
 
     ;; set cursor type (what if not enabled?)
-    (start-process-shell-command "cursor type" nil "xsetroot -cursor_name left_ptr")
+    (start-process-shell-command "xsetroot cursor" nil "xsetroot -cursor_name left_ptr")
+
+    ;; night light 
+    (start-process-shell-command "sct auto adjust" nil "sct-auto-adjust.sh")
 
     ;; -------
 
@@ -189,6 +214,7 @@ https://github.com/ch11ng/exwm/wiki
             ?\C-x
             ?\C-h
             ?\C-u
+            ?\C-w
             ?\C-\M-j  ;;  buffer list 
             ?\C-\M-h  ;;  previous workspace
             ?\C-\M-l  ;;  next workspace
@@ -218,9 +244,11 @@ https://github.com/ch11ng/exwm/wiki
             ([?\s-J] . windmove-swap-states-down)
 
             ;; Shortcuts for windows 
-            ([?\s-u] . evil-window-prev)
-            ([?\s-U] . evil-window-prev)
-            ([?\s-c] . evil-window-delete)
+            ;([?\s-u] . (lambda) () (interactive) (other-window 1))
+            ;([?\s-i] . (lambda) () (interactive) (other-window -1))
+            ([?\s-u] . (other-window 1))
+            ([?\s-i] . (other-window -1))
+            ([?\s-\S-c] . delete-window)
             ;;;; alternatively, s-u + s-S-u for windows, and s-i for launcher or sum (comfy?)
             ;;;; or maybe s-o for windows and s-u s-i for buffers?
 
@@ -247,9 +275,9 @@ https://github.com/ch11ng/exwm/wiki
             ;; Switch workspace
             ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
             ([?\s-w] . exwm-workspace-switch)
-            ([?\s-\C-o] . (lambda () (interactive) (ri/exwm-workspace-switch-to-last)))
-            ([?\s-\C-k] . (lambda () (interactive) (ri/exwm-workspace-switch-to-next)))
-            ([?\s-\C-j] . (lambda () (interactive) (ri/exwm-workspace-switch-to-previous)))
+            ;([?\s-\C-o] . (lambda () (interactive) (ri/exwm-workspace-switch-to-last)))
+            ;([?\s-\C-k] . (lambda () (interactive) (ri/exwm-workspace-switch-to-next)))
+            ;([?\s-\C-j] . (lambda () (interactive) (ri/exwm-workspace-switch-to-previous)))
 
             ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
             ,@(mapcar (lambda (i)
@@ -261,7 +289,7 @@ https://github.com/ch11ng/exwm/wiki
 
     ;; s-i instead?
     (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
-    (exwm-input-set-key (kbd "s-i") 'counsel-linux-app)
+    ;(exwm-input-set-key (kbd "s-i") 'counsel-linux-app)
     (exwm-input-set-key (kbd "s-<return>") 'shell-pop)
 
     (exwm-enable))
@@ -292,6 +320,10 @@ https://github.com/ch11ng/exwm/wiki
     ;; screenshot
     (desktop-environment-screenshot-command "flameshot gui"))
 
+  ;; ivy-posframe to have a floating minibuffer.
+  ;; maybe have disappearing minibuffer above the modeline?
+  (use-package ivy-posframe
+    :after exwm)
 
 
 

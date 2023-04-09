@@ -38,8 +38,8 @@ bindkey -e # emacs, not -v (vim)
 
 # zle -N zle-keymap-select
 # zle -N zle-line-init
-# echo -ne '\e[5 q' # Use beam shape cursor on startup.
-# preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+# echo -ne '\e[5 q' # Use beam shape cursor on startup. ]
+# preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.}
 
 
 #--------------------------------------------------------------
