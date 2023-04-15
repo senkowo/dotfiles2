@@ -48,7 +48,7 @@ gentoo-pipewire-launcher & # Disabled for EXWM, also has to start after booting 
 
 if [ "$startemacs" = true ] ; then
     echo "Starting emacs..."
-    exec ~/.dotfiles/.emacs.gnu/exwm/start-exwm.sh
+    exec ~/.emacs.d/exwm/start-exwm.sh
 
     exit 0
 fi

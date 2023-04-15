@@ -1,6 +1,6 @@
 #!/bin/sh
 # Set screen DPI (for high DPI displays) (before compton)
-#xrdb ~/.emacs.gnu/exwm/Xresources
+#xrdb ~/.emacs.d/exwm/Xresources
 
 # Screen compositor
 picom &
@@ -9,4 +9,4 @@ picom &
 xss-lock -- slock &
 
 # Start Emacs w/ EXWM
-exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.gnu/init.el" -mm --debug-init -l ~/.emacs.gnu/desktop.el
+exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.d/init.el" -mm --debug-init -l ~/.emacs.d/desktop.el

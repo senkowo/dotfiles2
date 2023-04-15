@@ -21,6 +21,7 @@
 - [[#basic-functionality][Basic functionality]]
   - [[#all-the-icons][all-the-icons]]
   - [[#auto-update-packages][auto-update packages]]
+  - [[#add-lisp-functions-dir-to-path][add lisp functions dir to path]]
 - [[#keybindings][Keybindings]]
   - [[#make-escape-quit][make escape quit]]
   - [[#evil-mode][evil-mode]]
@@ -59,6 +60,7 @@
   - [[#vterm][vterm]]
   - [[#shell-mode][shell-mode]]
   - [[#shell-pop-pop-up][shell-pop (pop-up)]]
+  - [[#eat][eat]]
   - [[#eshell][Eshell]]
 - [[#files][Files]]
   - [[#dired][Dired]]
@@ -128,15 +130,33 @@ https://www.masteringemacs.org/article/mastering-key-bindings-emacs
 List of useful packages:
 https://github.com/emacs-tw/awesome-emacs#windows
 Good packages to consider:
++ ace-window
+  https://github.com/abo-abo/ace-window
++ switch-window
+  https://github.com/dimitri/switch-window
 + rcirc
 + discover-my-major
 + discover.el
 + cheatsheet.el
 + speed-type
 + emacs-fireplace
++ edwina (tiling wm)
+
 Poetry and journaling buffer and system...
 one general input, then sent over to different categories...
 would be nice on android termux too...
+
+A writing org-mode mode?
+
+Ivy-postframe floating minibuffer?
+
+pdf viewer? latex?
+
+gnu guix config?
+
+transfer everything over to .emacs.d?
+
+for having several configs, have testing in dependent .config/ dir, but for more permanent put in .emacs.d so can access all the same settings, history, cache, etc.
 
 * Startup performance
 
@@ -194,7 +214,8 @@ package management, sources, auto, etc
 #+begin_src emacs-lisp
 
   ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
-  (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
+  ;; UNNECESSARY CHANGE, CHANGE BACK!
+  (setq user-emacs-directory (expand-file-name "~/.emacs.d/")
         url-history-file (expand-file-name "url/history" user-emacs-directory))
 
   ;; no-littering
@@ -284,10 +305,10 @@ General fonts for emacs.
 #+begin_src emacs-lisp
 
   (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-  (setq mouse-wheel-progressive-speed t) ;; don't accelerate scrolling
+  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
   (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
   (setq scroll-step 1) ;; keyboard scroll one line at a time
-  (setq use-dialog-box t) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
+  (setq use-dialog-box nil) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
   
 #+end_src
 
@@ -332,6 +353,14 @@ basic functionality
     :config
     (auto-package-update-maybe)
     (auto-package-update-at-time "15:00"))
+
+#+end_src
+
+** add lisp functions dir to path
+
+#+begin_src emacs-lisp
+
+  (add-to-list 'load-path (concat user-emacs-directory "lisp/"))
 
 #+end_src
 
@@ -420,7 +449,8 @@ https://github.com/apchamberlain/undo-tree.el
   ;;   :init
   ;;   (global-undo-tree-mode 1)
   ;;   :config
-  ;;   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.gnu/undo"))))
+  ;;   (setq undo-tree-history-directory-alist
+  ;;    '(("." . (concat user-emacs-directory "var/undo-tree-his/")))))
 
   (use-package undo-fu)
 
@@ -509,6 +539,11 @@ Fast, transient keybinds
 ** window management
 
 #+begin_src emacs-lisp
+
+  (use-package ace-window
+    :config
+    (setq aw-scope 'frame)
+    (global-set-key (kbd "M-o") 'ace-window))
 
   (ri/leader-keys
     "w"  '(:ignore t :which-key "window")
@@ -652,10 +687,10 @@ Includes:
 
 #+begin_src emacs-lisp
 
-;; doom-modeline
-(use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :custom (doom-modeline-height 40))
+  ;; doom-modeline
+  (use-package doom-modeline
+    :init (doom-modeline-mode 1)
+    :custom (doom-modeline-height 50))
 
 #+end_src
 
@@ -1060,7 +1095,7 @@ code blocks and stuff
   ;; Automatically tangle our Emacs.org config file when we save it
   (defun ri/org-babel-tangle-config ()
     (when (string-equal (file-name-directory (buffer-file-name))
-                        (expand-file-name "~/.dotfiles/.emacs.gnu/"))
+                        (expand-file-name user-emacs-directory))
       ;;                                  ^ Formerly user-emacs-directory (now .cache/emacs/)
       ;; Dynamic scoping to the rescue
       (let ((org-confirm-babel-evaluate nil))
@@ -1448,7 +1483,7 @@ https://github.com/kyagi/shell-pop-el
 
 #+begin_src emacs-lisp
 
-  (use-package shell
+  (use-package shell-pop
     :commands shell-pop
     :custom
     (shell-pop-default-directory "/home/mio")
@@ -1458,6 +1493,15 @@ https://github.com/kyagi/shell-pop-el
     (shell-pop-window-size 40)
     (shell-pop-window-position "bottom"))
 
+#+end_src
+
+** eat
+
+Emulate a terminal in Eshell!
+(non-gnu?)
+
+#+begin_src emacs-lisp
+  
 #+end_src
 
 ** Eshell
@@ -1517,7 +1561,7 @@ file management, etc
     "fr" '(counsel-recentf :which-key "recent files")
     "ff" '(find-file :which-key "find-file")
     "fp" '(lambda () (interactive)
-           (find-file (expand-file-name "~/.emacs.gnu/"))
+           (find-file (expand-file-name "~/.dotfiles/.emacs.d/"))
              :which-key "open Emacs.org"))
 
 #+end_src
@@ -1590,24 +1634,26 @@ file management, etc
       '(("mkv" . "mpv")
         ("png" . "feh"))))
 
-  (defvar ri/dired-hide-dotfiles-mode--assistant t)
-
-  (defvar test-var nil)
+  ;; if enabled, when my-dired-mode-hook is run, re-enable dired-hide-dotfiles-mode
+  (defvar ri/dired-hide-dotfiles-mode--persist 1)
 
   (defun ri/dired-hide-dotfiles-mode--toggle ()
     ;; when run, toggles dired-hide-dotfiles-mode and assistant var
     (interactive)
-    (setq dired-hide-dotfiles-mode (not dired-hide-dotfiles-mode))
-    (setq ri/dired-hide-dotfiles-mode--assistant dired-hide-dotfiles-mode))
+    (if dired-hide-dotfiles-mode
+        (dired-hide-dotfiles-mode 0)
+      (dired-hide-dotfiles-mode 1))
+    (setq ri/dired-hide-dotfiles-mode--persist dired-hide-dotfiles-mode))
 
   (use-package dired-hide-dotfiles
     :commands (dired dired-jump)
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
-     "H" '(ri/dired-hide-dotfiles-mode--toggle)))
+     "H" 'ri/dired-hide-dotfiles-mode--toggle))
 
   (defun my-dired-mode-hook ()
-    (cond (ri/dired-hide-dotfiles-mode--assistant dired-hide-dotfiles-mode)))
+    (if ri/dired-hide-dotfiles-mode--persist
+        (dired-hide-dotfiles-mode)))
   ;
   (add-hook 'dired-mode-hook #'my-dired-mode-hook)
 
@@ -1671,11 +1717,11 @@ https://www.maketecheasier.com/emacs-usenet-reader-with-gnus/
     (setq gnus-secondary-select-methods '((nntp "news.gmane.io")
                                           ;(nntp "news.alt.religion.emacs")
                                           ;(nntp "gnu.emacs.sex")
-                                         )))
+                                         ))
 
-    ;(setq gnus-directory ("~/.emacs.d/News/")
-    ;    gnus-startup-file (concat user-emacs-directory "News/.newsrc")
-    ;    message-directory (concat user-emacs-directory "Mail/")))
+    (setq gnus-directory (concat user-emacs-directory "News/")
+          gnus-startup-file (concat user-emacs-directory "News/.newsrc")
+          message-directory (concat user-emacs-directory "Mail/")))
 
     ;;(setq gnus-secondary-select-methods '((nntp "alt.religion.emacs")))
 
@@ -1852,7 +1898,7 @@ unix applications go here
 #+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/disable-common.local
 
   blacklist ${HOME}/Documents/secure
-  blacklist ${HOME}/Public/School/Important-docs
+  blacklist ${HOME}/School/school/Important-docs
 
 #+end_src
 

@@ -1,2 +1,2 @@
 blacklist ${HOME}/Documents/secure
-blacklist ${HOME}/Public/School/Important-docs
+blacklist ${HOME}/School/school/Important-docs

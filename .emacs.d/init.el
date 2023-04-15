@@ -36,7 +36,8 @@
 (setq use-package-verbose t)
 
 ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
-(setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
+;; UNNECESSARY CHANGE, CHANGE BACK!
+(setq user-emacs-directory (expand-file-name "~/.emacs.d/")
       url-history-file (expand-file-name "url/history" user-emacs-directory))
 
 ;; no-littering
@@ -86,10 +87,10 @@
 (set-face-attribute 'variable-pitch nil :font "DejaVu Sans" :height 120 :weight 'regular)
 
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-(setq mouse-wheel-progressive-speed t) ;; don't accelerate scrolling
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
-(setq use-dialog-box t) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
+(setq use-dialog-box nil) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
 
 ;; Set frame transparency and maximize windows by default. 
 (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
@@ -109,6 +110,8 @@
   :config
   (auto-package-update-maybe)
   (auto-package-update-at-time "15:00"))
+
+(add-to-list 'load-path (concat user-emacs-directory "lisp/"))
 
 ;; ESC to quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -164,7 +167,8 @@
 ;;   :init
 ;;   (global-undo-tree-mode 1)
 ;;   :config
-;;   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.gnu/undo"))))
+;;   (setq undo-tree-history-directory-alist
+;;    '(("." . (concat user-emacs-directory "var/undo-tree-his/")))))
 
 (use-package undo-fu)
 
@@ -217,6 +221,11 @@
 
 (ri/leader-keys
   "ts" '(hydra-text-scale/body :which-key "scale text"))
+
+(use-package ace-window
+  :config
+  (setq aw-scope 'frame)
+  (global-set-key (kbd "M-o") 'ace-window))
 
 (ri/leader-keys
   "w"  '(:ignore t :which-key "window")
@@ -326,7 +335,7 @@
 ;; doom-modeline
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :custom (doom-modeline-height 40))
+  :custom (doom-modeline-height 50))
 
 ;; rainbow delimiters
 (use-package rainbow-delimiters
@@ -624,7 +633,7 @@
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun ri/org-babel-tangle-config ()
   (when (string-equal (file-name-directory (buffer-file-name))
-                      (expand-file-name "~/.dotfiles/.emacs.gnu/"))
+                      (expand-file-name user-emacs-directory))
     ;;                                  ^ Formerly user-emacs-directory (now .cache/emacs/)
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
@@ -821,7 +830,7 @@
   (setq vterm-shell "bash")
   (setq vterm-max-scrollback 10000))
 
-(use-package shell
+(use-package shell-pop
   :commands shell-pop
   :custom
   (shell-pop-default-directory "/home/mio")
@@ -830,6 +839,8 @@
   (shell-pop-universal-key "C-t")
   (shell-pop-window-size 40)
   (shell-pop-window-position "bottom"))
+
+
 
 ;; eshell config
 (defun ri/configure-eshell ()
@@ -873,7 +884,7 @@
   "fr" '(counsel-recentf :which-key "recent files")
   "ff" '(find-file :which-key "find-file")
   "fp" '(lambda () (interactive)
-         (find-file (expand-file-name "~/.emacs.gnu/"))
+         (find-file (expand-file-name "~/.dotfiles/.emacs.d/"))
            :which-key "open Emacs.org"))
 
 ;; dired 
@@ -908,24 +919,26 @@
     '(("mkv" . "mpv")
       ("png" . "feh"))))
 
-(defvar ri/dired-hide-dotfiles-mode--assistant t)
-
-(defvar test-var nil)
+;; if enabled, when my-dired-mode-hook is run, re-enable dired-hide-dotfiles-mode
+(defvar ri/dired-hide-dotfiles-mode--persist 1)
 
 (defun ri/dired-hide-dotfiles-mode--toggle ()
   ;; when run, toggles dired-hide-dotfiles-mode and assistant var
   (interactive)
-  (setq dired-hide-dotfiles-mode (not dired-hide-dotfiles-mode))
-  (setq ri/dired-hide-dotfiles-mode--assistant dired-hide-dotfiles-mode))
+  (if dired-hide-dotfiles-mode
+      (dired-hide-dotfiles-mode 0)
+    (dired-hide-dotfiles-mode 1))
+  (setq ri/dired-hide-dotfiles-mode--persist dired-hide-dotfiles-mode))
 
 (use-package dired-hide-dotfiles
   :commands (dired dired-jump)
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
-   "H" '(ri/dired-hide-dotfiles-mode--toggle)))
+   "H" 'ri/dired-hide-dotfiles-mode--toggle))
 
 (defun my-dired-mode-hook ()
-  (cond (ri/dired-hide-dotfiles-mode--assistant dired-hide-dotfiles-mode)))
+  (if ri/dired-hide-dotfiles-mode--persist
+      (dired-hide-dotfiles-mode)))
 ;
 (add-hook 'dired-mode-hook #'my-dired-mode-hook)
 
@@ -957,11 +970,11 @@
   (setq gnus-secondary-select-methods '((nntp "news.gmane.io")
                                         ;(nntp "news.alt.religion.emacs")
                                         ;(nntp "gnu.emacs.sex")
-                                       )))
+                                       ))
 
-  ;(setq gnus-directory ("~/.emacs.d/News/")
-  ;    gnus-startup-file (concat user-emacs-directory "News/.newsrc")
-  ;    message-directory (concat user-emacs-directory "Mail/")))
+  (setq gnus-directory (concat user-emacs-directory "News/")
+        gnus-startup-file (concat user-emacs-directory "News/.newsrc")
+        message-directory (concat user-emacs-directory "Mail/")))
 
   ;;(setq gnus-secondary-select-methods '((nntp "alt.religion.emacs")))
 

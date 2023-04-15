@@ -14,6 +14,9 @@ https://github.com/ch11ng/exwm/wiki
 | C-M-j    | view buffers                     |
 |----------+----------------------------------|
 
+notes:
+- exwm-input-release-keyboard for char mode, manage-finish-hook, make a program auto.
+
 ** Main configuration
 
 #+begin_src emacs-lisp
@@ -27,10 +30,16 @@ https://github.com/ch11ng/exwm/wiki
     (start-process-shell-command
       "feh" nil "feh --bg-fill ~/Pictures/wallpapers/oneshot-wallpaper1.jpg"))
 
+  (defun ri/position-window ()
+    (let* ((pos (frame-position))
+           (pos-x (car pos))
+           (pos-y (cdr pos)))
+
+    (exwm-floating-move (- pos-x) (- pos y))))
+
   ;; also preview themes package
   ;(defun ri/random-wallpaper ()
   ;  (interactive))
-
 
   ;; depends on nm-applet, pasystray(?), pavucontrol(?), and blueman
   (defun ri/exwm-init-hook ()
@@ -83,19 +92,45 @@ https://github.com/ch11ng/exwm/wiki
 
   (defun ri/exwm-update-title ()
     (pcase exwm-class-name
-      ("librewolf" (exwm-workspace-rename-buffer (format "Librewolf: %s" exwm-title)))))
+      ("librewolf" (exwm-workspace-rename-buffer (format "Librewolf: %s" exwm-title)))
+      ("vterm" (exwm-workspace-rename-buffer (format "vterm: %s" exwm-title)))))
 
-  (defun ri/exwm-configure-window-by-class ()
-    (interactive)
+  (defun ri/exwm-configure-window-startup ()
     (message "Window '%s' appeared!" exwm-class-name)
     (pcase exwm-class-name
-      ("librewolf" (exwm-workspace-move-window 2))
-      ("discord" (exwm-workspace-move-window 3))
+      ("librewolf" (exwm-workspace-move-window 3))
       ("keepassxc" (exwm-workspace-move-window 4))
+      ("discord" (exwm-workspace-move-window 2))
       ("mpv" (exwm-floating-toggle-floating)
              (exwm-layout-toggle-mode-line))
-      ;;; if game has trouble put it in exwm-input-release-keyboard, and then s-r to reset.
-      ("gimp" (exwm-workspace-move-window 3))))
+      ("gimp" (exwm-workspace-move-window 1))))
+      ;; if game has trouble put it in exwm-input-release-keyboard, and then s-r to reset.
+
+  ;; run when startup floating window
+  (defun ri/exwm-configure-floating-setup ()
+    (exwm-layout-hide-mode-line))
+
+  ;; shrink and expand windows... 
+
+  ;; spawn mpv in corner of screen so can watch youtube video
+
+  ;; make function keys work in fullscreen... always pass to emacs instead of exwm.
+
+  ;; move focus onto popup window
+
+  ; -------
+
+  (defun ri/run-keepassxc()
+    (interactive)
+    (ri/run-in-background "keepassxc")
+    (exwm-workspace-switch-create 4))
+  ;;
+  (defun ri/run-librewolf ()
+    (interactive)
+    (ri/run-in-background "librewolf")
+    (exwm-workspace-switch-create 3))
+
+  ; -------
 
   ;; very annoying?
   ;; makes the cursor visible? 
@@ -112,6 +147,33 @@ https://github.com/ch11ng/exwm/wiki
   (use-package balanced-windows
     :config
     (balanced-windows-mode))
+
+  ;; -------
+
+  ;; for floating minibuffer...
+  ;; ; show minibuffer in separate frame?
+  ;; ; show minibuffer on polybar? make it pop up from under polybar?
+  ;; ; auto-hiding minibuffer at top of screen, and posframe for all else but quit.
+  ;; ; polybar at top, print minibuffer messages, stable, bottom is only modeline
+
+  (use-package ivy-posframe
+    :config
+    (setq ivy-posframe-height-alist '((swiper . 20)
+                                      (counsel-M-x . 40)))
+
+    (setq ivy-posframe-display-functions-alist
+          '((swiper          . ivy-display-function-fallback)
+            ;(counsel-M-x    . ivy-posframe-display-at-window-bottom-left)
+            (counsel-M-x     . ivy-display-function-fallback)
+            (counsel-switch-buffer . ivy-display-function-fallback)
+            (complete-symbol . ivy-posframe-display-at-point)
+            (t               . ivy-posframe-display)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+    (ivy-posframe-mode 0))
 
   ;; -------
 
@@ -145,10 +207,10 @@ https://github.com/ch11ng/exwm/wiki
 
     ;; Configure windows as they're created (includes spawn in certain wkspaces)
     ;; For automoving to workspace, use a function.
-    (add-hook 'exwm-manage-finish-hook #'ri/exwm-configure-window-by-class)
+    (add-hook 'exwm-manage-finish-hook #'ri/exwm-configure-window-startup)
 
     ;; Hide the modeline on all floating windows
-    (add-hook 'exwm-floating-setup-hook (lambda () (exwm-layout-hide-mode-line)))
+    (add-hook 'exwm-floating-setup-hook #'ri/exwm-configure-floating-setup)
 
     ;; hook and command to go to the previous workspace
     (defvar ri/exwm-workspace--switch-history-hack (cons exwm-workspace-current-index '()))
@@ -165,7 +227,8 @@ https://github.com/ch11ng/exwm/wiki
     (start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant ',dvorak' -option grp:alts_toggle ctrl:nocaps")
     ;;
     ;; Rebind Ctrl to CapsLock 
-    (start-process-shell-command "Xmodmap S-C Esc" nil "xmodmap ~/.emacs.d/exwm/Xmodmap")
+    (start-process-shell-command "Xmodmap S-C Esc" nil 
+       (concat "xmodmap " (concat user-emacs-directory "exwm/Xmodmap")))
 
     ;; set hold type startup and speed
     (start-process-shell-command "xset typing speed" nil "xset r rate 300 40")
@@ -247,7 +310,7 @@ https://github.com/ch11ng/exwm/wiki
             ;([?\s-u] . (lambda) () (interactive) (other-window 1))
             ;([?\s-i] . (lambda) () (interactive) (other-window -1))
             ([?\s-u] . (lambda () (interactive) (other-window 1)))
-            ([?\s-i] . ((lambda () (interactive) (other-window -1)))
+            ([?\s-i] . (lambda () (interactive) (other-window -1)))
             ([?\s-C] . delete-window)
             ;;;; alternatively, s-u + s-S-u for windows, and s-i for launcher or sum (comfy?)
             ;;;; or maybe s-o for windows and s-u s-i for buffers?
@@ -289,8 +352,9 @@ https://github.com/ch11ng/exwm/wiki
 
     ;; s-i instead?
     (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
-    ;(exwm-input-set-key (kbd "s-i") 'counsel-linux-app)
     (exwm-input-set-key (kbd "s-<return>") 'shell-pop)
+    (exwm-input-set-key (kbd "s-y l") 'ri/run-librewolf)
+    (exwm-input-set-key (kbd "s-y p") 'ri/run-keepassxc)
 
     (exwm-enable))
 
@@ -313,9 +377,9 @@ https://github.com/ch11ng/exwm/wiki
     (desktop-environment-volume-small-decrement "-5%")
     (desktop-environment-volume-small-increment "+5%")
     (desktop-environment-volume-set-command "pactl set-sink-volume @DEFAULT_SINK@ %s")
-    (desktop-environment-volume-get-command "bash ~/.emacs.gnu/exwm/pactl-print-volume-w-mute.sh")
+    (desktop-environment-volume-get-command "bash ~/.emacs.d/exwm/pactl-print-volume-w-mute.sh")
     (desktop-environment-volume-get-regexp "\\(.*\\)")
-    (desktop-environment-volume-toggle-command "pactl set-sink-mute @DEFAULT_SINK@ toggle && bash ~/.emacs.gnu/exwm/pactl-print-mute.sh")
+    (desktop-environment-volume-toggle-command "pactl set-sink-mute @DEFAULT_SINK@ toggle && bash ~/.emacs.d/exwm/pactl-print-mute.sh")
     (desktop-environment-volume-toggle-regexp "\\(.*\\)" )
     ;; screenshot
     (desktop-environment-screenshot-command "flameshot gui"))
@@ -339,10 +403,10 @@ https://github.com/ch11ng/exwm/wiki
 
 ** EXWM Launcher
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/start-exwm.sh :shebang #!/bin/sh
+#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/start-exwm.sh :shebang #!/bin/sh
 
   # Set screen DPI (for high DPI displays) (before compton)
-  #xrdb ~/.emacs.gnu/exwm/Xresources
+  #xrdb ~/.emacs.d/exwm/Xresources
 
   # Screen compositor
   picom &
@@ -351,7 +415,7 @@ https://github.com/ch11ng/exwm/wiki
   xss-lock -- slock &
 
   # Start Emacs w/ EXWM
-  exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.gnu/init.el" -mm --debug-init -l ~/.emacs.gnu/desktop.el
+  exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.d/init.el" -mm --debug-init -l ~/.emacs.d/desktop.el
 
 #+end_src
 
@@ -359,7 +423,7 @@ https://github.com/ch11ng/exwm/wiki
 
 *Prints current volume and "mute" if muted:*
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/pactl-print-volume-w-mute.sh :shebang #!/bin/bash
+#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/pactl-print-volume-w-mute.sh :shebang #!/bin/bash
 
   volume=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | sed s/%//)
   muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
@@ -375,7 +439,7 @@ https://github.com/ch11ng/exwm/wiki
 
 *Prints the current mute status when toggling:*
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/pactl-print-mute.sh :shebang #!/bin/bash
+#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/pactl-print-mute.sh :shebang #!/bin/bash
 
 muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
 
@@ -389,7 +453,7 @@ fi
 
 ** Keyboard remapping
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.emacs.gnu/exwm/Xmodmap
+#+begin_src conf-unix :tangle ~/.dotfiles/.emacs.d/exwm/Xmodmap
 
   clear lock
   keycode 66 = Control_L Escape
@@ -398,7 +462,7 @@ fi
 
 ** High DPI setting
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/Xresources
+#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/Xresources
 
   Xft:dpi:  100  # set this to your desired DPI
 
@@ -412,16 +476,16 @@ For login manager
 
 #+begin_src sh :tangle no
 
-  doas ln -f ~/.emacs.gnu/exwm/EXWM.desktop /usr/share/xsessions/EXWM.desktop
+  doas ln -f ~/.emacs.d/exwm/EXWM.desktop /usr/share/xsessions/EXWM.desktop
 
 #+end_src
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.gnu/exwm/EXWM.desktop 
+#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/EXWM.desktop 
 
   [Desktop Entry]
   Name=EXWM
   Comment=Emacs Window Manager
-  Exec=sh /home/mio/.emacs.gnu/exwm/start-exwm.sh
+  Exec=sh /home/mio/.emacs.d/exwm/start-exwm.sh
   TryExec=sh
   Type=Application
   X-LightDM-DesktopName=exwm

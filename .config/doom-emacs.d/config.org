@@ -1,0 +1,868 @@
+#+TITLE: Doom Emacs Config
+#+PROPERTY: header-args :tangle config.el
+#+auto_tangle: t
+#+STARTUP: show2levels
+
+* Table of Contents :toc:
+- [[#about][About]]
+- [[#help][Help]]
+- [[#general][General]]
+- [[#editor][Editor]]
+- [[#fonts][Fonts]]
+- [[#org][Org]]
+  - [[#org-general][org (general)]]
+  - [[#agenda][agenda]]
+  - [[#roam][roam]]
+  - [[#auto-tangle][auto-tangle]]
+- [[#exwm][EXWM]]
+  - [[#main-init-window-naming-keybinds][Main (init, window-naming, keybinds)]]
+  - [[#keys][Keys]]
+  - [[#functions][Functions]]
+  - [[#general-system-config][General System Config]]
+  - [[#desktop-config][Desktop Config]]
+  - [[#panel][Panel]]
+  - [[#miscellaneous][Miscellaneous]]
+- [[#applications][Applications]]
+  - [[#erc][erc]]
+  - [[#dired][dired]]
+  - [[#ranger][ranger]]
+  - [[#elfeed][elfeed]]
+  - [[#org-pomodoro][org-pomodoro]]
+  - [[#treemacs][Treemacs]]
+  - [[#twittering-mode][Twittering-mode]]
+- [[#keybinds][Keybinds]]
+- [[#misc][Misc]]
+- [[#startup][Startup]]
+- [[#fixes][Fixes]]
+
+* About
+This is the main Doom Emacs Config
+#+begin_src emacs-lisp
+;;------------------------------------;;
+;; NOTE: USE THE ORG DOCUMENT TO EDIT ;;
+;;------------------------------------;;
+#+end_src
+* Help
+#+begin_src emacs-lisp
+;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+
+;; Place your private configuration here! Remember, you do not need to run 'doom
+;; sync' after modifying this file!
+
+
+;; Some functionality uses this to identify you, e.g. GPG configuration, email
+;; clients, file templates and snippets. It is optional.
+;; (setq user-full-name "John Doe"
+;;      user-mail-address "john@doe.com")
+
+;; Doom exposes five (optional) variables for controlling fonts in Doom:
+;;
+;; - `doom-font' -- the primary font to use
+;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
+;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
+;;   presentations or streaming.
+;; - `doom-unicode-font' -- for unicode glyphs
+;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
+;;
+;; See 'C-h v doom-font' for documentation and more examples of what they
+;; accept. For example:
+;;
+;;(setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
+;;      doom-variable-pitch-font (font-spec :family "sans" :size 13))
+;;
+;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
+;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
+;; refresh your font settings. If Emacs still can't find your font, it likely
+;; wasn't installed correctly. Font issues are rarely Doom issues!
+
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
+;;(setq doom-theme 'doom-one)
+
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
+;;(setq display-line-numbers-type t)
+
+;; If you use `org' and don't want your org files in the default location below,
+;; change `org-directory'. It must be set before org loads!
+;;(setq org-directory "~/org/")
+
+
+;; Whenever you reconfigure a package, make sure to wrap your config in an
+;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
+;;
+;;   (after! PACKAGE
+;;     (setq x y))
+;;
+;; The exceptions to this rule:
+;;
+;;   - Setting file/directory variables (like `org-directory')
+;;   - Setting variables which explicitly tell you to set them before their
+;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
+;;   - Setting doom variables (which start with 'doom-' or '+').
+;;
+;; Here are some additional functions/macros that will help you configure Doom.
+;;
+;; - `load!' for loading external *.el files relative to this one
+;; - `use-package!' for configuring packages
+;; - `after!' for running code after a package has loaded
+;; - `add-load-path!' for adding directories to the `load-path', relative to
+;;   this file. Emacs searches the `load-path' when you load packages with
+;;   `require' or `use-package'.
+;; - `map!' for binding new keys
+;;
+;; To get information about any of these functions/macros, move the cursor over
+;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+;; This will open documentation for it, including demos of how they are used.
+;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
+;; etc).
+;;
+;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; they are implemented.
+
+
+;;; BEGIN CONFIG ---------------------
+
+#+end_src
+* General
+#+begin_src emacs-lisp
+;; set user info
+(setq user-full-name "awoo"
+      user-mail-address "uwu@owo")
+
+;; set theme
+;(setq doom-theme 'doom-laserwave) ;; balanced, dark parts in org mode
+;(setq doom-theme 'TransSide)
+;(setq doom-theme 'manoj-dark) ;; hard to see location bar
+;(setq doom-theme 'doom-ir-black) ;; actually quite nice -- STRONG src-block highlighting
+;(setq doom-theme 'modus-vivendi) ;; org bold pale colors -- no src-block highlighting
+;(setq doom-theme 'doom-ayu-dark) ;; crisp, pleasant colors, but code is hard to read
+;(setq doom-theme 'doom-zenburn) ;; hard to read comments
+;(setq doom-theme 'doom-tokyo-night) ;; hard to see color syntax highlighting
+;(setq doom-theme 'doom-sourcerer) ;; kinda murky
+;(setq doom-theme 'doom-moonlight) ;; pretty nice i think
+;(setq doom-theme 'doom-Iosvkem) ;; new, very solid
+(setq doom-theme 'doom-snazzy) ;; well balanced
+;(setq doom-theme 'doom-gruvbox) ;; calm, simple aesthetic, but code block highlight is too strong
+;(setq doom-theme 'doom-palenight) ;; pleasant, nice colors.
+
+;; set random theme
+(defun mi/set-random-theme ()
+  (interactive)
+  (message (random 3)))
+
+;; remove src-block highlighting?
+;(custom-set-faces
+;  '(org-block-begin-line ((t (:background nil))))
+;  '(org-block-end-line   ((t (:background nil)))))
+
+;; enable autosave
+(setq
+ auto-save-default t
+ make-backup-files t)
+
+;; reduce gc frequency
+(setq gc-cons-threshold (* 50 1000 1000))
+
+;; measure startup time
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "*** Emacs loaded in %s with %d garbage collections."
+                     (format "%.2f seconds"
+                             (float-time
+                              (time-subtract after-init-time before-init-time)))
+                     gcs-done)))
+
+;------------------------------------
+#+end_src
+* Editor
+#+begin_src emacs-lisp
+;; adjusts max columns from 80 to x
+(setq-default fill-column 100)
+
+;; line numbers
+(setq display-line-numbers-type 'relative)
+
+; A buffer can get out of sync with respect to its visited file on disk if that
+; file is changed by another program. To keep it up to date, you can enable Auto
+; Revert mode by typing M-x auto-revert-mode, or you can set it to be turned on
+; globally with ‘global-auto-revert-mode’.  I have also turned on Global Auto
+; Revert on non-file buffers, which is especially useful for ‘dired’ buffers.
+(global-auto-revert-mode 1)
+;(setq global-auto-revert-non-file-buffers t)
+
+;------------------------------------
+#+end_src
+* Fonts
+#+begin_src emacs-lisp
+;; set fonts
+(setq doom-font (font-spec :family "Jetbrains Mono" :size 15)
+;(setq doom-font (font-spec :family "Hack" :size 14)
+      ;doom-variable-pitch-font (font-spec :family "Hack" :height 1.0))
+      ;doom-variable-pitch-font (font-spec :family "Liberation Serif" :height 1.0))
+      ;doom-variable-pitch-font (font-spec :family "open-sans" :height 1.0))
+      ;doom-variable-pitch-font (font-spec :family "AlegreyaSans" :height 1.0))
+      doom-variable-pitch-font (font-spec :family "DejaVuSans" :height 1.0))
+
+;; mix fonts
+(use-package! mixed-pitch
+  ;:hook (org-mode . mixed-pitch-mode)
+  :config
+  (setq mixed-pitch-set-height t)
+  (set-face-attribute 'variable-pitch nil :height 1.1))
+
+;; hex color highlighting
+(define-globalized-minor-mode global-rainbow-mode rainbow-mode
+  (lambda ()
+    (when (not (memq major-mode
+                (list 'org-agenda-mode)))
+     (rainbow-mode 1))))
+(global-rainbow-mode 1 )
+
+;------------------------------------
+#+end_src
+* Org
+** org (general)
+#+begin_src emacs-lisp
+;; org settings (directory, agenda)
+(after! org
+  (setq org-directory "~/org/"))
+
+;; other org settings
+(setq doom-modeline-enable-word-count t)
+
+;------------------------------------
+#+end_src
+** agenda
+#+begin_src emacs-lisp
+;; org-agenda
+(after! org
+  (setq org-agenda-files '("~/org/agenda/")))
+                           ;"tasks.org")))
+
+;------------------------------------
+#+end_src
+** roam
+#+begin_src emacs-lisp
+;; org-roam
+(after! org
+  (setq org-roam-directory "~/org/roam"))
+
+(map! :leader
+      (:prefix ("n r" . "org-roam")
+       :desc "Completion at point" "c" #'completion-at-point))
+;       :desc "Find node"           "f" #'org-roam-node-find
+;       :desc "Show graph"          "g" #'org-roam-graph
+;       :desc "Insert node"         "i" #'org-roam-node-insert
+;       :desc "Capture to node"     "n" #'org-roam-capture
+;       :desc "Toggle roam buffer"  "r" #'org-roam-buffer-toggle))
+
+;; auto build cache for db changes?
+;; alt: M-x org-roam-db-sync
+(org-roam-db-autosync-mode)
+
+;------------------------------------
+#+end_src
+** auto-tangle
+#+begin_src emacs-lisp
+
+;; auto-tangle
+(use-package! org-auto-tangle-mode
+  :defer t
+  :hook (org-mode . org-auto-tangle-mode))
+
+(defun dt/insert-auto-tangle-tag ()
+  "Insert auto-tangle tag in a literate config."
+  (interactive)
+  (evil-org-open-below 1)
+  (insert "#+auto_tangle: t ")
+  (evil-force-normal-state))
+
+(map! :leader
+      :desc "Insert auto_tangle tag" "i a" #'dt/insert-auto-tangle-tag)
+
+;------------------------------------
+#+end_src
+* EXWM
+** Main (init, window-naming, keybinds)
+#+begin_src emacs-lisp
+(use-package! exwm
+  :init
+  (setq mouse-autoselect-window nil ; autoselect when hover?
+        focus-follows-mouse t
+        exwm-workspace-warp-cursor t ;?
+        exwm-workspace-number 10 ; 0-5
+        exwm-debug nil) ;enable for debug mode
+
+  ;(exwm-input-line-mode-passthrough t "Pass all keypresses to emacs in line mode (?)") ; what about pass everything to X when in line mode?
+
+  :config
+  ;; warp cursor on window change
+  (exwm-mff-mode t)
+
+  ;; window/buffer naming rules
+  (add-hook 'exwm-update-class-hook ; what is this?
+            (lambda ()
+              (exwm-workspace-rename-buffer exwm-class-name)))
+  (add-hook 'exwm-update-title-hook
+            (lambda ()
+              (pcase exwm-class-name
+                ("librewolf" (exwm-workspace-rename-buffer (format "Librewolf: %s" exwm-title))))))
+
+  ;; start exwm
+  (exwm-enable)
+  (server-start))
+
+;------------------------------------
+#+end_src
+** Keys
+#+begin_src emacs-lisp
+(use-package! exwm
+  :config
+  (setq exwm-input-global-keys
+        `(,@(mapcar (lambda (i)
+                      `(,(kbd (format "s-%d" i)) .
+                        (lambda ()
+                          (interactive)
+                          ;(exwm-workspace-switch-create ,(1- i)))))
+                          (exwm-workspace-switch-create ,i))))
+                    (number-sequence 0 9))
+
+            ;; change window focus
+            (,(kbd "s-h") . evil-window-left)
+            (,(kbd "s-j") . evil-window-next)
+            (,(kbd "s-k") . evil-window-prev)
+            (,(kbd "s-l") . evil-window-right)
+
+            ;; move windows
+            (,(kbd "s-H") . +evil/window-move-left)
+            (,(kbd "s-J") . +evil/window-move-down)
+            (,(kbd "s-K") . +evil/window-move-up)
+            (,(kbd "s-L") . +evil/window-move-right)
+
+            ;; increase or decrease ratio
+            (,(kbd "s-C-h") . evil-window-decrease-width)
+            (,(kbd "s-C-j") . evil-window-decrease-height)
+            (,(kbd "s-C-k") . evil-window-increase-height)
+            (,(kbd "s-C-l") . evil-window-increase-width)
+
+            ;; launchers
+            (,(kbd "s-b") . ibuffer)
+            (,(kbd "s-S-p") . (lambda (command)
+                              (interactive (list (read-shell-command "$ ")))
+                              (start-process-shell-command command nil command)))
+            (,(kbd "s-p") . dmenu)
+            (,(kbd "s-.") . dired)
+            (,(kbd "s->") . ranger)
+
+            ;; launch programs
+            (,(kbd "s-<return>") . vterm)
+            (,(kbd "s-S-<return>") . +vterm/here)
+            ;(,(kbd "s-C-<return>") . +vterm/here)
+            ;(,(kbd "s-M-<return>") . (lambda (command) (interactive (exwm/run-in-background "urxvt"))))
+            ;(,(kbd "s-<return>") . +eshell/toggle)
+            (,(kbd "s-C-<return>") . +eshell/here)
+
+            ;;<< windows and buffers >>
+            ;; close
+            (,(kbd "s-q") . kill-current-buffer)
+            (,(kbd "s-C") . +workspace/close-window-or-workspace)
+            ;; windows
+            ;(,(kbd "s-o") . previous-window-any-frame)
+            (,(kbd "s-o") . previous-window) ; cycle through only this workspace?
+            ;; buffers
+            ;(,(kbd "s-M-j") . previous-buffer)
+            ;(,(kbd "s-M-k") . next-buffer)
+            (,(kbd "s-u") . previous-buffer)
+            (,(kbd "s-i") . next-buffer)
+            (,(kbd "s-m") . last-buffer)
+            ;; splits
+            (,(kbd "s-v") . evil-window-vsplit)
+            (,(kbd "s-s") . evil-window-split)
+            (,(kbd "s-V") . +evil/window-vsplit-and-follow)
+            (,(kbd "s-S") . +evil/window-split-and-follow)
+            ;; control
+            (,(kbd "s-f") . exwm-layout-toggle-fullscreen)
+            ;;;;
+
+            ;;<< workspaces >>
+            (,(kbd "s-a") . exwm-workspace-switch)
+            (,(kbd "s-A") . exwm-workspace-move)
+            ;(,(kbd "s-C-a") . exwm-workspace-swap)
+            (,(kbd "s-C-a") . exwm-workspace-move-window)
+            ;; singular
+            (,(kbd "s-M-h") . exwm/workspace-switch-to-previous)
+            (,(kbd "s-M-l") . exwm/workspace-switch-to-next)
+            ;(,(kbd "s-M-j") . exwm/workspace-switch-to-previous)
+            ;(,(kbd "s-M-k") . exwm/workspace-switch-to-next)
+            ; ; make s-M-{h,l} move the current buffer to the next workspace, and make s-M-{j,k} change focus to the next /occupied/.
+            (,(kbd "s-M-o") . exwm/workspace-switch-to-last)
+            ;;;;
+
+            ;;<< Applications >>
+            (,(kbd "s-y b") . mi/run-qutebrowser)
+            (,(kbd "s-y l") . mi/run-librewolf)
+            (,(kbd "s-y p") . mi/run-keepassxc)
+            (,(kbd "s-y e") . mi/run-emacs)
+            ;;;;
+
+            ;; other
+            (,(kbd "s-;") . eval-expression)
+            (,(kbd "s-'") . exwm-edit--compose)
+            (,(kbd "s-SPC") . exwm-input-toggle-keyboard)
+
+            ;; system
+            (,(kbd "s-r") . exwm-reset)
+
+            ;; misc
+
+            ))
+
+  ;; send to emacs instead of X window
+  (setq exwm-input-prefix-keys
+        '(
+          ?\M-x
+          ?\C-h))
+        ;; add C-x and C-c as M-x and M-c
+
+  ;; replacement key for C-c -> s-c
+
+  ;; Next key sent directly to X window
+  (define-key exwm-mode-map [?\C-\M-x] 'exwm-input-send-next-key))
+
+;; configure desktop-environment
+(use-package! desktop-environment
+  :after exwm ; again, could just do use-package! exwm... WHY :CUSTOM!!!??
+  :config (desktop-environment-mode)
+  :custom
+  ;; volume
+  (desktop-environment-volume-set-command "pactl set-sink-volume 0 %s")
+  (desktop-environment-volume-normal-decrement "-10%")
+  (desktop-environment-volume-normal-increment "+10%")
+  (desktop-environment-volume-small-decrement "-5%")
+  (desktop-environment-volume-small-increment "+5%")
+  (desktop-environment-volume-get-command "bar-print-volume-and-mute.sh")
+  (desktop-environment-volume-get-regexp "\\(.*\\)")
+  (desktop-environment-volume-toggle-command "pactl set-sink-mute 0 toggle && bar-print-volume-mute-only.sh")
+  (desktop-environment-volume-toggle-regexp "\\(.*\\)" )
+  ;; brightness
+  (desktop-environment-brightness-set-command "light %s")
+  (desktop-environment-brightness-normal-decrement "-U 10")
+  (desktop-environment-brightness-normal-increment "-A 10")
+  (desktop-environment-brightness-small-decrement "-U 5")
+  (desktop-environment-brightness-small-increment "-A 5")
+  (desktop-environment-brightness-get-command "light")
+  (desktop-environment-brightness-get-regexp "\\([0-9]+\\)")
+  ;; screenshot
+  (desktop-environment-screenshot-command "flameshot gui")
+  (desktop-environment-screenshot-directory "~/Pictures/screenshots/"))
+
+  ;; old screenshot commands
+  ;(let ((xclip-command "xclip -selection clipboard -t image/png \$f"))
+  ;  (setq desktop-environment-screenshot-command
+  ;        (concat "scrot '%F-%T-$wx$h.png' -e " xclip-command))
+  ;  (setq desktop-environment-screenshot-partial-command
+  ;        (concat "scrot -s -f -l style=dash '%F-%T-$wx$h.png' -e " xclip-command))
+  ;(setq desktop-environment-screenshot-command (concat "scrot -ze " xclip-command))
+  ;(setq desktop-environment-screenshot-partial-command (concat "scrot -zse " xclip-command))))
+  ;"scrot -s -f -l style=dash '/home/senko/Pictures/Screenshots/%F-%T-$wx$h.png' -e 'xclip -selection clipboard -target image/png -in $f' "
+
+;------------------------------------
+#+end_src
+** Functions
+#+begin_src emacs-lisp
+
+;; switch to last workspace
+(defvar exwm-workspace--switch-history-hack (cons exwm-workspace-current-index '()))
+(add-hook 'exwm-workspace-switch-hook
+          (lambda ()
+            (setq exwm-workspace--switch-history-hack
+                  (cons exwm-workspace-current-index
+                        (car exwm-workspace--switch-history-hack)))))
+(defun exwm/workspace-switch-to-last ()
+  (interactive)
+  "Switch to the workspace that was used before current workspace"
+  (exwm-workspace-switch (cdr exwm-workspace--switch-history-hack)))
+
+;; switch to next workspace
+(defun exwm/workspace-switch-to-next ()
+  (interactive)
+  "Switch to the next workspace"
+  (exwm-workspace-switch (+ exwm-workspace-current-index 1)))
+
+;; switch to previous workspace
+(defun exwm/workspace-switch-to-previous ()
+  (interactive)
+  "Switch to the previous workspace"
+  (exwm-workspace-switch (- exwm-workspace-current-index 1)))
+
+;; run input in terminal in background (confusing as heck syntax)
+(defun exwm/run-in-background (command)
+  (let ((command-parts (split-string command "[ ]+")))
+    (apply #'call-process `(,(car command-parts) nil 0 nil ,@(cdr command-parts)))))
+
+;; ?
+;(use-package! exwm
+  ;:config
+  ;; removes command from C-u keybind??? move to another location?
+  ;(add-hook 'exwm-mode-hook
+  ;          (lambda ()
+  ;            (evil-local-set-key 'motion (kbd "C-u") nil))))
+
+;------------------------------------
+#+end_src
+** General System Config
+#+begin_src emacs-lisp
+;; << exwm general scripts >>
+;; init hooks delcaration
+(defun mi/exwm-init-hook () ; a hook is run when a certain event happens
+  "A series of functions that should be run when EXWM finishes initialization."
+  (exwm/run-in-background "sct-auto-adjust.sh")
+  (exwm/run-in-background "gentoo-pipewire-launcher"))
+
+;; << set various settings >>
+(use-package exwm
+  :config
+  ;; bind the init hooks
+  (add-hook 'exwm-init-hook #'mi/exwm-init-hook #'exwm-systemtray--init) ; previous init-hook
+
+  ;; ^Implement the previous function
+  (add-hook 'exwm-manage-finish-hook
+            (lambda ()
+              (mi/window-spawn-state)))
+
+  ;; Hide the modeline on all floating windows
+  (add-hook 'exwm-floating-setup-hook ; hook = when this event runs, perform following action.
+            (lambda ()
+              (exwm-layout-hide-mode-line))))
+
+  ;; i wonder if bufler is making it so i cant have two librewolfs on one workspace...
+
+;------------------------------------
+#+end_src
+** Desktop Config
+#+begin_src emacs-lisp
+(use-package! exwm ; after exwm finishes loading
+  :config ; CONFIG basically just loads after done. Use less custom? when to use custom? look up!
+  (setq exwm-workspace-show-all-buffers nil)) ; librewolf in weird window
+
+
+;; << Workspace to spawn programs >>
+(defun mi/window-spawn-state ()
+  (interactive)
+  (pcase exwm-class-name
+    ;("librewolf" (exwm-workspace-move-window 2))
+    ;("mpv" (exwm-floating-toggle-floating))
+    ("qutebrowser" (exwm-workspace-move-window 2))
+    ("librewolf" (exwm-workspace-move-window 7))
+    ;("KeePassXC" (exwm-workspace-move-window 5))
+    ))
+;;;;
+;; run applications and move to appropriate window
+(defun mi/run-keepassxc()
+  (interactive)
+  (exwm/run-in-background "keepassxc")
+  (exwm-workspace-switch-create 5))
+;;
+(defun mi/run-librewolf ()
+  (interactive)
+  (exwm/run-in-background "librewolf")
+  (exwm-workspace-switch-create 8))
+;;
+(defun mi/run-qutebrowser ()
+  (interactive)
+  (exwm/run-in-background "qutebrowser")
+  (exwm-workspace-switch-create 2))
+;;
+(defun mi/run-emacs ()
+  (interactive)
+  (exwm/run-in-background "emacs --with-profile gnu"))
+;;
+
+;; q: add setting keybinds here?
+;; objections? hard to remap without worrying about conflicts? have most back there, some here.
+;; ;;
+
+
+;; <<app configs below>>
+(use-package! vterm
+  :after vterm
+  :custom
+  (vterm-kill-buffer-on-exit t) ;; what?
+  (evil-collection-vterm-send-escape-to-vterm-p t)) ;; toggle with keybind?
+  ;; DISABLE EVIL MODE ON VTERM FOR CONFLICTING KEYS WITH ZSH EVIL
+
+;------------------------------------
+#+end_src
+** Panel
+#+begin_src emacs-lisp
+;; polybar
+(setq mi/panel-process nil)
+
+(defun mi/start-panel ()
+  (interactive)
+  (mi/kill-panel)
+  (setq mi/panel-process (start-process-shell-command "polybar" nil "polybar panel &> ~/.polybar.log")))
+
+(defun mi/kill-panel ()
+  (interactive)
+  (when mi/panel-process
+    (kill-process mi/panel-process))
+  (setq mi/panel-process nil))
+
+(defun mi/polybar-exwm-workspace ()
+  (pcase exwm-workspace-current-index
+    (0 "")
+    (1 "")
+    (2 "hi")
+    (3 "")
+    (4 "")))
+
+(add-hook 'exwm-workspace-switch-hook #'mi/update-polybar-exwm)
+
+(defun mi/update-polybar-exwm (&optional path)
+  (mi/send-polybar-hook "exwm" 1))
+
+(defun mi/send-polybar-hook (name number)
+  (start-process-shell-command "polybar-msg" nil (format "polybar-msg hook %s %s" name number)))
+
+
+;; What the heck is exwm-enabled? make one
+;(when mi/exwm-enabled
+;  (add-hook 'exwm-init-hook #'mi/on-exwm-init))
+
+;; mode line
+(use-package! exwm
+  :after exwm
+  :custom
+  (display-time-mode t)
+  (display-time-default-load-average nil)
+  (display-battery-mode t)
+  (fringe-mode 1)
+  )
+  ;(display-time-mode t))
+  ;(setq display-time-default-load-average nil)
+
+;; systray
+(use-package! exwm-systemtray
+  :after exwm ; wonder if I should just do use-package! exwm and then :config since no difference...
+  :config
+  ;(exwm-systemtray-enable)
+  (setq exwm-systemtray-height 10)) ; leave as nil, assuming that's the default size?
+  ;; Forward <escape> to application instead of emacs
+
+;------------------------------------
+#+end_src
+** Miscellaneous
+#+begin_src emacs-lisp
+
+;------------------------------------
+#+end_src
+* Applications
+** erc
+#+begin_src emacs-lisp
+;; erc
+;;(map! :map 'global "SPC d e" #'erc-tls)
+(after! erc
+  (setq erc-prompt (lambda () (concat "[" (buffer-name) "]"))
+        erc-server "irc.libera.chat"
+        ;erc-autojoin-channels-alist '(("irc.libera.chat" "#emacs" "#linux"))
+        erc-nick "senko"
+        erc-user-full-name "Aika"
+        ;; By default, ERC selects the channel buffers when it reconnects. If you'd like it to connect to channels in the background, use this:
+        ;erc-auto-query 'bury
+        erc-kill-buffer-on-part t
+        erc-fill-column 100
+        erc-fill-function 'erc-fill-static ; align
+        erc-fill-static-center 20          ; align
+        ))
+
+;------------------------------------
+#+end_src
+** dired
+#+begin_src emacs-lisp
+;; dired keybinds
+(map! :leader
+      (:prefix ("d" . "dired")
+       :desc "Open dired" "d" #'dired
+       :desc "Dired jump to current" "j" #'dired-jump)
+      (:after dired
+       (:map dired-mode-map
+        :desc "Peep-dired image previews" "d p" #'peep-dired
+        :desc "Dired view file" "d v" #'dired-view-file)))
+
+(evil-define-key 'normal dired-mode-map
+  (kbd "M-RET") 'dired-display-file
+  (kbd "h") 'dired-up-directory
+  (kbd "l") 'dired-open-file ; use dired-find-file instead of dired-open.
+  (kbd "m") 'dired-mark
+  (kbd "t") 'dired-toggle-marks
+  (kbd "u") 'dired-unmark
+  (kbd "C") 'dired-do-copy
+  (kbd "D") 'dired-do-delete
+  (kbd "J") 'dired-goto-file
+  (kbd "M") 'dired-do-chmod
+  (kbd "O") 'dired-do-chown
+  (kbd "P") 'dired-do-print
+  (kbd "R") 'dired-do-rename
+  (kbd "T") 'dired-do-touch
+  (kbd "Y") 'dired-copy-filenamecopy-filename-as-kill ; copies filename to kill ring.
+  (kbd "Z") 'dired-do-compress
+  (kbd "+") 'dired-create-directory
+  (kbd "-") 'dired-do-kill-lines
+  (kbd "% l") 'dired-downcase
+  (kbd "% m") 'dired-mark-files-regexp
+  (kbd "% u") 'dired-upcase
+  (kbd "* %") 'dired-mark-files-regexp
+  (kbd "* .") 'dired-mark-extension
+  (kbd "* /") 'dired-mark-directories
+  (kbd "; d") 'epa-dired-do-decrypt
+  (kbd "; e") 'epa-dired-do-encrypt)
+
+;; Get file icons in dired
+;(add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+
+;; With dired-open plugin, you can launch external programs for certain extensions
+;; For example, I set all .png files to open in 'sxiv' and all .mp4 files to open in 'mpv'
+(setq dired-open-extensions '(("gif" . "sxiv")
+                              ("jpg" . "sxiv")
+                              ("png" . "sxiv")
+                              ("mkv" . "mpv")
+                              ("ogg" . "mpv")
+                              ("mp4" . "mpv")))
+
+;; Auto peep once you enter peep-dired mode
+(evil-define-key 'normal peep-dired-mode-map
+  (kbd "j") 'peep-dired-next-file
+  (kbd "k") 'peep-dired-prev-file)
+(add-hook 'peep-dired-hook 'evil-normalize-keymaps)
+
+;; deletions move to trash
+(setq delete-by-moving-to-trash t
+      trash-directory "~/.local/share/Trash/files/")
+
+;------------------------------------
+#+end_src
+** ranger
+#+begin_src emacs-lisp
+;; ranger config
+(ranger-override-dired-mode t)
+
+;------------------------------------
+#+end_src
+** elfeed
+#+begin_src emacs-lisp
+;; elfeed config
+;(setq elfeed-goodies/entry-pane-size 0.5) ; prefer larger for images
+(add-hook! 'elfeed-search-mode-hook #'elfeed-update)
+(evil-define-key 'normal elfeed-show-mode-map
+  (kbd "J") 'elfeed-goodies/split-show-next
+  (kbd "K") 'elfeed-goodies/split-show-prev)
+(evil-define-key 'normal elfeed-search-mode-map
+  (kbd "J") 'elfeed-goodies/split-show-next
+  (kbd "K") 'elfeed-goodies/split-show-prev)
+
+(setq elfeed-feeds (quote
+                    (
+                     ("https://femboy.hu/rss.xml" linux)
+                     ("https://github.com/TheDarkBug/uwufetch/releases.atom" linux)
+                     ("https://maia.crimew.gay/feed.xml" linux)
+                     ("https://guix.gnu.org/feeds/blog.atom" linux)
+                     )))
+
+;(require 'elfeed)(defun elfeed-v-mpv (url)
+;  "Watch a video from URL in MPV"
+;  (async-shell-command (format "mpv %s" url)))(defun elfeed-view-mpv (&optional use-generic-p)
+;  "Youtube-feed link"
+;  (interactive "P")
+;  (let ((entries (elfeed-search-selected)))
+;    (cl-loop for entry in entries
+;     do (elfeed-untag entry 'unread)
+;     when (elfeed-entry-link entry)
+;     do (elfeed-v-mpv it))
+;   (mapc #'elfeed-search-update-entry entries)
+;   (unless (use-region-p) (forward-line)))) (define-key elfeed-search-mode-map (kbd "v") 'elfeed-view-mpv)
+
+;------------------------------------
+#+end_src
+** org-pomodoro
+#+begin_src emacs-lisp
+;; org-pomodoro config
+;; adjust volume
+(setq org-pomodoro-audio-player "mplayer")
+(setq org-pomodoro-finished-sound-args "-volume 0.5")
+(setq org-pomodoro-long-break-sound-args "-volume 0.5")
+(setq org-pomodoro-short-break-sound-args "-volume 0.5")
+;; (setq org-pomodoro-ticking-sound-args "-volume 0.3")
+
+;------------------------------------
+#+end_src
+** Treemacs
+#+begin_src emacs-lisp
+;; treemacs (treemacs not installed, neotree better?)
+(setq treemacs-width 30)
+
+;------------------------------------
+#+end_src
+** Twittering-mode
+#+begin_src emacs-lisp
+;; twittering-mode
+;;(after! twittering-mode
+;;  (setq twittering-icon-mode t
+;;      twittering-convert-fix-size 48
+;;      twittering-use-icon-storage t))
+
+;------------------------------------
+#+end_src
+* Keybinds
+#+begin_src emacs-lisp
+;; escape global escape (usually does Meta wildcard)
+;(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+;; move window focus
+(global-set-key (kbd "C-M-k") 'evil-window-up)
+(global-set-key (kbd "C-M-j") 'evil-window-down)
+(global-set-key (kbd "C-M-h") 'evil-window-left)
+(global-set-key (kbd "C-M-l") 'evil-window-right)
+(global-set-key (kbd "C-M-o") 'evil-window-next)
+(global-set-key (kbd "C-M-p") '+popup/other)
+(global-set-key (kbd "C-M-S-k") '+evil/window-move-up)
+(global-set-key (kbd "C-M-S-j") '+evil/window-move-down)
+(global-set-key (kbd "C-M-S-h") '+evil/window-move-left)
+(global-set-key (kbd "C-M-S-l") '+evil/window-move-right)
+
+;; user keybinds
+(map! :leader
+      (:prefix ("k" . "user-keybinds")
+       :desc "open-most-recent-file" "1" #'recentf-open-most-recent-file
+       ))
+(map! :leader
+      (:prefix ("o o" . "user-open")
+        :desc "open erc-tls" "i" #'erc-tls
+        :desc "open elfeed"  "r" #'elfeed))
+
+;------------------------------------
+#+end_src
+* Misc
+#+begin_src emacs-lisp
+;; search provider
+(add-to-list '+lookup-provider-url-alist '("LibreX" "https://librex.mikata.ru/search.php?q=%s"))
+
+;------------------------------------
+#+end_src
+* Startup
+* Fixes
+#+begin_src emacs-lisp
+;; fix workspaces start in main with emacsclient?
+(after! persp-mode
+  (setq persp-emacsclient-init-frame-behaviour-override "main"))
+;; fix to show bar with emacsclient (should be fixed in the next update of centaur-tabs)
+;(after! centaur-tabs
+  ;(setq centaur-tabs-set-bar 'right))
+;; start flycheck-mode-hook on load rust project?
+;(with-eval-after-load 'rust-mode
+  ;(add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+
+;------------------------------------
+#+end_src
