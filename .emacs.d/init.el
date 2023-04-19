@@ -37,7 +37,7 @@
 
 ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 ;; UNNECESSARY CHANGE, CHANGE BACK!
-(setq user-emacs-directory (expand-file-name "~/.emacs.d/")
+(setq user-emacs-directory (expand-file-name "~/.dotfiles/.emacs.d/")
       url-history-file (expand-file-name "url/history" user-emacs-directory))
 
 ;; no-littering
@@ -116,6 +116,16 @@
 ;; ESC to quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
+;; org binding on M-t so make all t key bindings translate to p ?
+
+;; also god mode 
+
+;(global-set-key (kbd "C-h") 'backward-kill-word)
+(global-set-key (kbd "C-t") 'previous-line)
+
+(global-set-key (kbd "C-u") ctl-x-map)
+(global-set-key (kbd "C-z") 'universal-argument)
+
 ;; evil-mode exclude
 (defun ri/evil-hook ()
   (dolist (mode '(custom-mode
@@ -139,7 +149,7 @@
   (setq evil-undo-system 'undo-fu)
   :config
   (add-hook 'evil-mode-hook 'ri/evil-hook)
-  (evil-mode 1)
+  (evil-mode 0)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join) ; wowie
 
@@ -181,17 +191,20 @@
 (use-package general
   :after evil
   :config
-  (general-evil-setup t)
+  ;(general-evil-setup t)
+
+  ;; 'global
 
   ;; the definer can be called to add new keybinds.
   ;; far, far better than using a bunch of
   ;;   global-set-key or define-key.
   ;; (keymaps can be swapped with states)
   (general-create-definer ri/leader-keys
-    :states '(normal insert visual emacs)
     ;:keymaps '(normal insert visual emacs)
-    :prefix "SPC"
-    :global-prefix "C-SPC")
+    ;:keymaps '(normal insert visual emacs)
+    ;:prefix "SPC"
+    ;:global-prefix "C-SPC")
+    :prefix "C-c")
 
   ;; ;; the modes under keymaps can be put under states, right?
   ;; (general-create-definer ri/leader-keys-mode-map
@@ -577,7 +590,6 @@
   "oar" '(org-refile :which-key "org-refile")) ; put refile in org-mode-map?
 
 (ri/leader-keys
-  :keymaps 'org-mode-map
   "md"  '(:ignore t :which-key "date/schedule")
   "mds" 'org-schedule
   "mdd" 'org-deadline
@@ -781,9 +793,9 @@
   :after projectile
   :config (counsel-projectile-mode))
 
-(ri/leader-keys
-  "p"  '(:ignore t :which-key "project")
-  "pp" 'projectile-command-map)
+;(ri/leader-keys
+;  "p"  '(:ignore t :which-key "project")
+;  "pp" 'projectile-command-map)
 
 ;; magit
 ;; (add several links...)
@@ -833,10 +845,10 @@
 (use-package shell-pop
   :commands shell-pop
   :custom
+  (shell-pop-universal-key nil)
   (shell-pop-default-directory "/home/mio")
   (shell-pop-shell-type (quote ("vterm" "*vterm*" (lambda nil (vterm shell-pop-term-shell)))))
   (shell-pop-term-shell "/bin/zsh")
-  (shell-pop-universal-key "C-t")
   (shell-pop-window-size 40)
   (shell-pop-window-position "bottom"))
 
@@ -891,7 +903,7 @@
 (use-package dired
   :ensure nil ; make sure use-package doesn't try to install it.
   :commands (dired dired-jump) ; defer loading of this config until a command is executed.
-  :bind ("C-x C-j" . dired-jump)
+  :bind ("C-c j" . dired-jump)
   :custom
   (dired-listing-switches "-agho --group-directories-first")
   (dired-dwim-target t) ; auto select dir to move to if another dired window open.

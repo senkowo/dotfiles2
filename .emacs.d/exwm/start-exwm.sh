@@ -2,6 +2,19 @@
 # Set screen DPI (for high DPI displays) (before compton)
 #xrdb ~/.emacs.d/exwm/Xresources
 
+# set up dvorak and nocaps (symbols: compose:sclk)
+# how to disable caps on login?
+setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps
+
+# bind S-<enter> to escape
+xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
+
+# set hold type startup and speed (delay rate)
+xset r rate 270 50
+
+# set cursor type (what if not enabled?)
+xsetroot -cursor_name left_ptr
+
 # Screen compositor
 picom &
 

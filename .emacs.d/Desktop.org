@@ -44,7 +44,7 @@ notes:
   ;; depends on nm-applet, pasystray(?), pavucontrol(?), and blueman
   (defun ri/exwm-init-hook ()
     ;; Make workspace 1 be the one where we land at startup
-    (exwm-workspace-switch-create 1)
+    (exwm-workspace-switch-create 0)
     ;; Launch programs at startup 
     ;(eshell)
     ;; Run programs in background at startup 
@@ -135,6 +135,8 @@ notes:
   ;; very annoying?
   ;; makes the cursor visible? 
   ;; only warp when on X window buffer!
+  ;; warps useful when on EXWM-mode with pop-ups
+  ;; when on EXWM, enable mouse. When on emacs, disable mouse.
   (use-package exwm-mff
     :config
     (exwm-mff-mode nil))
@@ -224,17 +226,17 @@ notes:
     ;; --------
 
     ;; Sets up dvorak keybinds (also does ctrl:nocaps?)
-    (start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant ',dvorak' -option grp:alts_toggle ctrl:nocaps")
+    ;(start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant ',dvorak' -option grp:alts_toggle ctrl:nocaps")
     ;;
     ;; Rebind Ctrl to CapsLock 
-    (start-process-shell-command "Xmodmap S-C Esc" nil 
-       (concat "xmodmap " (concat user-emacs-directory "exwm/Xmodmap")))
+    ;; (start-process-shell-command "Xmodmap S-C Esc" nil 
+       ;; (concat "xmodmap " (concat user-emacs-directory "exwm/Xmodmap")))
 
     ;; set hold type startup and speed
-    (start-process-shell-command "xset typing speed" nil "xset r rate 300 40")
+    ;; (start-process-shell-command "xset typing speed" nil "xset r rate 300 40")
 
     ;; set cursor type (what if not enabled?)
-    (start-process-shell-command "xsetroot cursor" nil "xsetroot -cursor_name left_ptr")
+    ;; (start-process-shell-command "xsetroot cursor" nil "xsetroot -cursor_name left_ptr")
 
     ;; night light 
     (start-process-shell-command "sct auto adjust" nil "sct-auto-adjust.sh")
@@ -273,11 +275,11 @@ notes:
           '(?\M-x
             ?\M-:
             ?\M-`
+            ?\M-o
             ?\M-&
             ?\C-x
             ?\C-h
             ?\C-u
-            ?\C-w
             ?\C-\M-j  ;;  buffer list 
             ?\C-\M-h  ;;  previous workspace
             ?\C-\M-l  ;;  next workspace
@@ -338,9 +340,9 @@ notes:
             ;; Switch workspace
             ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
             ([?\s-w] . exwm-workspace-switch)
-            ;([?\s-\C-o] . (lambda () (interactive) (ri/exwm-workspace-switch-to-last)))
-            ;([?\s-\C-k] . (lambda () (interactive) (ri/exwm-workspace-switch-to-next)))
-            ;([?\s-\C-j] . (lambda () (interactive) (ri/exwm-workspace-switch-to-previous)))
+            ([?\s-\M-c] . ri/exwm-workspace-switch-to-last)
+            ([?\s-\M-l] . (lambda () (interactive) (ri/exwm-workspace-switch-to-next)))
+            ([?\s-\M-h] . (lambda () (interactive) (ri/exwm-workspace-switch-to-previous)))
 
             ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
             ,@(mapcar (lambda (i)
@@ -407,6 +409,19 @@ notes:
 
   # Set screen DPI (for high DPI displays) (before compton)
   #xrdb ~/.emacs.d/exwm/Xresources
+
+  # set up dvorak and nocaps (symbols: compose:sclk)
+  # how to disable caps on login?
+  setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps
+
+  # bind S-<enter> to escape
+  xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
+
+  # set hold type startup and speed (delay rate)
+  xset r rate 270 50
+
+  # set cursor type (what if not enabled?)
+  xsetroot -cursor_name left_ptr
 
   # Screen compositor
   picom &
