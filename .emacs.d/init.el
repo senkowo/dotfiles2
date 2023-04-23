@@ -59,7 +59,13 @@
 
 ;; disable bell
 (setq ring-bell-function 'ignore) ; TURN OFF ONCE AND FOR ALL?
-(setq visual-bell 1)
+;; (setq ring-bell-function 'silent) ; TURN OFF ONCE AND FOR ALL?
+
+;; enable mode line flash bell
+;; (use-package mode-line-bell
+  ;; :if (ring-bell-function 'ignore)
+  ;; :config
+  ;; (mode-line-bell-mode))
 
 ;; add line numbers
 (global-display-line-numbers-mode t)
@@ -90,7 +96,7 @@
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
-(setq use-dialog-box nil) ;; (change to nil) Disable dialog boxes since they weren't working in Mac OSX
+(setq use-dialog-box nil) ;; (change to nil) make things like yes or no prompts dialogue boxes
 
 ;; Set frame transparency and maximize windows by default. 
 (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
@@ -115,16 +121,128 @@
 
 ;; ESC to quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+;; (global-set-key (kbd "<escape>") #'god-mode-all)
+;; (global-set-key (kbd "<escape>") #'god-local-mode)
 
-;; org binding on M-t so make all t key bindings translate to p ?
+(use-package god-mode
+  :commands god-mode
+  :config
+  (setq god-exempt-major-modes nil)
+  (setq god-exempt-predicates nil)
+  (setq god-mode-enable-function-key-translation nil)
+  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+  (define-key god-local-mode-map (kbd ".") #'repeat)
+  (global-set-key (kbd "C-x C-1") #'delete-other-windows)
+  (global-set-key (kbd "C-x C-2") #'split-window-below)
+  (global-set-key (kbd "C-x C-3") #'split-window-right)
+  (global-set-key (kbd "C-x C-0") #'delete-window)
+  (defun my-god-mode-update-cursor-type ()
+    (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+  (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
+  ;; (add-to-list 'god-exempt-major-modes 'dired-mode)
+  (god-mode))
 
-;; also god mode 
+(defun meow-setup ()
+  (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
+  (meow-leader-define-key
+   '("1" . meow-digit-argument)
+   '("2" . meow-digit-argument)
+   '("3" . meow-digit-argument)
+   '("4" . meow-digit-argument)
+   '("5" . meow-digit-argument)
+   '("6" . meow-digit-argument)
+   '("7" . meow-digit-argument)
+   '("8" . meow-digit-argument)
+   '("9" . meow-digit-argument)
+   '("0" . meow-digit-argument)
+   '("/" . meow-keypad-describe-key)
+   '("?" . meow-cheatsheet))
+  (meow-motion-overwrite-define-key
+   ;; custom keybinding for motion state
+   '("<escape>" . ignore))
+  (meow-normal-define-key
+   '("0" . meow-expand-0)
+   '("9" . meow-expand-9)
+   '("8" . meow-expand-8)
+   '("7" . meow-expand-7)
+   '("6" . meow-expand-6)
+   '("5" . meow-expand-5)
+   '("4" . meow-expand-4)
+   '("3" . meow-expand-3)
+   '("2" . meow-expand-2)
+   '("1" . meow-expand-1)
+   '("-" . negative-argument)
+   '(";" . meow-reverse)
+   '("," . meow-inner-of-thing)
+   '("." . meow-bounds-of-thing)
+   '("<" . meow-beginning-of-thing)
+   '(">" . meow-end-of-thing)
+   '("a" . meow-append)
+   '("A" . meow-open-below)
+   '("b" . meow-back-word)
+   '("B" . meow-back-symbol)
+   '("c" . meow-change)
+   '("d" . meow-delete)
+   '("D" . meow-backward-delete)
+   '("e" . meow-line)
+   '("E" . meow-goto-line)
+   '("f" . meow-find)
+   '("F" . meow-search) ;; moved from "s"
+   '("g" . meow-cancel-selection)
+   '("G" . meow-grab)
+   '("h" . meow-left)
+   '("H" . meow-left-expand)
+   '("i" . meow-insert)
+   '("I" . meow-open-above)
+   '("j" . meow-join)
+   '("k" . meow-kill)
+   '("l" . meow-till)
+   ;; '("m" . meow-mark-word) ;; swap with w, next-word
+   ;; '("M" . meow-mark-symbol) ;; swap with w, next-symbol
+   '("m" . meow-next-word) ;; moved from "w", mark-word
+   '("M" . meow-next-symbol) ;; moved from "W", mark-symbol
+   '("n" . meow-next)
+   '("N" . meow-next-expand)
+   '("o" . meow-block)
+   '("O" . meow-to-block)
+   '("p" . meow-prev)
+   '("P" . meow-prev-expand)
+   '("q" . meow-quit)
+   '("Q" . meow-goto-line)
+   '("r" . meow-replace)
+   '("R" . meow-swap-grab)
+   ;'("s" . meow-search) ;; move to F, replace with directional keys
+   '("s" . meow-right) ;; move cursor right
+   '("S" . meow-right-expand)
+   ;'("t" . meow-right)
+   ;'("T" . meow-right-expand)
+   '("t" . meow-prev)
+   '("T" . meow-prev-expand)
+   '("u" . meow-undo)
+   '("U" . meow-undo-in-selection)
+   '("v" . meow-visit)
+   ;; '("w" . meow-next-word) ;; swap with m, mark-word/symbol
+   ;; '("W" . meow-next-symbol)
+   '("w" . meow-mark-word) ;; moved from "m", mark-word
+   '("W" . meow-mark-symbol) ;; moved from "M", mark-symbol
+   '("x" . meow-save)
+   '("X" . meow-sync-grab)
+   '("y" . meow-yank)
+   '("z" . meow-pop-selection)
+   '("'" . repeat)
+   '("<escape>" . ignore)))
 
-;(global-set-key (kbd "C-h") 'backward-kill-word)
-(global-set-key (kbd "C-t") 'previous-line)
+;; (add-to-list 'meow-insert-state-keymap '("C-z" . meow-insert-exit)))
 
-(global-set-key (kbd "C-u") ctl-x-map)
-(global-set-key (kbd "C-z") 'universal-argument)
+;; make <f6> <f7> instead?
+(define-key meow-insert-state-keymap (kbd "<f6>") #'meow-insert-exit)
+(define-key meow-insert-state-keymap (kbd "<f7>") #'meow-insert-exit) ;; fav
+(define-key meow-insert-state-keymap (kbd "<f8>") #'meow-insert-exit)
+
+(use-package meow
+  :config
+  (meow-setup)
+  (meow-global-mode 1))
 
 ;; evil-mode exclude
 (defun ri/evil-hook ()
@@ -141,6 +259,7 @@
 
 ;; evil-mode
 (use-package evil
+  :commands evil-mode
   :init
   (setq evil-want-C-u-scroll t)
   (setq evil-want-C-i-jump t)
@@ -187,9 +306,12 @@
   :config
   (undo-fu-session-global-mode t))
 
+(use-package free-keys
+  :commands free-keys)
+
 ;; general.el
 (use-package general
-  :after evil
+  ;; :after evil
   :config
   ;(general-evil-setup t)
 
@@ -793,10 +915,6 @@
   :after projectile
   :config (counsel-projectile-mode))
 
-;(ri/leader-keys
-;  "p"  '(:ignore t :which-key "project")
-;  "pp" 'projectile-command-map)
-
 ;; magit
 ;; (add several links...)
 ;; (magit-status is C-x g)
@@ -909,6 +1027,7 @@
   (dired-dwim-target t) ; auto select dir to move to if another dired window open.
   (delete-by-moving-to-trash t)
   ;;(dired-compress-files-alist) ; add more file types to compression.
+  :if (featurep 'evil-mode)
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
     "h" 'dired-single-up-directory
@@ -944,6 +1063,7 @@
 
 (use-package dired-hide-dotfiles
   :commands (dired dired-jump)
+  :if (featurep 'evil-mode)
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
    "H" 'ri/dired-hide-dotfiles-mode--toggle))
@@ -957,7 +1077,8 @@
 (ri/leader-keys
   "d"  '(:ignore t :which-key "dired")
   "dd" 'dired
-  "dj" 'dired-jump)
+  "dj" 'dired-jump
+  "dh" 'ri/dired-hide-dotfiles-mode--toggle)
 
 ;; doesn't work... what is tramp?
 (use-package sudo-edit
@@ -1011,6 +1132,17 @@
           (expand-file-name "custom.el" server-socket-dir)
         (expand-file-name (format "emacs-custom-%s.el" (user-uid)) temporary-file-directory)))
 (load custom-file t)
+
+;; org binding on M-t so make all t key bindings translate to p ?
+
+;; also god mode 
+
+;(global-set-key (kbd "C-h") 'backward-kill-word)
+(global-set-key (kbd "C-t") 'previous-line)
+
+(global-set-key (kbd "C-u") ctl-x-map)
+;; (global-set-key (kbd "C-z") 'universal-argument)
+(global-set-key (kbd "C-M-u") 'universal-argument)
 
 ;; make gc pauses faster by decreaseing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
