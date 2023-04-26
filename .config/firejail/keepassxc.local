@@ -9,7 +9,7 @@ noblacklist ${RUNUSER}/app
 ##
 
 ## ETC
-# 
+#
 #dbus-user.talk org.freedesktop.secrets
 #
 dbus-user.talk org.freedesktop.Notifications

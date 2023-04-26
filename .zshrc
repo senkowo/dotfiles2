@@ -48,7 +48,7 @@ bindkey -e # emacs, not -v (vim)
 ## End of main
 #
 
-# Export 
+# Export
 export HISTORY_IGNORE="(ls|cd|pwd|exit|doas reboot|history|cd -| cd ..)"
 #export EDITOR="emacsclient -t -a ''"
 #export VISUAL="emacsclient -c -a emacs"

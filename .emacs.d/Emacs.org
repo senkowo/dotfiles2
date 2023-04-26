@@ -24,10 +24,13 @@
   - [[#add-lisp-functions-dir-to-path][add lisp functions dir to path]]
 - [[#keybindings][Keybindings]]
   - [[#make-escape-quit][make escape quit]]
-  - [[#god-mode][god-mode]]
   - [[#meow][meow]]
+  - [[#god-mode][god-mode]]
   - [[#evil-mode][evil-mode]]
   - [[#evil-undo-system-undo-treefu][evil-undo-system (undo-tree/fu)]]
+  - [[#crux][crux]]
+  - [[#avy][avy]]
+  - [[#expand-region][expand region]]
   - [[#free-keys][free-keys]]
   - [[#generalel][general.el]]
   - [[#generalel-generic-binds][general.el generic binds]]
@@ -165,6 +168,14 @@ transfer everything over to .emacs.d?
 
 for having several configs, have testing in dependent .config/ dir, but for more permanent put in .emacs.d so can access all the same settings, history, cache, etc.
 
+custom settings research
+
+keyfreq?
+
+crux to improve everything!
+
+mini-modeline try out?
+
 * Startup performance
 
 #+begin_src emacs-lisp
@@ -189,7 +200,7 @@ for having several configs, have testing in dependent .config/ dir, but for more
 
 package management, sources, auto, etc
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 
   ;; Package sources ----
   (require 'package) ; package management functions (autoloaded?)
@@ -199,17 +210,17 @@ package management, sources, auto, etc
   (package-initialize) ; initialize package system and prep to be used
 
   ;; if package-archive-contents is empty (fresh install), ----
-  ;;   run package-refresh-contents. 
-  (unless package-archive-contents 
-   (package-refresh-contents)) 
+  ;;   run package-refresh-contents.
+  (unless package-archive-contents
+   (package-refresh-contents))
 
   ;; non-Linux setup use-package ----
   ;; if use-package isn't installed or new update, then package-install it
-  (unless (package-installed-p 'use-package) 
-     (package-install 'use-package)) 
+  (unless (package-installed-p 'use-package)
+     (package-install 'use-package))
 
   ;; setup use-package ----
-  (require 'use-package) 
+  (require 'use-package)
   (setq use-package-always-ensure t) ;; no need to add :ensure t on every package that needs it
   ;(setq use-package-always-defer t) ;; explicitly state which to ensure, might break, save first
   (setq use-package-verbose t)
@@ -244,11 +255,11 @@ Includes:
 + improved scrolling
 + transparency
 
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   ;; disable startup screen
-  (setq inhibit-startup-message nil) 
+  (setq inhibit-startup-message nil)
 
-  ;; disable ui 
+  ;; disable ui
   (scroll-bar-mode -1) ; disable visible scrollbar
   (tool-bar-mode -1)   ; disable the toolbar
   (tooltip-mode 1)     ; disable tooltips
@@ -302,17 +313,17 @@ General fonts for emacs.
 
   ;; default font (modeline, minibuffer, default for applications, etc)
   (set-face-attribute 'default nil :font "Fira Code" :height 110)
-  ;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115) 
+  ;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115)
 
   ;; fixed pitch font (code blocks, property, startup, etc (can add more))
   (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 110)
 
   ;; variable pitch font (toc links, regular text in org, etc...)
-  ;; how about Iosveka instead? 
+  ;; how about Iosveka instead?
   ;; (bullets are configured in org-fonts)
   (set-face-attribute 'variable-pitch nil :font "DejaVu Sans" :height 120 :weight 'regular)
 
-#+end_src 
+#+end_src
 
 ** improved scrolling
 
@@ -323,14 +334,14 @@ General fonts for emacs.
   (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
   (setq scroll-step 1) ;; keyboard scroll one line at a time
   (setq use-dialog-box nil) ;; (change to nil) make things like yes or no prompts dialogue boxes
-  
+
 #+end_src
 
 ** transparency
 
 #+begin_src emacs-lisp
 
-  ;; Set frame transparency and maximize windows by default. 
+  ;; Set frame transparency and maximize windows by default.
   (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
   (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
   (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
@@ -340,7 +351,7 @@ General fonts for emacs.
 
 * Basic functionality
 
-basic functionality 
+basic functionality
 
 ** all-the-icons
 
@@ -355,7 +366,7 @@ basic functionality
 ** auto-update packages
 
 + M-x auto-update-package-now to run immediately
-+ Updates can break Emacs, so only update when 
++ Updates can break Emacs, so only update when
 
 #+begin_src emacs-lisp
 
@@ -388,7 +399,7 @@ Includes:
 + hydra
 + window management
 + buffer management
-  
+
 ** make escape quit
 
 Make <escape> quit.
@@ -399,38 +410,6 @@ Make <escape> quit.
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
   ;; (global-set-key (kbd "<escape>") #'god-mode-all)
   ;; (global-set-key (kbd "<escape>") #'god-local-mode)
-
-#+end_src
-
-** god-mode
-
-https://github.com/emacsorphanage/god-mode
-
-common keybinds:
-+ x SPC r y --> C-x r y
-+ G q --> C-M-q
-
-is there a way to quit god-mode when hitting C-g?
-
-#+begin_src emacs-lisp
-
-  (use-package god-mode
-    :commands god-mode
-    :config
-    (setq god-exempt-major-modes nil)
-    (setq god-exempt-predicates nil)
-    (setq god-mode-enable-function-key-translation nil)
-    (define-key god-local-mode-map (kbd "i") #'god-local-mode)
-    (define-key god-local-mode-map (kbd ".") #'repeat)
-    (global-set-key (kbd "C-x C-1") #'delete-other-windows)
-    (global-set-key (kbd "C-x C-2") #'split-window-below)
-    (global-set-key (kbd "C-x C-3") #'split-window-right)
-    (global-set-key (kbd "C-x C-0") #'delete-window)
-    (defun my-god-mode-update-cursor-type ()
-      (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
-    (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
-    ;; (add-to-list 'god-exempt-major-modes 'dired-mode)
-    (god-mode))
 
 #+end_src
 
@@ -500,8 +479,7 @@ things to implement:
      '("F" . meow-search) ;; moved from "s"
      '("g" . meow-cancel-selection)
      '("G" . meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
+     ;; H Directional key moved to the bottom
      '("i" . meow-insert)
      '("I" . meow-open-above)
      '("j" . meow-join)
@@ -511,8 +489,7 @@ things to implement:
      ;; '("M" . meow-mark-symbol) ;; swap with w, next-symbol
      '("m" . meow-next-word) ;; moved from "w", mark-word
      '("M" . meow-next-symbol) ;; moved from "W", mark-symbol
-     '("n" . meow-next)
-     '("N" . meow-next-expand)
+     ;; N Directional key moved to the bottom
      '("o" . meow-block)
      '("O" . meow-to-block)
      '("p" . meow-prev)
@@ -521,13 +498,9 @@ things to implement:
      '("Q" . meow-goto-line)
      '("r" . meow-replace)
      '("R" . meow-swap-grab)
-     ;'("s" . meow-search) ;; move to F, replace with directional keys
-     '("s" . meow-right) ;; move cursor right
-     '("S" . meow-right-expand)
-     ;'("t" . meow-right)
-     ;'("T" . meow-right-expand)
-     '("t" . meow-prev)
-     '("T" . meow-prev-expand)
+     ;; '("s" . meow-search) ;; move to F, replace with directional keys
+     ;; S Directional key moved to the bottom
+     ;; T Directional key moved to the bottom
      '("u" . meow-undo)
      '("U" . meow-undo-in-selection)
      '("v" . meow-visit)
@@ -540,19 +513,71 @@ things to implement:
      '("y" . meow-yank)
      '("z" . meow-pop-selection)
      '("'" . repeat)
-     '("<escape>" . ignore)))
+     '("<escape>" . ignore)
 
-  ;; (add-to-list 'meow-insert-state-keymap '("C-z" . meow-insert-exit)))
+     ;; Directional keys:
 
-  ;; make <f6> <f7> instead?
-  (define-key meow-insert-state-keymap (kbd "<f6>") #'meow-insert-exit)
-  (define-key meow-insert-state-keymap (kbd "<f7>") #'meow-insert-exit) ;; fav
-  (define-key meow-insert-state-keymap (kbd "<f8>") #'meow-insert-exit)
+     ;; is this swap in h and p really better?
+
+     '("h" . meow-left)
+     '("H" . meow-left-expand)
+     ;; '("h" . meow-prev)
+     ;; '("H" . meow-prev-expand)
+
+     '("t" . meow-prev)
+     '("T" . meow-prev-expand)
+     ;; '("t" . meow-left)
+     ;; '("T" . meow-left-expand)
+
+     '("n" . meow-next)
+     '("N" . meow-next-expand)
+
+     '("s" . meow-right) ;; Directional, s is ->
+     '("S" . meow-right-expand)
+     ))
 
   (use-package meow
     :config
     (meow-setup)
+    ;; replace meow insert exit with whether god mode or meow is enabled
+    (define-key meow-insert-state-keymap (kbd "<f5>") #'meow-insert-exit)
+    (define-key meow-insert-state-keymap (kbd "<f6>") #'meow-insert-exit) ;; also useful
+    (define-key meow-insert-state-keymap (kbd "<f7>") #'meow-insert-exit) ;; fav
+    (define-key meow-insert-state-keymap (kbd "<f8>") #'meow-insert-exit) ;; somet easier 2 reach
+
     (meow-global-mode 1))
+
+#+end_src
+
+** god-mode
+
+https://github.com/emacsorphanage/god-mode
+
+common keybinds:
++ x SPC r y --> C-x r y
++ G q --> C-M-q
+
+is there a way to quit god-mode when hitting C-g?
+
+#+begin_src emacs-lisp
+
+  (use-package god-mode
+    :commands god-mode
+    :config
+    (setq god-exempt-major-modes nil)
+    (setq god-exempt-predicates nil)
+    (setq god-mode-enable-function-key-translation nil)
+    (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+    (define-key god-local-mode-map (kbd ".") #'repeat)
+    (global-set-key (kbd "C-x C-1") #'delete-other-windows)
+    (global-set-key (kbd "C-x C-2") #'split-window-below)
+    (global-set-key (kbd "C-x C-3") #'split-window-right)
+    (global-set-key (kbd "C-x C-0") #'delete-window)
+    (defun my-god-mode-update-cursor-type ()
+      (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+    (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
+    ;; (add-to-list 'god-exempt-major-modes 'dired-mode)
+    (god-mode))
 
 #+end_src
 
@@ -595,15 +620,15 @@ things to implement:
 
     (evil-set-initial-state 'messages-buffer-mode 'normal)
     (evil-set-initial-state 'dashboard-mode 'normal))
-    ;:hook
+    ;;hook
     ;; have these programs be in emacs-mode (C-z)
-    ;(evil-mode-hook . mi/evil-hook)
+    ;;(evil-mode-hook . mi/evil-hook)
 
   ;; evil collections
   (use-package evil-collection
     :after evil
     :config
-    (evil-collection-init)) 
+    (evil-collection-init))
 
 #+end_src
 
@@ -630,6 +655,46 @@ https://github.com/apchamberlain/undo-tree.el
     :config
     (undo-fu-session-global-mode t))
 
+#+end_src
+
+** crux
+
+Collection of Ridiculously Useful eXtensions
+
+features:
+- auto-align elisp
+- C-a moves to the first char on the line instead of the beginning.
+
+#+begin_src emacs-lisp
+
+  ;; maybe replace the first bind with replace kill line with crux?
+  (use-package crux
+    ;; :bind (("C-a" . crux-move-beginning-of-line))
+    :config
+    (global-set-key [remap beginning-of-line] 'crux-move-beginning-of-line)
+    (global-set-key [remap kill-line] 'crux-smart-kill-line)
+    (global-set-key (kbd "C-c c c") 'crux-cleanup-buffer-or-region))
+
+#+end_src
+
+** avy
+
+jump to any char or line
+
+#+begin_src emacs-lisp
+
+  (use-package avy
+    :commands avy)
+
+#+end_src
+
+** expand region
+
+#+begin_src emacs-lisp
+
+  (use-package expand-region
+    :commands expand-region)
+  
 #+end_src
 
 ** free-keys
@@ -708,7 +773,7 @@ Fast, transient keybinds
   (use-package hydra
     :defer t)
 
-  (defhydra hydra-text-scale (:timeout 5) 
+  (defhydra hydra-text-scale (:timeout 5)
     "scale text"
     ("j" text-scale-decrease "out")
     ("k" text-scale-increase "in")
@@ -725,15 +790,18 @@ Fast, transient keybinds
 
   (use-package ace-window
     :config
-    (setq aw-scope 'frame)
+    ;; (setq aw-scope 'frame)
+    (setq aw-scope 'global)
+    (setq aw-keys '(?a ?o ?e ?u ?h ?t ?n ?s))
     (global-set-key (kbd "M-o") 'ace-window))
 
+  ;; replace evil-direction w/ package
   (ri/leader-keys
     "w"  '(:ignore t :which-key "window")
-    "wv" '(evil-window-vsplit :which-key "v-split")
-    "ws" '(evil-window-split :which-key "h-split")
-    "wd" '(evil-window-delete :which-key "close window")
-    "wc" '(evil-window-delete :which-key "close window")
+    "wv" '(split-window-right :which-key "v-split")
+    "ws" '(split-window-below :which-key "h-split")
+    "wd" '(delete-window :which-key "close window")
+    "wc" '(delete-window :which-key "close window")
     "ww" '(evil-window-next :which-key "next-window")
     "wW" '(evil-window-prev :which-key "prev-window")
     "wh" '(evil-window-left :which-key "window-left")
@@ -796,8 +864,8 @@ Includes:
   (use-package ivy
     :diminish ; hide ivy minor-mode on modeline
     :bind (("C-s" . swiper) ;; fuzzy search tool
-           :map ivy-minibuffer-map 
-           ("TAB" . ivy-alt-done)	
+           :map ivy-minibuffer-map
+           ("TAB" . ivy-alt-done)
            ("C-l" . ivy-alt-done)
            ("C-j" . ivy-next-line)
            ("C-k" . ivy-previous-line)
@@ -817,7 +885,7 @@ Includes:
     :init
     (ivy-rich-mode 1))
 
-  ;; counsel 
+  ;; counsel (enhanced standard emacs commands)
   (use-package counsel
     :bind (;("M-x" . counsel-M-x)
            ;("C-x b" . counsel-ibuffer)
@@ -851,7 +919,7 @@ Includes:
   ;; doom-themes
   ;; recommended: henna, palenight, snazzy
   (use-package doom-themes
-    :init 
+    :init
     (load-theme 'doom-dracula t))
     ;;(load-theme 'doom-monokai-spectrum t)
     ;;(load-theme 'doom-snazzy t)
@@ -913,7 +981,7 @@ https://github.com/justbur/emacs-which-key
     :defer 0
     :diminish which-key-mode
     :config
-    (which-key-mode) 
+    (which-key-mode)
     (setq which-key-idle-delay 0.3))
 
 #+end_src
@@ -934,7 +1002,7 @@ Shows more info in help menu
     ([remap describe-function] . counsel-describe-function)
     ([remap describe-command] . helpful-command)
     ([remap describe-variable] . counsel-describe-variable)
-    ([remap describe-key] . helpful-key)) 
+    ([remap describe-key] . helpful-key))
 
 #+end_src
 
@@ -1351,7 +1419,7 @@ Cool commands:
   ;;   "lgd" 'lsp-find-definition
   ;;   "lgr" 'lsp-find-references))
 
-  ;; ;; maybe 
+  ;; ;; maybe
   ;; ;
                                           ; can't define same keys twice? naw.
   ;; ok what the heck
@@ -1405,7 +1473,7 @@ special ivy search functionality for lsp
 #+begin_src emacs-lisp
 
   (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
-  
+
 #+end_src
 
 *** Rust
@@ -1679,7 +1747,7 @@ Emulate a terminal in Eshell!
 (non-gnu?)
 
 #+begin_src emacs-lisp
-  
+
 #+end_src
 
 ** Eshell
@@ -1780,7 +1848,7 @@ file management, etc
 
 #+begin_src emacs-lisp
 
-  ;; dired 
+  ;; dired
   (use-package dired
     :ensure nil ; make sure use-package doesn't try to install it.
     :commands (dired dired-jump) ; defer loading of this config until a command is executed.
@@ -1970,7 +2038,7 @@ unix applications go here
 
   clear lock
   keycode 66 = Control_L Escape
-  
+
 #+end_src
 
 ** mpv
@@ -2035,7 +2103,7 @@ unix applications go here
   ## End of main
   #
 
-  # Export 
+  # Export
   export HISTORY_IGNORE="(ls|cd|pwd|exit|doas reboot|history|cd -| cd ..)"
   #export EDITOR="emacsclient -t -a ''"
   #export VISUAL="emacsclient -c -a emacs"
@@ -2086,7 +2154,7 @@ unix applications go here
 *** keepassxc.local
 
 #+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/keepassxc.local
-  
+
   ## Browser Integration
   # So can access database and keyfile
   noblacklist ${HOME}/Documents/secure
@@ -2098,7 +2166,7 @@ unix applications go here
   ##
 
   ## ETC
-  # 
+  #
   #dbus-user.talk org.freedesktop.secrets
   #
   dbus-user.talk org.freedesktop.Notifications
@@ -2137,7 +2205,7 @@ unix applications go here
 *** steam.local
 
 #+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/steam.local
-  
+
   #ignore seccomp
 
   # private-bin is disabled while in testing, but is known to work with multiple games.
@@ -2170,7 +2238,7 @@ Not sure if this works or not lol
 
   ;; org binding on M-t so make all t key bindings translate to p ?
 
-  ;; also god mode 
+  ;; also god mode
 
   ;(global-set-key (kbd "C-h") 'backward-kill-word)
   (global-set-key (kbd "C-t") 'previous-line)
@@ -2187,6 +2255,5 @@ Not sure if this works or not lol
 
   ;; make gc pauses faster by decreaseing the threshold.
   (setq gc-cons-threshold (* 2 1000 1000))
-  
-#+end_src
 
+#+end_src

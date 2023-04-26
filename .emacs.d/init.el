@@ -20,17 +20,17 @@
 (package-initialize) ; initialize package system and prep to be used
 
 ;; if package-archive-contents is empty (fresh install), ----
-;;   run package-refresh-contents. 
-(unless package-archive-contents 
- (package-refresh-contents)) 
+;;   run package-refresh-contents.
+(unless package-archive-contents
+ (package-refresh-contents))
 
 ;; non-Linux setup use-package ----
 ;; if use-package isn't installed or new update, then package-install it
-(unless (package-installed-p 'use-package) 
-   (package-install 'use-package)) 
+(unless (package-installed-p 'use-package)
+   (package-install 'use-package))
 
 ;; setup use-package ----
-(require 'use-package) 
+(require 'use-package)
 (setq use-package-always-ensure t) ;; no need to add :ensure t on every package that needs it
 ;(setq use-package-always-defer t) ;; explicitly state which to ensure, might break, save first
 (setq use-package-verbose t)
@@ -48,9 +48,9 @@
     `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
 ;; disable startup screen
-(setq inhibit-startup-message nil) 
+(setq inhibit-startup-message nil)
 
-;; disable ui 
+;; disable ui
 (scroll-bar-mode -1) ; disable visible scrollbar
 (tool-bar-mode -1)   ; disable the toolbar
 (tooltip-mode 1)     ; disable tooltips
@@ -82,13 +82,13 @@
 
 ;; default font (modeline, minibuffer, default for applications, etc)
 (set-face-attribute 'default nil :font "Fira Code" :height 110)
-;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115) 
+;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115)
 
 ;; fixed pitch font (code blocks, property, startup, etc (can add more))
 (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 110)
 
 ;; variable pitch font (toc links, regular text in org, etc...)
-;; how about Iosveka instead? 
+;; how about Iosveka instead?
 ;; (bullets are configured in org-fonts)
 (set-face-attribute 'variable-pitch nil :font "DejaVu Sans" :height 120 :weight 'regular)
 
@@ -98,7 +98,7 @@
 (setq scroll-step 1) ;; keyboard scroll one line at a time
 (setq use-dialog-box nil) ;; (change to nil) make things like yes or no prompts dialogue boxes
 
-;; Set frame transparency and maximize windows by default. 
+;; Set frame transparency and maximize windows by default.
 (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
 (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
@@ -123,24 +123,6 @@
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 ;; (global-set-key (kbd "<escape>") #'god-mode-all)
 ;; (global-set-key (kbd "<escape>") #'god-local-mode)
-
-(use-package god-mode
-  :commands god-mode
-  :config
-  (setq god-exempt-major-modes nil)
-  (setq god-exempt-predicates nil)
-  (setq god-mode-enable-function-key-translation nil)
-  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
-  (define-key god-local-mode-map (kbd ".") #'repeat)
-  (global-set-key (kbd "C-x C-1") #'delete-other-windows)
-  (global-set-key (kbd "C-x C-2") #'split-window-below)
-  (global-set-key (kbd "C-x C-3") #'split-window-right)
-  (global-set-key (kbd "C-x C-0") #'delete-window)
-  (defun my-god-mode-update-cursor-type ()
-    (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
-  (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
-  ;; (add-to-list 'god-exempt-major-modes 'dired-mode)
-  (god-mode))
 
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
@@ -190,8 +172,7 @@
    '("F" . meow-search) ;; moved from "s"
    '("g" . meow-cancel-selection)
    '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
+   ;; H Directional key moved to the bottom
    '("i" . meow-insert)
    '("I" . meow-open-above)
    '("j" . meow-join)
@@ -201,8 +182,7 @@
    ;; '("M" . meow-mark-symbol) ;; swap with w, next-symbol
    '("m" . meow-next-word) ;; moved from "w", mark-word
    '("M" . meow-next-symbol) ;; moved from "W", mark-symbol
-   '("n" . meow-next)
-   '("N" . meow-next-expand)
+   ;; N Directional key moved to the bottom
    '("o" . meow-block)
    '("O" . meow-to-block)
    '("p" . meow-prev)
@@ -211,13 +191,9 @@
    '("Q" . meow-goto-line)
    '("r" . meow-replace)
    '("R" . meow-swap-grab)
-   ;'("s" . meow-search) ;; move to F, replace with directional keys
-   '("s" . meow-right) ;; move cursor right
-   '("S" . meow-right-expand)
-   ;'("t" . meow-right)
-   ;'("T" . meow-right-expand)
-   '("t" . meow-prev)
-   '("T" . meow-prev-expand)
+   ;; '("s" . meow-search) ;; move to F, replace with directional keys
+   ;; S Directional key moved to the bottom
+   ;; T Directional key moved to the bottom
    '("u" . meow-undo)
    '("U" . meow-undo-in-selection)
    '("v" . meow-visit)
@@ -230,19 +206,57 @@
    '("y" . meow-yank)
    '("z" . meow-pop-selection)
    '("'" . repeat)
-   '("<escape>" . ignore)))
+   '("<escape>" . ignore)
 
-;; (add-to-list 'meow-insert-state-keymap '("C-z" . meow-insert-exit)))
+   ;; Directional keys:
 
-;; make <f6> <f7> instead?
-(define-key meow-insert-state-keymap (kbd "<f6>") #'meow-insert-exit)
-(define-key meow-insert-state-keymap (kbd "<f7>") #'meow-insert-exit) ;; fav
-(define-key meow-insert-state-keymap (kbd "<f8>") #'meow-insert-exit)
+   ;; is this swap in h and p really better?
+
+   '("h" . meow-left)
+   '("H" . meow-left-expand)
+   ;; '("h" . meow-prev)
+   ;; '("H" . meow-prev-expand)
+
+   '("t" . meow-prev)
+   '("T" . meow-prev-expand)
+   ;; '("t" . meow-left)
+   ;; '("T" . meow-left-expand)
+
+   '("n" . meow-next)
+   '("N" . meow-next-expand)
+
+   '("s" . meow-right) ;; Directional, s is ->
+   '("S" . meow-right-expand)
+   ))
 
 (use-package meow
   :config
   (meow-setup)
+  ;; replace meow insert exit with whether god mode or meow is enabled
+  (define-key meow-insert-state-keymap (kbd "<f5>") #'meow-insert-exit)
+  (define-key meow-insert-state-keymap (kbd "<f6>") #'meow-insert-exit) ;; also useful
+  (define-key meow-insert-state-keymap (kbd "<f7>") #'meow-insert-exit) ;; fav
+  (define-key meow-insert-state-keymap (kbd "<f8>") #'meow-insert-exit) ;; somet easier 2 reach
+
   (meow-global-mode 1))
+
+(use-package god-mode
+  :commands god-mode
+  :config
+  (setq god-exempt-major-modes nil)
+  (setq god-exempt-predicates nil)
+  (setq god-mode-enable-function-key-translation nil)
+  (define-key god-local-mode-map (kbd "i") #'god-local-mode)
+  (define-key god-local-mode-map (kbd ".") #'repeat)
+  (global-set-key (kbd "C-x C-1") #'delete-other-windows)
+  (global-set-key (kbd "C-x C-2") #'split-window-below)
+  (global-set-key (kbd "C-x C-3") #'split-window-right)
+  (global-set-key (kbd "C-x C-0") #'delete-window)
+  (defun my-god-mode-update-cursor-type ()
+    (setq cursor-type (if (or god-local-mode buffer-read-only) 'box 'bar)))
+  (add-hook 'post-command-hook #'my-god-mode-update-cursor-type)
+  ;; (add-to-list 'god-exempt-major-modes 'dired-mode)
+  (god-mode))
 
 ;; evil-mode exclude
 (defun ri/evil-hook ()
@@ -279,9 +293,9 @@
 
   (evil-set-initial-state 'messages-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
-  ;:hook
+  ;;hook
   ;; have these programs be in emacs-mode (C-z)
-  ;(evil-mode-hook . mi/evil-hook)
+  ;;(evil-mode-hook . mi/evil-hook)
 
 ;; evil collections
 (use-package evil-collection
@@ -305,6 +319,20 @@
   :after undo-fu
   :config
   (undo-fu-session-global-mode t))
+
+;; maybe replace the first bind with replace kill line with crux?
+(use-package crux
+  ;; :bind (("C-a" . crux-move-beginning-of-line))
+  :config
+  (global-set-key [remap beginning-of-line] 'crux-move-beginning-of-line)
+  (global-set-key [remap kill-line] 'crux-smart-kill-line)
+  (global-set-key (kbd "C-c c c") 'crux-cleanup-buffer-or-region))
+
+(use-package avy
+  :commands avy)
+
+(use-package expand-region
+  :commands expand-region)
 
 (use-package free-keys
   :commands free-keys)
@@ -348,7 +376,7 @@
 (use-package hydra
   :defer t)
 
-(defhydra hydra-text-scale (:timeout 5) 
+(defhydra hydra-text-scale (:timeout 5)
   "scale text"
   ("j" text-scale-decrease "out")
   ("k" text-scale-increase "in")
@@ -359,15 +387,18 @@
 
 (use-package ace-window
   :config
-  (setq aw-scope 'frame)
+  ;; (setq aw-scope 'frame)
+  (setq aw-scope 'global)
+  (setq aw-keys '(?a ?o ?e ?u ?h ?t ?n ?s))
   (global-set-key (kbd "M-o") 'ace-window))
 
+;; replace evil-direction w/ package
 (ri/leader-keys
   "w"  '(:ignore t :which-key "window")
-  "wv" '(evil-window-vsplit :which-key "v-split")
-  "ws" '(evil-window-split :which-key "h-split")
-  "wd" '(evil-window-delete :which-key "close window")
-  "wc" '(evil-window-delete :which-key "close window")
+  "wv" '(split-window-right :which-key "v-split")
+  "ws" '(split-window-below :which-key "h-split")
+  "wd" '(delete-window :which-key "close window")
+  "wc" '(delete-window :which-key "close window")
   "ww" '(evil-window-next :which-key "next-window")
   "wW" '(evil-window-prev :which-key "prev-window")
   "wh" '(evil-window-left :which-key "window-left")
@@ -405,8 +436,8 @@
 (use-package ivy
   :diminish ; hide ivy minor-mode on modeline
   :bind (("C-s" . swiper) ;; fuzzy search tool
-         :map ivy-minibuffer-map 
-         ("TAB" . ivy-alt-done)	
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
          ("C-l" . ivy-alt-done)
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
@@ -426,7 +457,7 @@
   :init
   (ivy-rich-mode 1))
 
-;; counsel 
+;; counsel (enhanced standard emacs commands)
 (use-package counsel
   :bind (;("M-x" . counsel-M-x)
          ;("C-x b" . counsel-ibuffer)
@@ -454,7 +485,7 @@
 ;; doom-themes
 ;; recommended: henna, palenight, snazzy
 (use-package doom-themes
-  :init 
+  :init
   (load-theme 'doom-dracula t))
   ;;(load-theme 'doom-monokai-spectrum t)
   ;;(load-theme 'doom-snazzy t)
@@ -488,7 +519,7 @@
   :defer 0
   :diminish which-key-mode
   :config
-  (which-key-mode) 
+  (which-key-mode)
   (setq which-key-idle-delay 0.3))
 
 ;; helpful (improves help menu)
@@ -809,7 +840,7 @@
 ;;   "lgd" 'lsp-find-definition
 ;;   "lgr" 'lsp-find-references))
 
-;; ;; maybe 
+;; ;; maybe
 ;; ;
                                         ; can't define same keys twice? naw.
 ;; ok what the heck
@@ -1017,7 +1048,7 @@
          (find-file (expand-file-name "~/.dotfiles/.emacs.d/"))
            :which-key "open Emacs.org"))
 
-;; dired 
+;; dired
 (use-package dired
   :ensure nil ; make sure use-package doesn't try to install it.
   :commands (dired dired-jump) ; defer loading of this config until a command is executed.
@@ -1135,7 +1166,7 @@
 
 ;; org binding on M-t so make all t key bindings translate to p ?
 
-;; also god mode 
+;; also god mode
 
 ;(global-set-key (kbd "C-h") 'backward-kill-word)
 (global-set-key (kbd "C-t") 'previous-line)
