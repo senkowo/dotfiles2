@@ -7,7 +7,8 @@
 setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps
 
 # bind S-<enter> to escape
-xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
+# Breaks C-S-c !
+#xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
 
 # set hold type startup and speed (delay rate)
 xset r rate 270 50

@@ -391,6 +391,14 @@ notes:
   (use-package ivy-posframe
     :after exwm)
 
+  ;; copy cuts to system clipboard
+  ;;  security concerns? private emacs better? make a keybind?
+  (use-package xclip
+    :after exwm
+    :config
+    (xclip-mode 1))
+
+
 
 
 #+end_src
@@ -415,7 +423,8 @@ notes:
   setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps
 
   # bind S-<enter> to escape
-  xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
+  # Breaks C-S-c !
+  #xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
 
   # set hold type startup and speed (delay rate)
   xset r rate 270 50
