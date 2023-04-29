@@ -298,22 +298,20 @@ notes:
 
             ;; Move between windows
             ([?\s-h] . windmove-left)
-            ([?\s-l] . windmove-right)
-            ([?\s-k] . windmove-up)
-            ([?\s-j] . windmove-down)
+            ([?\s-t] . windmove-up)
+            ([?\s-n] . windmove-down)
+            ([?\s-s] . windmove-right)
 
             ;; Move windows 
             ([?\s-H] . windmove-swap-states-left)
-            ([?\s-L] . windmove-swap-states-right)
-            ([?\s-K] . windmove-swap-states-up)
-            ([?\s-J] . windmove-swap-states-down)
+            ([?\s-T] . windmove-swap-states-up)
+            ([?\s-N] . windmove-swap-states-down)
+            ([?\s-S] . windmove-swap-states-right)
 
             ;; Shortcuts for windows 
-            ;([?\s-u] . (lambda) () (interactive) (other-window 1))
-            ;([?\s-i] . (lambda) () (interactive) (other-window -1))
-            ([?\s-u] . (lambda () (interactive) (other-window 1)))
-            ([?\s-i] . (lambda () (interactive) (other-window -1)))
-            ([?\s-C] . delete-window)
+            ([?\s-g] . (lambda () (interactive) (other-window 1)))
+            ([?\s-c] . (lambda () (interactive) (other-window -1)))
+            ([?\s-d] . delete-window)
             ;;;; alternatively, s-u + s-S-u for windows, and s-i for launcher or sum (comfy?)
             ;;;; or maybe s-o for windows and s-u s-i for buffers?
 
@@ -322,7 +320,7 @@ notes:
             ([?\s-b] . counsel-switch-buffer)
 
             ;; Toggles
-            ([?\s-t] . exwm-floating-toggle-floating)
+            ([?\s-F] . exwm-floating-toggle-floating)
             ([?\s-f] . exwm-layout-toggle-fullscreen)
             ([?\s-m] . exwm-layout-toggle-mode-line)
 
@@ -333,7 +331,6 @@ notes:
 
             ;; Special
             ([?\s-\C-\S-l] . (lambda () (interactive) (desktop-environment-lock-screen)))
-            ([?\s-m] . exwm-layout-toggle-mode-line)
 
             ;; Programs
 
@@ -355,8 +352,8 @@ notes:
     ;; s-i instead?
     (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
     (exwm-input-set-key (kbd "s-<return>") 'shell-pop)
-    (exwm-input-set-key (kbd "s-y l") 'ri/run-librewolf)
-    (exwm-input-set-key (kbd "s-y p") 'ri/run-keepassxc)
+    (exwm-input-set-key (kbd "s-- l") 'ri/run-librewolf)
+    (exwm-input-set-key (kbd "s-- p") 'ri/run-keepassxc)
 
     (exwm-enable))
 
@@ -365,7 +362,7 @@ notes:
     :after exwm
     :config 
     (setq desktop-environment-update-exwm-global-keys :prefix)
-    (define-key desktop-environment-mode-map (kbd "s-l") nil)
+    (define-key desktop-environment-mode-map (kbd "s-l") nil) ;; what is this???
     (desktop-environment-mode)
     :custom
     ;; brightness
@@ -393,13 +390,10 @@ notes:
 
   ;; copy cuts to system clipboard
   ;;  security concerns? private emacs better? make a keybind?
-  (use-package xclip
-    :after exwm
-    :config
-    (xclip-mode 1))
-
-
-
+  ;; (use-package xclip
+  ;;   :after exwm
+  ;;   :config
+  ;;   (xclip-mode 1))
 
 #+end_src
 

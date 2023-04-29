@@ -47,6 +47,9 @@
 (setq auto-save-file-name-transforms
     `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name ".backup/" user-emacs-directory))))
+
 ;; disable startup screen
 (setq inhibit-startup-message nil)
 
@@ -155,6 +158,7 @@
    '("1" . meow-expand-1)
    '("-" . negative-argument)
    '(";" . meow-reverse)
+   '(":" . meow-goto-line) ;; moved from "Q"
    '("," . meow-inner-of-thing)
    '("." . meow-bounds-of-thing)
    '("<" . meow-beginning-of-thing)
@@ -188,7 +192,7 @@
    '("p" . meow-prev)
    '("P" . meow-prev-expand)
    '("q" . meow-quit)
-   '("Q" . meow-goto-line)
+   ;; '("Q" . meow-goto-line) ;; move to " : "
    '("r" . meow-replace)
    '("R" . meow-swap-grab)
    ;; '("s" . meow-search) ;; move to F, replace with directional keys
@@ -241,6 +245,7 @@
   (meow-global-mode 1))
 
 (use-package god-mode
+  :disabled
   :commands god-mode
   :config
   (setq god-exempt-major-modes nil)
@@ -273,6 +278,7 @@
 
 ;; evil-mode
 (use-package evil
+  :disabled
   :commands evil-mode
   :init
   (setq evil-want-C-u-scroll t)
@@ -329,6 +335,7 @@
   (global-set-key (kbd "C-c c c") 'crux-cleanup-buffer-or-region))
 
 (use-package avy
+  :bind ("C-:" . 'avy-goto-char)
   :commands avy)
 
 (use-package expand-region
@@ -463,6 +470,7 @@
          ;("C-x b" . counsel-ibuffer)
          ;("C-x C-f" . counsel-find-file)
          ("C-M-j" . 'counsel-switch-buffer)
+         ("s-c" . 'counsel-switch-buffer)
          :map minibuffer-local-map
          ("C-r" . 'counsel-minibuffer-history))
   :custom
@@ -954,13 +962,16 @@
 ;; (learn more about magit...)
 (use-package magit
   :commands magit-status
+  :bind (:map magit-status-mode-map
+              ("p" . magit-tag)
+              ("t" . magit-section-backward))
   :custom
   ;; what does this do? fullscreen?
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (ri/leader-keys
-  "g"  '(:ignore t :which-key "magit")
-  "gg" '(magit-status :which-key "magit")) ; (same as magit)
+  "v"  '(:ignore t :which-key "magit")
+  "vv" '(magit-status :which-key "magit")) ; (same as magit)
 
 ;; forge
 ;; (run forge-pull in a repo to pull down)
@@ -1052,7 +1063,11 @@
 (use-package dired
   :ensure nil ; make sure use-package doesn't try to install it.
   :commands (dired dired-jump) ; defer loading of this config until a command is executed.
-  :bind ("C-c j" . dired-jump)
+  :bind (("C-c j" . dired-jump)
+         :map dired-mode-map
+         ("p" . dired-toggle-marks)
+         ("t" . dired-previous-line))
+
   :custom
   (dired-listing-switches "-agho --group-directories-first")
   (dired-dwim-target t) ; auto select dir to move to if another dired window open.
