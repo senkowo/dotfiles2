@@ -12,6 +12,7 @@
 - [[#startup-performance][Startup performance]]
 - [[#package-management][Package management]]
 - [[#prevent-littering][Prevent littering]]
+- [[#identify-operating-system][Identify Operating system]]
 - [[#basic-ui][Basic UI]]
   - [[#disable-bell][disable bell]]
   - [[#line-numbers][line numbers]]
@@ -252,6 +253,21 @@ package management, sources, auto, etc
 
   (setq backup-directory-alist
         `(("." . ,(expand-file-name ".backup/" user-emacs-directory))))
+
+#+end_src
+
+* Identify Operating system
+
+#+begin_src emacs-lisp
+
+  (setq ri/is-guix-system (and (eq system-type 'gnu/linux)
+                             (require 'f)
+                             (string-equal (f-read "/etc/issue")
+                                           "\nThis is the GNU system.  Welcome.\n")))
+
+  (if ri/is-guix-system
+      (load-file (expand-file-name "desktop.el" user-emacs-directory))
+      (setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps))
 
 #+end_src
 
@@ -983,6 +999,7 @@ Includes:
     :bind (("C-h T" . ri/load-theme-and-font-setup))
     :init
     (load-theme 'doom-dracula t))
+    ;; (load-theme 'doom-palenight))
     ;; (load-theme 'doom-laserwave t))
     ;;(load-theme 'doom-monokai-spectrum t)
     ;;(load-theme 'doom-snazzy t)

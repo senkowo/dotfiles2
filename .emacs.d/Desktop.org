@@ -228,7 +228,7 @@ notes:
     ;; --------
 
     ;; Sets up dvorak keybinds (also does ctrl:nocaps?)
-    ;(start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant ',dvorak' -option grp:alts_toggle ctrl:nocaps")
+    ;(start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps")
     ;;
     ;; Rebind Ctrl to CapsLock 
     ;; (start-process-shell-command "Xmodmap S-C Esc" nil 
@@ -410,7 +410,7 @@ notes:
 
 ** EXWM Launcher
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/start-exwm.sh :shebang #!/bin/sh
+#+begin_src shell :tangle exwm/start-exwm.sh :shebang #!/bin/sh
 
   # Set screen DPI (for high DPI displays) (before compton)
   #xrdb ~/.emacs.d/exwm/Xresources
@@ -444,7 +444,7 @@ notes:
 
 *Prints current volume and "mute" if muted:*
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/pactl-print-volume-w-mute.sh :shebang #!/bin/bash
+#+begin_src shell :tangle exwm/pactl-print-volume-w-mute.sh :shebang #!/bin/bash
 
   volume=$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | sed s/%//)
   muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
@@ -460,7 +460,7 @@ notes:
 
 *Prints the current mute status when toggling:*
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/pactl-print-mute.sh :shebang #!/bin/bash
+#+begin_src shell :tangle exwm/pactl-print-mute.sh :shebang #!/bin/bash
 
 muted=$(pactl get-sink-mute @DEFAULT_SINK@ | awk '{print $2}')
 
@@ -474,7 +474,7 @@ fi
 
 ** Keyboard remapping
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.emacs.d/exwm/Xmodmap
+#+begin_src conf-unix :tangle exwm/Xmodmap
 
   clear lock
   keycode 66 = Control_L Escape
@@ -483,7 +483,7 @@ fi
 
 ** High DPI setting
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/Xresources
+#+begin_src shell :tangle exwm/Xresources
 
   Xft:dpi:  100  # set this to your desired DPI
 
@@ -501,7 +501,7 @@ For login manager
 
 #+end_src
 
-#+begin_src shell :tangle ~/.dotfiles/.emacs.d/exwm/EXWM.desktop 
+#+begin_src shell :tangle exwm/EXWM.desktop 
 
   [Desktop Entry]
   Name=EXWM

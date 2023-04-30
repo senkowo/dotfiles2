@@ -53,6 +53,15 @@
 (setq backup-directory-alist
       `(("." . ,(expand-file-name ".backup/" user-emacs-directory))))
 
+(setq ri/is-guix-system (and (eq system-type 'gnu/linux)
+                           (require 'f)
+                           (string-equal (f-read "/etc/issue")
+                                         "\nThis is the GNU system.  Welcome.\n")))
+
+(if ri/is-guix-system
+    (load-file (expand-file-name "desktop.el" user-emacs-directory))
+    (setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps))
+
 ;; disable startup screen
 (setq inhibit-startup-message nil)
 
@@ -523,6 +532,7 @@
   :bind (("C-h T" . ri/load-theme-and-font-setup))
   :init
   (load-theme 'doom-dracula t))
+  ;; (load-theme 'doom-palenight))
   ;; (load-theme 'doom-laserwave t))
   ;;(load-theme 'doom-monokai-spectrum t)
   ;;(load-theme 'doom-snazzy t)

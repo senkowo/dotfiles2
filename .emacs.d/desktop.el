@@ -205,7 +205,7 @@
   ;; --------
 
   ;; Sets up dvorak keybinds (also does ctrl:nocaps?)
-  ;(start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant ',dvorak' -option grp:alts_toggle ctrl:nocaps")
+  ;(start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps")
   ;;
   ;; Rebind Ctrl to CapsLock 
   ;; (start-process-shell-command "Xmodmap S-C Esc" nil 
