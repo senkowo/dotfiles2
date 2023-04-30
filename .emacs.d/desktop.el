@@ -27,7 +27,8 @@
   ;; Run programs in background at startup 
   ;(ri/run-in-background "nm-applet")
   ;(ri/run-in-background "pasystray")
-  (ri/run-in-background "blueman-applet"))
+  ;(ri/run-in-background "blueman-applet")
+  )
 
 ;; switch to last workspace (hack)
 (defun ri/exwm-workspace-switch-to-last ()
@@ -217,7 +218,7 @@
   ;; (start-process-shell-command "xsetroot cursor" nil "xsetroot -cursor_name left_ptr")
 
   ;; night light 
-  (ri/run-in-background "sct-auto-adjust.sh")
+  (ri/run-in-background (expand-file-name "exwm/sct-auto-adjust.sh" user-emacs-directory))
 
   ;; -------
 

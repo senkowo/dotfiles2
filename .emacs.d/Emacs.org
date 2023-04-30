@@ -237,15 +237,18 @@ package management, sources, auto, etc
 
   ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
   ;; UNNECESSARY CHANGE, CHANGE BACK!
-  (setq user-emacs-directory (expand-file-name "~/.dotfiles/.emacs.d/")
-        url-history-file (expand-file-name "url/history" user-emacs-directory))
+  (setq user-emacs-directory ;; should be directory of init.el or Emacs.org
+        (file-name-directory (or load-file-name (buffer-file-name))))
+  (setq user-init-file ;; init.el in user-emacs-directory
+        (concat user-emacs-directory "init.el"))
+  (setq url-history-file (expand-file-name "url/history" user-emacs-directory))
 
   ;; no-littering
   (use-package no-littering)
 
   ;; keep autosaves in emacs dir
   (setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
   (setq backup-directory-alist
         `(("." . ,(expand-file-name ".backup/" user-emacs-directory))))
@@ -1536,7 +1539,7 @@ special ivy search functionality for lsp
 #+begin_src emacs-lisp
 
   (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
-  
+
   (ri/leader-keys
     "ml" 'org-lint)
 
@@ -2122,7 +2125,7 @@ unix applications go here
 
 ** Xmodmap
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.Xmodmap
+#+begin_src conf-unix :tangle ../.Xmodmap
 
   clear lock
   keycode 66 = Control_L Escape
@@ -2131,7 +2134,7 @@ unix applications go here
 
 ** mpv
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/mpv/mpv.conf
+#+begin_src conf-unix :tangle ../.config/mpv/mpv.conf
 
   #
 
@@ -2139,7 +2142,7 @@ unix applications go here
 
 ** zshrc
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.zshrc
+#+begin_src conf-unix :tangle ../.zshrc
 
   #
   ## config for .zshrc
@@ -2232,7 +2235,7 @@ unix applications go here
 
 *** disable-common.local
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/disable-common.local
+#+begin_src conf-unix :tangle ../.config/firejail/disable-common.local
 
   blacklist ${HOME}/Documents/secure
   blacklist ${HOME}/School/school/Important-docs
@@ -2241,7 +2244,7 @@ unix applications go here
 
 *** keepassxc.local
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/keepassxc.local
+#+begin_src conf-unix :tangle ../.config/firejail/keepassxc.local
 
   ## Browser Integration
   # So can access database and keyfile
@@ -2265,7 +2268,7 @@ unix applications go here
 
 *** librewolf.local
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/librewolf.local
+#+begin_src conf-unix :tangle ../.config/firejail/librewolf.local
 
   #whitelist ${RUNUSER}/run/user/$UID/librewolf
 
@@ -2292,7 +2295,7 @@ unix applications go here
 
 *** steam.local
 
-#+begin_src conf-unix :tangle ~/.dotfiles/.config/firejail/steam.local
+#+begin_src conf-unix :tangle ../.config/firejail/steam.local
 
   #ignore seccomp
 

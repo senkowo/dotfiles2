@@ -37,15 +37,18 @@
 
 ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 ;; UNNECESSARY CHANGE, CHANGE BACK!
-(setq user-emacs-directory (expand-file-name "~/.dotfiles/.emacs.d/")
-      url-history-file (expand-file-name "url/history" user-emacs-directory))
+(setq user-emacs-directory ;; should be directory of init.el or Emacs.org
+      (file-name-directory (or load-file-name (buffer-file-name))))
+(setq user-init-file ;; init.el in user-emacs-directory
+      (concat user-emacs-directory "init.el"))
+(setq url-history-file (expand-file-name "url/history" user-emacs-directory))
 
 ;; no-littering
 (use-package no-littering)
 
 ;; keep autosaves in emacs dir
 (setq auto-save-file-name-transforms
-    `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 
 (setq backup-directory-alist
       `(("." . ,(expand-file-name ".backup/" user-emacs-directory))))
