@@ -62,34 +62,34 @@ emacs settings.
 
 #+begin_src elisp
 
-;;
-;; system --------
-;;
+  ;;
+  ;; system --------
+  ;;
 
-;; will it put misc cache in .emacs.d?
-;;  maybe good if sync?
-;;  Puts stuff in home dir, plus .bak thrown around
-(use-package no-littering
-  :ensure t)
+  ;; will it put misc cache in .emacs.d?
+  ;;  maybe good if sync?
+  ;;  Puts stuff in home dir, plus .bak thrown around
+  (use-package no-littering
+    :ensure t)
 
-;; keep custom settings in temp file
-;; (setq custom-file
-;;   (if (boundp 'server-socket-dir)
-;;       (expand-file-name "custom.el" server-socket-dir)
-;;     (expand-file-name
-;;      (format "emacs-custom-%s.el" (user-uid))
-;;      temporary-file-directory)))
-(setq custom-file
-  (expand-file-name "custom.el"
-    user-emacs-directory))
-;; (setq custom-file (make-temp-file "emacs-custom"))
-(load custom-file t)
+  ;; keep custom settings in temp file
+  ;; (setq custom-file
+  ;;   (if (boundp 'server-socket-dir)
+  ;;       (expand-file-name "custom.el" server-socket-dir)
+  ;;     (expand-file-name
+  ;;      (format "emacs-custom-%s.el" (user-uid))
+  ;;      temporary-file-directory)))
+  ;; (setq custom-file
+  ;;   (expand-file-name "custom.el"
+  ;;     user-emacs-directory))
+  (setq custom-file (make-temp-file "custom.el"))
+  (load custom-file t)
 
-(use-package keyfreq
-  :ensure t
-  :config
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1))
+  (use-package keyfreq
+    :ensure t
+    :config
+    (keyfreq-mode 1)
+    (keyfreq-autosave-mode 1))
 
 #+end_src
 
