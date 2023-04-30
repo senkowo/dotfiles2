@@ -18,6 +18,7 @@
   - [[#fonts][fonts]]
   - [[#improved-scrolling][improved scrolling]]
   - [[#transparency][transparency]]
+  - [[#shorten-y-n-prompt][shorten y-n prompt]]
 - [[#basic-functionality][Basic functionality]]
   - [[#all-the-icons][all-the-icons]]
   - [[#auto-update-packages][auto-update packages]]
@@ -28,13 +29,13 @@
   - [[#god-mode][god-mode]]
   - [[#evil-mode][evil-mode]]
   - [[#evil-undo-system-undo-treefu][evil-undo-system (undo-tree/fu)]]
-  - [[#crux][crux]]
-  - [[#avy][avy]]
-  - [[#expand-region][expand region]]
-  - [[#free-keys][free-keys]]
   - [[#generalel][general.el]]
   - [[#generalel-generic-binds][general.el generic binds]]
   - [[#hydra][hydra]]
+  - [[#crux][crux]]
+  - [[#expand-region][expand region]]
+  - [[#avy][avy]]
+  - [[#free-keys][free-keys]]
   - [[#window-management][window management]]
   - [[#buffer-management][buffer management]]
 - [[#ui-configuration][UI Configuration]]
@@ -45,7 +46,6 @@
   - [[#modus-themes][modus-themes]]
   - [[#which-key][which-key]]
   - [[#helpful][helpful]]
-  - [[#help-general-keybinds][help general keybinds]]
 - [[#org][Org]]
   - [[#org-fonts][Org-fonts]]
   - [[#org--agenda][Org + agenda]]
@@ -352,6 +352,15 @@ General fonts for emacs.
 
 #+end_src
 
+** shorten y-n prompt
+
+#+begin_src emacs-lisp
+
+  ;; shorten y-n prompt
+  (defalias 'yes-or-no-p 'y-or-n-p)
+
+#+end_src
+
 * Basic functionality
 
 basic functionality
@@ -434,7 +443,7 @@ things to implement:
 
 useful keybinds:
 - o - meow-block
-- O - meow-next-block 
+- O - meow-next-block
 
 #+begin_src emacs-lisp
 
@@ -455,6 +464,8 @@ useful keybinds:
      '("?" . meow-cheatsheet))
     (meow-motion-overwrite-define-key
      ;; custom keybinding for motion state
+     '("t" . previous-line)
+     '("p" . "H-t")
      '("<escape>" . ignore))
     (meow-normal-define-key
      '("0" . meow-expand-0)
@@ -503,6 +514,7 @@ useful keybinds:
      '("p" . meow-prev)
      '("P" . meow-prev-expand)
      '("q" . meow-quit)
+     '("Q" . kill-this-buffer)
      ;; '("Q" . meow-goto-line) ;; move to " : "
      '("r" . meow-replace)
      '("R" . meow-swap-grab)
@@ -667,56 +679,6 @@ https://github.com/apchamberlain/undo-tree.el
 
 #+end_src
 
-** crux
-
-Collection of Ridiculously Useful eXtensions
-
-features:
-- auto-align elisp
-- C-a moves to the first char on the line instead of the beginning.
-
-#+begin_src emacs-lisp
-
-  ;; maybe replace the first bind with replace kill line with crux?
-  (use-package crux
-    ;; :bind (("C-a" . crux-move-beginning-of-line))
-    :config
-    (global-set-key [remap beginning-of-line] 'crux-move-beginning-of-line)
-    (global-set-key [remap kill-line] 'crux-smart-kill-line)
-    (global-set-key (kbd "C-c c c") 'crux-cleanup-buffer-or-region))
-
-#+end_src
-
-** avy
-
-jump to any char or line
-
-#+begin_src emacs-lisp
-
-  (use-package avy
-    :bind ("C-:" . 'avy-goto-char)
-    :commands avy)
-
-#+end_src
-
-** expand region
-
-#+begin_src emacs-lisp
-
-  (use-package expand-region
-    :commands expand-region)
-  
-#+end_src
-
-** free-keys
-
-#+begin_src emacs-lisp
-
-  (use-package free-keys
-    :commands free-keys)
-
-#+end_src
-
 ** general.el
 
 https://github.com/noctuid/general.el
@@ -764,6 +726,15 @@ Generic toggles
 
 #+end_src
 
+Special and Help
+
+#+begin_src emacs-lisp
+
+  (ri/leader-keys
+    "s" '(:ignore t :which-key "special"))
+
+#+end_src
+
 Quit emacs / session
 
 #+begin_src emacs-lisp
@@ -795,7 +766,62 @@ Fast, transient keybinds
 
 #+end_src
 
+** crux
+
+Collection of Ridiculously Useful eXtensions
+
+features:
+- auto-align elisp
+- C-a moves to the first char on the line instead of the beginning.
+
+#+begin_src emacs-lisp
+
+  ;; maybe replace the first bind with replace kill line with crux?
+  (use-package crux
+    :bind (("C-a" . crux-move-beginning-of-line))
+    :config
+    (global-set-key [remap beginning-of-line] 'crux-move-beginning-of-line)
+    (global-set-key [remap kill-line] 'crux-smart-kill-line)
+    (ri/leader-keys
+      "mc" 'crux-cleanup-buffer-or-region))
+
+#+end_src
+
+** expand region
+
+#+begin_src emacs-lisp
+
+  (use-package expand-region
+    :commands expand-region)
+
+#+end_src
+
+** avy
+
+jump to any char or line
+
+#+begin_src emacs-lisp
+
+  (use-package avy
+    :bind ("C-:" . 'avy-goto-char)
+    :commands avy)
+
+#+end_src
+
+** free-keys
+
+#+begin_src emacs-lisp
+
+  (use-package free-keys
+    :commands free-keys)
+
+#+end_src
+
 ** window management
+
+Ace-window (M-o) documentation
+
+https://github.com/abo-abo/ace-window
 
 #+begin_src emacs-lisp
 
@@ -803,7 +829,21 @@ Fast, transient keybinds
     :config
     ;; (setq aw-scope 'frame)
     (setq aw-scope 'global)
-    (setq aw-keys '(?a ?o ?e ?u ?h ?t ?n ?s))
+    (setq aw-keys '(?a ?o ?e ?u ?i))
+    (defvar aw-dispatch-alist
+      '((?x aw-delete-window "Delete Window")
+        (?m aw-swap-window "Swap Windows")
+        (?M aw-move-window "Move Window")
+        (?c aw-copy-window "Copy Window")
+        (?b aw-switch-buffer-in-window "Select Buffer")
+        (?f aw-flip-window)
+        (?B aw-switch-buffer-other-window "Switch Buffer Other Window")
+        (?s aw-split-window-fair "Split Fair Window")
+        (?3 aw-split-window-vert "Split Vert Window")
+        (?2 aw-split-window-horz "Split Horz Window")
+        (?1 delete-other-windows "Delete Other Windows")
+        (?? aw-show-dispatch-help))
+      "List of actions for `aw-dispatch-default'.")
     (global-set-key (kbd "M-o") 'ace-window))
 
   ;; replace evil-direction w/ package
@@ -911,8 +951,8 @@ Includes:
     (setq ivy-initial-inputs-alist nil) ;; Don't start searches with ^
     (message "Counsel loaded!")
     (counsel-mode 1))
-  
-  ;; ivy completion regex and order by last used
+
+  ;; adds ivy completion regex and order commands by last used
   (use-package ivy-prescient
     :after counsel
     :custom
@@ -931,8 +971,10 @@ Includes:
   ;; doom-themes
   ;; recommended: henna, palenight, snazzy
   (use-package doom-themes
+    :bind (("C-h T" . ri/load-theme-and-font-setup))
     :init
     (load-theme 'doom-dracula t))
+    ;; (load-theme 'doom-laserwave t))
     ;;(load-theme 'doom-monokai-spectrum t)
     ;;(load-theme 'doom-snazzy t)
 
@@ -942,7 +984,7 @@ Includes:
     (ri/org-font-setup))
 
   (ri/leader-keys
-    "ht" '(ri/load-theme-and-font-setup :which-key "choose theme"))
+    "st" '(ri/load-theme-and-font-setup :which-key "choose theme"))
 
 #+end_src
 
@@ -953,7 +995,10 @@ Includes:
   ;; doom-modeline
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
-    :custom (doom-modeline-height 50))
+    :custom
+    (doom-modeline-height 50)
+    (doom-modeline-hud nil))
+
 
 #+end_src
 
@@ -1002,6 +1047,14 @@ https://github.com/justbur/emacs-which-key
 
 Shows more info in help menu
 
+useful keybinds:
+- C-h b - describe-bindings - search
+
+|-------|
+| C-h b |
+| C-h R |
+|       |
+
 #+begin_src emacs-lisp
 
   ;; helpful (improves help menu)
@@ -1014,31 +1067,18 @@ Shows more info in help menu
     ([remap describe-function] . counsel-describe-function)
     ([remap describe-command] . helpful-command)
     ([remap describe-variable] . counsel-describe-variable)
-    ([remap describe-key] . helpful-key))
-
-#+end_src
-
-** help general keybinds
-
-#+begin_src emacs-lisp
-
-  (defun ri/which-key-show-major-mode-shortcut ()
-    (interactive)
-    (which-key-show-major-mode))
+    ([remap describe-key] . helpful-key)
+    ("C-h M" . which-key-show-major-mode)
+    ("C-h H" . helpful-at-point))
 
   (ri/leader-keys
-    "h" '(:ignore t :which-key "help")
-    "hf" 'describe-function
-    "hv" 'describe-variable
-    "hk" 'describe-key
-    "hm" '(:ignore t :which-key "key")
-    "hmm" '(which-key-show-major-mode :which-key "which-key major")
-    "hmk" '(describe-keymap :which-key "search keymap")
-    "hma" '(describe-mode :which-key "show all modes")
-    "hb" 'counsel-descbinds
-    "hg" 'customize-group
-    "hP" 'describe-package
-    "hp" 'helpful-at-point)
+    "sh" 'helpful-at-point
+    "sv" 'describe-variable
+    "sf" 'describe-function
+    "sk" 'describe-key
+    "sm" 'describe-mode
+    "sP" 'describe-package
+    "sM" 'which-key-show-major-mode)
 
 #+end_src
 
@@ -1485,6 +1525,9 @@ special ivy search functionality for lsp
 #+begin_src emacs-lisp
 
   (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+  
+  (ri/leader-keys
+    "ml" 'org-lint)
 
 #+end_src
 
@@ -1629,9 +1672,9 @@ learn more about projectile for better project management
   ;; (learn more about magit...)
   (use-package magit
     :commands magit-status
-    :bind (:map magit-status-mode-map
-                ("p" . magit-tag)
-                ("t" . magit-section-backward))
+    ;; :bind (:map magit-status-mode-map
+    ;;             ("p" . magit-tag)
+    ;;             ("t" . magit-section-backward))
     :custom
     ;; what does this do? fullscreen?
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
@@ -1864,11 +1907,7 @@ file management, etc
   (use-package dired
     :ensure nil ; make sure use-package doesn't try to install it.
     :commands (dired dired-jump) ; defer loading of this config until a command is executed.
-    :bind (("C-c j" . dired-jump)
-           :map dired-mode-map
-           ("p" . dired-toggle-marks)
-           ("t" . dired-previous-line))
-
+    :bind (("C-c j" . dired-jump))
     :custom
     (dired-listing-switches "-agho --group-directories-first")
     (dired-dwim-target t) ; auto select dir to move to if another dired window open.

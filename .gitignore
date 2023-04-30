@@ -13,7 +13,3 @@ dwm/*
 
 .config/xmobar/xmobar/*
 
-.config/emacs.termux/*
-!.config/emacs.termux/config.org
-!.config/emacs.termux/init.el
-!.config/emacs.termux/install-script.sh

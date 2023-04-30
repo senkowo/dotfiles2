@@ -107,6 +107,9 @@
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
+;; shorten y-n prompt
+(defalias 'yes-or-no-p 'y-or-n-p)
+
 ;; all-the-icons
 ;; note: on a new machine, must run M-x all-the-icons-install-fonts
 (use-package all-the-icons)
@@ -144,6 +147,8 @@
    '("?" . meow-cheatsheet))
   (meow-motion-overwrite-define-key
    ;; custom keybinding for motion state
+   '("t" . previous-line)
+   '("p" . "H-t")
    '("<escape>" . ignore))
   (meow-normal-define-key
    '("0" . meow-expand-0)
@@ -192,6 +197,7 @@
    '("p" . meow-prev)
    '("P" . meow-prev-expand)
    '("q" . meow-quit)
+   '("Q" . kill-this-buffer)
    ;; '("Q" . meow-goto-line) ;; move to " : "
    '("r" . meow-replace)
    '("R" . meow-swap-grab)
@@ -326,24 +332,6 @@
   :config
   (undo-fu-session-global-mode t))
 
-;; maybe replace the first bind with replace kill line with crux?
-(use-package crux
-  ;; :bind (("C-a" . crux-move-beginning-of-line))
-  :config
-  (global-set-key [remap beginning-of-line] 'crux-move-beginning-of-line)
-  (global-set-key [remap kill-line] 'crux-smart-kill-line)
-  (global-set-key (kbd "C-c c c") 'crux-cleanup-buffer-or-region))
-
-(use-package avy
-  :bind ("C-:" . 'avy-goto-char)
-  :commands avy)
-
-(use-package expand-region
-  :commands expand-region)
-
-(use-package free-keys
-  :commands free-keys)
-
 ;; general.el
 (use-package general
   ;; :after evil
@@ -376,6 +364,9 @@
   "t" '(:ignore t :which-key "toggles"))
 
 (ri/leader-keys
+  "s" '(:ignore t :which-key "special"))
+
+(ri/leader-keys
   "q"  '(:ignore t :which-key "quit/session")
   "qq" '(save-buffers-kill-terminal :which-key "quit emacs"))
 
@@ -392,11 +383,44 @@
 (ri/leader-keys
   "ts" '(hydra-text-scale/body :which-key "scale text"))
 
+;; maybe replace the first bind with replace kill line with crux?
+(use-package crux
+  :bind (("C-a" . crux-move-beginning-of-line))
+  :config
+  (global-set-key [remap beginning-of-line] 'crux-move-beginning-of-line)
+  (global-set-key [remap kill-line] 'crux-smart-kill-line)
+  (ri/leader-keys
+    "mc" 'crux-cleanup-buffer-or-region))
+
+(use-package expand-region
+  :commands expand-region)
+
+(use-package avy
+  :bind ("C-:" . 'avy-goto-char)
+  :commands avy)
+
+(use-package free-keys
+  :commands free-keys)
+
 (use-package ace-window
   :config
   ;; (setq aw-scope 'frame)
   (setq aw-scope 'global)
-  (setq aw-keys '(?a ?o ?e ?u ?h ?t ?n ?s))
+  (setq aw-keys '(?a ?o ?e ?u ?i))
+  (defvar aw-dispatch-alist
+    '((?x aw-delete-window "Delete Window")
+      (?m aw-swap-window "Swap Windows")
+      (?M aw-move-window "Move Window")
+      (?c aw-copy-window "Copy Window")
+      (?b aw-switch-buffer-in-window "Select Buffer")
+      (?f aw-flip-window)
+      (?B aw-switch-buffer-other-window "Switch Buffer Other Window")
+      (?s aw-split-window-fair "Split Fair Window")
+      (?3 aw-split-window-vert "Split Vert Window")
+      (?2 aw-split-window-horz "Split Horz Window")
+      (?1 delete-other-windows "Delete Other Windows")
+      (?? aw-show-dispatch-help))
+    "List of actions for `aw-dispatch-default'.")
   (global-set-key (kbd "M-o") 'ace-window))
 
 ;; replace evil-direction w/ package
@@ -480,7 +504,7 @@
   (message "Counsel loaded!")
   (counsel-mode 1))
 
-;; ivy completion regex and order by last used
+;; adds ivy completion regex and order commands by last used
 (use-package ivy-prescient
   :after counsel
   :custom
@@ -493,8 +517,10 @@
 ;; doom-themes
 ;; recommended: henna, palenight, snazzy
 (use-package doom-themes
+  :bind (("C-h T" . ri/load-theme-and-font-setup))
   :init
   (load-theme 'doom-dracula t))
+  ;; (load-theme 'doom-laserwave t))
   ;;(load-theme 'doom-monokai-spectrum t)
   ;;(load-theme 'doom-snazzy t)
 
@@ -504,12 +530,14 @@
   (ri/org-font-setup))
 
 (ri/leader-keys
-  "ht" '(ri/load-theme-and-font-setup :which-key "choose theme"))
+  "st" '(ri/load-theme-and-font-setup :which-key "choose theme"))
 
 ;; doom-modeline
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :custom (doom-modeline-height 50))
+  :custom
+  (doom-modeline-height 50)
+  (doom-modeline-hud nil))
 
 ;; rainbow delimiters
 (use-package rainbow-delimiters
@@ -540,25 +568,18 @@
   ([remap describe-function] . counsel-describe-function)
   ([remap describe-command] . helpful-command)
   ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
-
-(defun ri/which-key-show-major-mode-shortcut ()
-  (interactive)
-  (which-key-show-major-mode))
+  ([remap describe-key] . helpful-key)
+  ("C-h M" . which-key-show-major-mode)
+  ("C-h H" . helpful-at-point))
 
 (ri/leader-keys
-  "h" '(:ignore t :which-key "help")
-  "hf" 'describe-function
-  "hv" 'describe-variable
-  "hk" 'describe-key
-  "hm" '(:ignore t :which-key "key")
-  "hmm" '(which-key-show-major-mode :which-key "which-key major")
-  "hmk" '(describe-keymap :which-key "search keymap")
-  "hma" '(describe-mode :which-key "show all modes")
-  "hb" 'counsel-descbinds
-  "hg" 'customize-group
-  "hP" 'describe-package
-  "hp" 'helpful-at-point)
+  "sh" 'helpful-at-point
+  "sv" 'describe-variable
+  "sf" 'describe-function
+  "sk" 'describe-key
+  "sm" 'describe-mode
+  "sP" 'describe-package
+  "sM" 'which-key-show-major-mode)
 
 (defun ri/org-font-setup ()
   (interactive)
@@ -872,6 +893,9 @@
 
 (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
+(ri/leader-keys
+  "ml" 'org-lint)
+
 ;; rust-analyzer required. gnu guix package?
 (use-package rustic
   ;:ensure t ;; no need *
@@ -962,9 +986,9 @@
 ;; (learn more about magit...)
 (use-package magit
   :commands magit-status
-  :bind (:map magit-status-mode-map
-              ("p" . magit-tag)
-              ("t" . magit-section-backward))
+  ;; :bind (:map magit-status-mode-map
+  ;;             ("p" . magit-tag)
+  ;;             ("t" . magit-section-backward))
   :custom
   ;; what does this do? fullscreen?
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
@@ -1063,11 +1087,7 @@
 (use-package dired
   :ensure nil ; make sure use-package doesn't try to install it.
   :commands (dired dired-jump) ; defer loading of this config until a command is executed.
-  :bind (("C-c j" . dired-jump)
-         :map dired-mode-map
-         ("p" . dired-toggle-marks)
-         ("t" . dired-previous-line))
-
+  :bind (("C-c j" . dired-jump))
   :custom
   (dired-listing-switches "-agho --group-directories-first")
   (dired-dwim-target t) ; auto select dir to move to if another dired window open.

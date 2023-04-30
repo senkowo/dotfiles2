@@ -187,6 +187,7 @@ notes:
     :custom
     ;; Systray addons
     (display-time-day-and-date t)
+    (display-time-24hr-format t)
     (display-time-mode t)
     (display-battery-mode t)
     (display-time-default-load-average nil)
@@ -239,7 +240,7 @@ notes:
     ;; (start-process-shell-command "xsetroot cursor" nil "xsetroot -cursor_name left_ptr")
 
     ;; night light 
-    (start-process-shell-command "sct auto adjust" nil "sct-auto-adjust.sh")
+    (ri/run-in-background "sct-auto-adjust.sh")
 
     ;; -------
 
@@ -352,8 +353,8 @@ notes:
     ;; s-i instead?
     (exwm-input-set-key (kbd "s-SPC") 'counsel-linux-app)
     (exwm-input-set-key (kbd "s-<return>") 'shell-pop)
-    (exwm-input-set-key (kbd "s-- l") 'ri/run-librewolf)
-    (exwm-input-set-key (kbd "s-- p") 'ri/run-keepassxc)
+    (exwm-input-set-key (kbd "s-/ l") 'ri/run-librewolf)
+    (exwm-input-set-key (kbd "s-/ p") 'ri/run-keepassxc)
 
     (exwm-enable))
 
@@ -386,6 +387,7 @@ notes:
   ;; ivy-posframe to have a floating minibuffer.
   ;; maybe have disappearing minibuffer above the modeline?
   (use-package ivy-posframe
+    :disabled
     :after exwm)
 
   ;; copy cuts to system clipboard
