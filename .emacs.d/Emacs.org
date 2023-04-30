@@ -40,7 +40,7 @@
   - [[#buffer-management][buffer management]]
 - [[#ui-configuration][UI Configuration]]
   - [[#ivy--counsel][ivy + counsel]]
-  - [[#doom-themes][doom-themes]]
+  - [[#doom-themes][(doom-)themes]]
   - [[#doom-modeline][doom-modeline]]
   - [[#rainbow-delimiters][rainbow-delimiters]]
   - [[#modus-themes][modus-themes]]
@@ -73,6 +73,7 @@
   - [[#sudo-edit][sudo-edit]]
 - [[#programs][Programs]]
   - [[#elfeed][elfeed]]
+  - [[#eww][eww]]
   - [[#gnus][gnus]]
   - [[#ement][ement]]
   - [[#emacs-jabber][emacs-jabber]]
@@ -428,6 +429,8 @@ Make <escape> quit.
 ** meow
 
 https://github.com/meow-edit/meow
+
+https://github.com/meow-edit/meow/blob/master/COMMANDS.org
 
 https://user-images.githubusercontent.com/11796018/144637798-f9dfa331-6c2d-4ae0-a11f-936af1a07d5d.png
 
@@ -829,7 +832,7 @@ https://github.com/abo-abo/ace-window
     :config
     ;; (setq aw-scope 'frame)
     (setq aw-scope 'global)
-    (setq aw-keys '(?a ?o ?e ?u ?i))
+    (setq aw-keys '(?a ?o ?e ?u))
     (defvar aw-dispatch-alist
       '((?x aw-delete-window "Delete Window")
         (?m aw-swap-window "Swap Windows")
@@ -964,7 +967,7 @@ Includes:
 
 #+end_src
 
-** doom-themes
+** (doom-)themes
 
 #+begin_src emacs-lisp
 
@@ -977,6 +980,10 @@ Includes:
     ;; (load-theme 'doom-laserwave t))
     ;;(load-theme 'doom-monokai-spectrum t)
     ;;(load-theme 'doom-snazzy t)
+
+  (use-package ef-themes)
+
+  (use-package catppuccin-theme)
 
   (defun ri/load-theme-and-font-setup ()
     (interactive)
@@ -996,9 +1003,9 @@ Includes:
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     :custom
-    (doom-modeline-height 50)
+    ;; (doom-modeline-height 50)
+    (doom-modeline-height 40)
     (doom-modeline-hud nil))
-
 
 #+end_src
 
@@ -1076,9 +1083,10 @@ useful keybinds:
     "sv" 'describe-variable
     "sf" 'describe-function
     "sk" 'describe-key
+    "sM" 'which-key-show-major-mode
     "sm" 'describe-mode
-    "sP" 'describe-package
-    "sM" 'which-key-show-major-mode)
+    "sR" 'info-display-manual
+    "sP" 'describe-package)
 
 #+end_src
 
@@ -1699,6 +1707,8 @@ learn more about projectile for better project management
 #+begin_src emacs-lisp
 
   (use-package evil-nerd-commenter
+    :custom
+    (evil-want-keybinding nil)
     :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 
 #+end_src
@@ -2001,6 +2011,26 @@ an rss feed reader for emacs
   ;; dont use commands elfeed, scan at startup?
   (use-package elfeed
     :commands elfeed)
+
+#+end_src
+
+** eww
+
+Consider emacs-w3m, where it's faster and better!
+
+#+begin_src emacs-lisp
+
+  ;; eww is shite, also SPC and h trigger prefix. w3 browser?
+  (setq browse-url-browser-function 'eww-browse-url)
+
+  (use-package eww
+    :bind (:map eww-mode-map
+                ("n" . next-line) ;; orig next-url
+                ("]" . eww-next-url)
+                ("[" . eww-previous-url)
+                ("T" . eww-top-url)
+                ("t" . nil)
+                ("H-t" . previous-line))) ;; (physically "p")
 
 #+end_src
 

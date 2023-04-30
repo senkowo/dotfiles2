@@ -406,7 +406,7 @@
   :config
   ;; (setq aw-scope 'frame)
   (setq aw-scope 'global)
-  (setq aw-keys '(?a ?o ?e ?u ?i))
+  (setq aw-keys '(?a ?o ?e ?u))
   (defvar aw-dispatch-alist
     '((?x aw-delete-window "Delete Window")
       (?m aw-swap-window "Swap Windows")
@@ -524,6 +524,10 @@
   ;;(load-theme 'doom-monokai-spectrum t)
   ;;(load-theme 'doom-snazzy t)
 
+(use-package ef-themes)
+
+(use-package catppuccin-theme)
+
 (defun ri/load-theme-and-font-setup ()
   (interactive)
   (counsel-load-theme)
@@ -536,7 +540,8 @@
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom
-  (doom-modeline-height 50)
+  ;; (doom-modeline-height 50)
+  (doom-modeline-height 40)
   (doom-modeline-hud nil))
 
 ;; rainbow delimiters
@@ -577,9 +582,10 @@
   "sv" 'describe-variable
   "sf" 'describe-function
   "sk" 'describe-key
+  "sM" 'which-key-show-major-mode
   "sm" 'describe-mode
-  "sP" 'describe-package
-  "sM" 'which-key-show-major-mode)
+  "sR" 'info-display-manual
+  "sP" 'describe-package)
 
 (defun ri/org-font-setup ()
   (interactive)
@@ -1007,6 +1013,8 @@
   :after magit)
 
 (use-package evil-nerd-commenter
+  :custom
+  (evil-want-keybinding nil)
   :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 
 (use-package term
@@ -1159,6 +1167,18 @@
 ;; dont use commands elfeed, scan at startup?
 (use-package elfeed
   :commands elfeed)
+
+;; eww is shite, also SPC and h trigger prefix. w3 browser?
+(setq browse-url-browser-function 'eww-browse-url)
+
+(use-package eww
+  :bind (:map eww-mode-map
+              ("n" . next-line) ;; orig next-url
+              ("]" . eww-next-url)
+              ("[" . eww-previous-url)
+              ("T" . eww-top-url)
+              ("t" . nil)
+              ("H-t" . previous-line))) ;; (physically "p")
 
 (use-package gnus
   :commands gnus
