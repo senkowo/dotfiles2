@@ -60,7 +60,7 @@
 
 (if ri/is-guix-system
     (load-file (expand-file-name "desktop.el" user-emacs-directory))
-    (setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps))
+    (start-process-shell-command "setxkbmap dv,qw" nil "setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps"))
 
 ;; disable startup screen
 (setq inhibit-startup-message nil)
