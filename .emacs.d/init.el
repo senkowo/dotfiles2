@@ -58,9 +58,9 @@
                            (string-equal (f-read "/etc/issue")
                                          "\nThis is the GNU system.  Welcome.\n")))
 
-(if ri/is-guix-system
-    (load-file (expand-file-name "desktop.el" user-emacs-directory))
-    (start-process-shell-command "setxkbmap dv" nil "setxkbmap -layout 'us' -variant 'dvorak' -option ctrl:nocaps"))
+(cond ((eq ri/is-guix-system t)
+       (load-file (expand-file-name "desktop.el" user-emacs-directory))
+       (start-process-shell-command "setxkbmap dv" nil "setxkbmap -layout 'us' -variant 'dvorak' -option ctrl:nocaps")))
 
 ;; disable startup screen
 (setq inhibit-startup-message nil)
