@@ -1,0 +1,12 @@
+*
+
+!.gitignore
+!custom.el
+!Emacs.org
+!init.el
+!Desktop.org
+!desktop.el
+!exwm/
+!exwm/*
+!lisp/
+!lisp/*
