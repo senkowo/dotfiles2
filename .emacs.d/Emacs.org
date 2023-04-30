@@ -115,6 +115,9 @@ Reduce Emacs startup time:
 - :after
 - :defer
 
+Reset local keybindings:
+(setq dired-mode-map (make-keymap))
+
 ** Questions
 
 :mkdirp, :noweb, toc link
