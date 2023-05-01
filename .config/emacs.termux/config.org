@@ -497,10 +497,10 @@ shortcuts and improved interface.
 
 * bashrc
 
-#+begin_src bash :tangle .bashrc :shebang #!/bin/bash
+#+begin_src bash :tangle exwm/.bashrc
 
   alias l=ls
-  alias la='ls -al'
+  alias la='ls -a'
   alias ll='ls -lah'
   alias ts='rm -iv'
 
@@ -508,3 +508,25 @@ shortcuts and improved interface.
 
 #+end_src
 
+* install-repeatable
+
+#+begin_src bash :tangle exwm/install-repeatable.sh :shebang #!/bin/bash
+
+  pkg upgrade
+
+  # install common stuff
+  pkg install vim emacs git neofetch man openssh
+  pip install yt-dlp x11-repo
+
+  # install desktop utils
+  pkg install termux-api
+
+#+end_src
+
+* one-time-install-script
+
+#+begin_src bash :tangle exwm/one-time-installation-script.sh
+
+  #
+
+#+end_src
