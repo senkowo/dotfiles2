@@ -497,7 +497,7 @@ shortcuts and improved interface.
 
 * bashrc
 
-#+begin_src bash :tangle ~/.bashrc :shebang
+#+begin_src bash :tangle .bashrc :shebang #!/bin/bash
 
   alias l=ls
   alias la='ls -al'
@@ -505,8 +505,6 @@ shortcuts and improved interface.
   alias ts='rm -iv'
 
   alias Emu='cd ~/storage/downloads'
-
-#EMACS_USER_DIRECTORY=~/storage/shared/Documents/emacs-termux/init.el
 
 #+end_src
 
