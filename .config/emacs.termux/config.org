@@ -107,6 +107,8 @@ shortcuts and improved interface.
 
   (global-set-key (kbd "C-c q") 'find-config)
 
+  (global-set-key (kbd "C-c v") 'magit)
+
   (use-package recentf
     :ensure t)
 

@@ -42,10 +42,10 @@
 ;;     (expand-file-name
 ;;      (format "emacs-custom-%s.el" (user-uid))
 ;;      temporary-file-directory)))
-(setq custom-file
-  (expand-file-name "custom.el"
-    user-emacs-directory))
-;; (setq custom-file (make-temp-file "emacs-custom"))
+;; (setq custom-file
+;;   (expand-file-name "custom.el"
+;;     user-emacs-directory))
+(setq custom-file (make-temp-file "custom.el"))
 (load custom-file t)
 
 (use-package keyfreq
@@ -61,6 +61,8 @@
    (expand-file-name "config.org" user-emacs-directory)))
 
 (global-set-key (kbd "C-c q") 'find-config)
+
+(global-set-key (kbd "C-c v") 'magit)
 
 (use-package recentf
   :ensure t)
