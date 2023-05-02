@@ -254,7 +254,9 @@
 (use-package meow
   :config
   (meow-setup)
-  ;; replace meow insert exit with whether god mode or meow is enabled
+  ;; will "C-g" to meow-insert-exit mess anything up? Consider "C-z" or "C-M-g" instead
+  ;; free-keys is very useful!
+  (define-key meow-insert-state-keymap (kbd "C-g")  #'meow-insert-exit)
   (define-key meow-insert-state-keymap (kbd "<f5>") #'meow-insert-exit)
   (define-key meow-insert-state-keymap (kbd "<f6>") #'meow-insert-exit) ;; also useful
   (define-key meow-insert-state-keymap (kbd "<f7>") #'meow-insert-exit) ;; fav
@@ -306,7 +308,7 @@
   (setq evil-undo-system 'undo-fu)
   :config
   (add-hook 'evil-mode-hook 'ri/evil-hook)
-  (evil-mode 0)
+  (evil-mode 1)
   (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join) ; wowie
 
@@ -468,8 +470,9 @@
   ("f" nil "finished" :exit t))
 
 (ri/leader-keys
+  "k" 'kill-this-buffer
   "b" '(:ignore t :which-key "buffer")
-  "bk" '(kill-this-buffer :which-key "kill buffer")
+  "bk" 'kill-this-buffer
   "bn" 'next-buffer
   "bp" 'previous-buffer
   "bo" 'evil-switch-to-windows-last-buffer
@@ -955,17 +958,20 @@
          ("<tab>" . company-complete-selection))
         (:map lsp-mode-map
          ("<tab>" . company-indent-or-complete-common))
+        (:map company-search-map
+         ("C-t" . company-select-previous-or-abort))
   :custom
   (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
-  :config
+  (company-idle-delay 0.0)
   ;; fixes evil-normal and cancel company autocomplete when escape
   ;; doesn't work if escape hit very quickly
+  :if (featurep 'evil-mode)
+  :config
   (add-hook 'company-mode-hook
    (lambda ()
      (add-hook 'evil-normal-state-entry-hook
                (lambda ()
-                 (company-abort)))))
+                 (company-abort))))))
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
@@ -986,8 +992,8 @@
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :init
-  (when (file-directory-p "~/Programming/code")
-    (setq projectile-project-search-path '("~/Programming/code")))
+  (when (file-directory-p "~/Code/code")
+    (setq projectile-project-search-path '("~/Code/code")))
   (setq projectile-switch-project-action #'projectile-dired))
 
 ;; counsel-projectile

@@ -162,6 +162,7 @@
   ("C-M-h" . 'ri/exwm-workspace-switch-to-previous)
   ("C-M-l" . 'ri/exwm-workspace-switch-to-next)
   ("C-M-k" . 'ri/exwm-workspace-switch-to-last)
+  ;; (:map exwm-mode-map)
   :custom
   ;; Systray addons
   (display-time-day-and-date t)
@@ -295,7 +296,8 @@
           ;;;; or maybe s-o for windows and s-u s-i for buffers?
 
           ;; buffers and more
-          ([?\s-o] . evil-switch-to-windows-last-buffer)
+          ;; ([?\s-o] . evil-switch-to-windows-last-buffer)
+          ([?\s-o] . meow-last-buffer)
           ([?\s-b] . counsel-switch-buffer)
 
           ;; Toggles
