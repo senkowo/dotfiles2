@@ -495,7 +495,8 @@ shortcuts and improved interface.
 
 #+end_src
 
-* bashrc
+* scripts
+** bashrc
 
 #+begin_src bash :tangle exwm/.bashrc
 
@@ -508,25 +509,155 @@ shortcuts and improved interface.
 
 #+end_src
 
-* install-repeatable
+** install-repeatable
 
-#+begin_src bash :tangle exwm/install-repeatable.sh :shebang #!/bin/bash
+#+begin_src bash :tangle exwm/install-repeatable.sh :shebang #!/data/data/com.termux/files/usr/bin/bash
 
   pkg upgrade
 
   # install common stuff
   pkg install vim emacs git neofetch man openssh
-  pip install yt-dlp x11-repo
+  pip install yt-dlp
 
   # install desktop utils
-  pkg install termux-api
+  pkg install x11-repo termux-api tigervnc
 
 #+end_src
 
-* one-time-install-script
+** startdesktop
 
-#+begin_src bash :tangle exwm/one-time-installation-script.sh
+#+begin_src bash :tangle exwm/startdesktop :shebang #!/data/data/com.termux/files/usr/bin/bash
 
-  #
+  # Export Display
+  export DISPLAY=":1"
+
+  # Start VNC Server
+  if [[ \$(pidof Xvnc) ]]; then
+      echo -e "\\n[!] Server Already Running."
+      { vncserver -list; echo; }
+      read -p "Kill VNC Server? (Y/N) : "
+      if [[ "\$REPLY" == "Y" || "\$REPLY" == "y" ]]; then
+	  { killall Xvnc; echo; }
+      else
+	  echo
+      fi
+  else
+      echo -e "\\n[*] Starting VNC Server..."
+      vncserver
+  fi
+
+#+end_src
+
+** xstartup
+
+#+begin_src bash :tangle exwm/xstartup :shebang #!/data/data/com.termux/files/usr/bin/bash
+
+  ## This file is executed during VNC server
+  ## startup.
+
+  # Launch Openbox Window Manager.
+  emacs &
+
+#+end_src
+
+** vnc-config
+
+#+begin_src bash :tangle exwm/vnc-config :shebang #!/data/data/com.termux/files/usr/bin/bash
+
+  ## Supported server options to pass to vncserver upon invocation can be listed
+  ## in this file. See the following manpages for more: vncserver(1) Xvnc(1).
+  ## Several common ones are shown below. Uncomment and modify to your liking.
+  ##
+  # securitytypes=vncauth,tlsvnc
+  # desktop=sandbox
+  # geometry=2000x1200
+  # localhost
+  # alwaysshared
+
+#+end_src
+
+** one-time-install-script
+
+#+begin_src bash :tangle exwm/one-time-install-script.sh :shebang #!/data/data/com.termux/files/usr/bin/bash
+
+  ##
+  ## A bash script that installs the desktop
+  ##
+
+  cd ~
+
+  repeatable() {
+
+      echo -en "\nRun install-repeatable.sh script? /n(updates and installs all packages) \n> "
+      read in
+      if [[ "$in" == "y" ]]; then
+	  bash ~/dotfiles2/.config/emacs.termux/exwm/install-repeatable.sh
+      fi
+
+  }
+
+  setup_storage() {
+
+      ls ~
+
+      echo -en "\nRun termux-setup-storage? \n> "
+      read in
+      if [[ "$in" == "y" ]]; then
+	  termux-setup-storage
+      fi
+
+  }
+
+  git_clone() {
+
+      ls ~
+
+      echo -en "\nGit clone dotfiles? \n> "
+      read in
+      if [[ "$in" == "y" ]]; then
+	  cd ~
+	  git clone https://github.com/senkowo/dotfiles2
+      fi
+
+  }
+
+  setup_vnc() {
+
+      ls -a
+      vncserver -list
+
+      echo -en "\nSetup vnc server? \n> "
+      read in
+      if [[ "$in" == "y" ]]; then
+	  vncserver -localhost
+      fi
+
+  }
+
+  symlinks() {
+
+      ls -a ~/dotfiles2
+      echo -en "\nSymlink all possible files? \n> "
+      read in
+      if [[ "$in" == "y" ]]; then
+	  ln -s ~/dotfiles2/.config/emacs.termux/exwm/.bashrc ~/.bashrc
+	  ln -s ~/dotfiles2/.config/emacs.termux/exwm/termux-properties ~/.termux/termux-properties
+	  ln -s ~/dotfiles2/.config/emacs.termux/exwm/vnc-config ~/.vnc/config
+	  ln -s ~/dotfiles2/.config/emacs.termux/exwm/startdesktop ~/.local/bin/startdesktop
+	  ln -s ~/dotfiles2/.config/emacs.termux/exwm/xstartup ~/.vnc/xstartup
+      fi
+
+  }
+
+  install_run() {
+      repeatable
+      setup_storage
+      git_clone
+      setup_vnc
+      symlinks
+  }
+
+  ## main
+  install_run
 
 #+end_src
