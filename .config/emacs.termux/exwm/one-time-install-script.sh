@@ -82,15 +82,23 @@ symlinks_helper() {
     full=$1
     dest=$(echo $full | awk -v N=$4 '{print $4}')
     dir=$(echo $dest | sed 's|[^/]*$||')
-    echo "debug $dir"
+
+    echo "Symlink to create: $full"
+
+    if [[ -d $dir ]]; then
+	echo "Directory $dir doesn't exist. Enter to create..."
+	read in
+	mkdir -p $dir
+    fi
     if [[ -f $dest ]]; then
-	echo "debug file found, enter to rm"
-	echo "$dest"
+	echo "Regular file exists here. Enter to delete.,."
 	read in
 	rm $dest
     fi
-    echo "dest $dest"
-    read in
+    if [[ ! -L $dest ]]; then
+	echo "Enter to create symlink..."
+	$($full)
+    fi
 
 }
 
@@ -104,7 +112,6 @@ symlinks() {
 	link1="ln -s ~/dotfiles2/.config/emacs.termux/exwm/.bashrc ~/.bashrc"
 
 	# startdesktop command
-	mkdir -p ~/.local/bin/
 	link2="ln -s ~/dotfiles2/.config/emacs.termux/exwm/startdesktop ~/.local/bin/startdesktop"
 
 	# xstartup
