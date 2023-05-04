@@ -668,7 +668,7 @@ shortcuts and improved interface.
       dir=$(echo $dest | sed 's|[^/]*$||')
 
       echo "Symlink to create: $full"
-      
+
       if [[ -d $dir ]]; then
 	  echo "Directory $dir doesn't exist. Enter to create..."
 	  read in

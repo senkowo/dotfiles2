@@ -1,0 +1,9 @@
+#!/bin/bash
+pkg upgrade
+
+# install common stuff
+pkg install vim emacs git neofetch man openssh
+pip install yt-dlp x11-repo
+
+# install desktop utils
+pkg install termux-api

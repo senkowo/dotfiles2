@@ -1,0 +1,18 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# Export Display
+export DISPLAY=":1"
+
+# Start VNC Server
+if [[ \$(pidof Xvnc) ]]; then
+    echo -e "\\n[!] Server Already Running."
+    { vncserver -list; echo; }
+    read -p "Kill VNC Server? (Y/N) : "
+    if [[ "\$REPLY" == "Y" || "\$REPLY" == "y" ]]; then
+	{ killall Xvnc; echo; }
+    else
+	echo
+    fi
+else
+    echo -e "\\n[*] Starting VNC Server..."
+    vncserver
+fi
