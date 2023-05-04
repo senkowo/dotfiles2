@@ -391,3 +391,7 @@
 (use-package magit
   :ensure t
   :commands magit)
+
+(use-package vterm
+  :ensure t
+  :commands vterm)
