@@ -1033,6 +1033,11 @@
 (use-package forge
   :after magit)
 
+(use-package aggressive-indent
+  :defer t
+  :config
+  (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode))
+
 (use-package evil-nerd-commenter
   :custom
   (evil-want-keybinding nil)
@@ -1116,9 +1121,6 @@
 (use-package dired
   :ensure nil ; make sure use-package doesn't try to install it.
   :commands (dired dired-jump) ; defer loading of this config until a command is executed.
-  :bind
-  (:map dired-mode-map
-        ("z" . ri/dired-hide-dotfiles-mode--toggle))
   :custom
   (dired-listing-switches "-agho --group-directories-first")
   (dired-dwim-target t) ; auto select dir to move to if another dired window open.
@@ -1127,18 +1129,24 @@
   :if (featurep 'evil-mode)
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
-                              "h" 'dired-single-up-directory
-                              "l" 'dired-single-buffer
-                              "f" 'dired-create-empty-file))
+    "h" 'dired-single-up-directory
+    "l" 'dired-single-buffer
+    "f" 'dired-create-empty-file))
 ;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
 
-;; provides dired-single commands
 ;; HAS TO COME AFTER dired because using ":after dired"
+;; Reuses the current Dired buffer to visit a directory without
+;; creating a new buffer.
 (use-package dired-single
   :after dired)
 
+(defun ri/all-the-icons-dired-helper ()
+  (interactive)
+  (if (equal dirvish-override-dired-mode nil)
+      (all-the-icons-dired-mode)))
+
 (use-package all-the-icons-dired
-  :hook (dired-mode . all-the-icons-dired-mode))
+  :hook (dired-mode . ri/all-the-icons-dired-helper))
 
 (use-package dired-open
   :commands (dired dired-jump)
@@ -1148,6 +1156,8 @@
           ("png" . "feh"))))
 
 ;; ----custom-function-----------
+
+;; >>> Consider replacing dired hide dotfiles with dired-x dired omit files?
 
 ;; if enabled, when my-dired-mode-hook is run, re-enable dired-hide-dotfiles-mode
 (defvar ri/dired-hide-dotfiles-mode--persist 1)
@@ -1164,11 +1174,12 @@
 
 (use-package dired-hide-dotfiles
   :commands (dired dired-jump)
-  :if (featurep 'evil-mode)
   :config
   (define-key dired-mode-map (kbd "z") 'ri/dired-hide-dotfiles-mode--toggle)
+  :if (featurep 'evil-mode)
+  :config
   (evil-collection-define-key 'normal 'dired-mode-map
-                              "H" 'ri/dired-hide-dotfiles-mode--toggle))
+    "H" 'ri/dired-hide-dotfiles-mode--toggle))
 
 (defun my-dired-mode-hook ()
   (if ri/dired-hide-dotfiles-mode--persist
@@ -1181,6 +1192,52 @@
   "dd" 'dired
   "dj" 'dired-jump
   "dh" 'ri/dired-hide-dotfiles-mode--toggle)
+
+(use-package dirvish
+  :init (dirvish-override-dired-mode)
+  :commands (dired dired-jump)
+  :custom
+  (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+   '(("h" "~/"                            "Home")
+     ("o" "~/org/"                        "Org")
+     ("d" "~/Downloads/"                  "Downloads")
+     ("e" "/home/mio/.dotfiles/.emacs.d/" "Emacs user directory")
+     ("p" "~/Pictures/"                   "Pictures")
+     ("c" "~/Code/"                       "Code")
+     ("m" "/mnt/"                         "Drives")
+     ("t" "~/.local/share/Trash/files/"   "Trash")))
+  :config
+  ;; (define-key dirvish-mode-map (kbd "z") 'ri/dired-hide-dotfiles-mode--toggle)
+  (setq dired-listing-switches "-agho --group-directories-first")
+  (setq dired-dwim-target t) ; auto select dir to move to if another dired window open.
+  (setq delete-by-moving-to-trash t)
+  (setq dirvish-attributes
+        '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+  :bind
+  (:map dirvish-mode-map
+        ("h" . dired-up-directory)
+        ("r" . dired-sort-toggle-or-edit)
+        ("s" . dired-open-file)))
+
+ ;;  (("C-c f" . dirvish-fd)
+ ;; :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+ ;; ("a"   . dirvish-quick-access)
+ ;; ("f"   . dirvish-file-info-menu)
+ ;; ("y"   . dirvish-yank-menu)
+ ;; ("N"   . dirvish-narrow)
+ ;; ("^"   . dirvish-history-last)
+ ;; ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+ ;; ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+ ;; ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+ ;; ("TAB" . dirvish-subtree-toggle)
+ ;; ("M-f" . dirvish-history-go-forward)
+ ;; ("M-b" . dirvish-history-go-backward)
+ ;; ("M-l" . dirvish-ls-switches-menu)
+ ;; ("M-m" . dirvish-mark-menu)
+ ;; ("M-t" . dirvish-layout-toggle)
+ ;; ("M-s" . dirvish-setup-menu)
+ ;; ("M-e" . dirvish-emerge-menu)
+ ;; ("M-j" . dirvish-fd-jump)))
 
 ;; doesn't work... what is tramp?
 (use-package sudo-edit
