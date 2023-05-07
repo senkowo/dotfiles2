@@ -22,17 +22,17 @@
 ;; if package-archive-contents is empty (fresh install), ----
 ;;   run package-refresh-contents.
 (unless package-archive-contents
- (package-refresh-contents))
+  (package-refresh-contents))
 
 ;; non-Linux setup use-package ----
 ;; if use-package isn't installed or new update, then package-install it
 (unless (package-installed-p 'use-package)
-   (package-install 'use-package))
+  (package-install 'use-package))
 
 ;; setup use-package ----
 (require 'use-package)
 (setq use-package-always-ensure t) ;; no need to add :ensure t on every package that needs it
-;(setq use-package-always-defer t) ;; explicitly state which to ensure, might break, save first
+                                        ;(setq use-package-always-defer t) ;; explicitly state which to ensure, might break, save first
 (setq use-package-verbose t)
 
 ;; Change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
@@ -54,9 +54,9 @@
       `(("." . ,(expand-file-name ".backup/" user-emacs-directory))))
 
 (setq ri/is-guix-system (and (eq system-type 'gnu/linux)
-                           (require 'f)
-                           (string-equal (f-read "/etc/issue")
-                                         "\nThis is the GNU system.  Welcome.\n")))
+                             (require 'f)
+                             (string-equal (f-read "/etc/issue")
+                                           "\nThis is the GNU system.  Welcome.\n")))
 
 (cond ((eq ri/is-guix-system t)
        (load-file (expand-file-name "desktop.el" user-emacs-directory))
@@ -78,9 +78,9 @@
 
 ;; enable mode line flash bell
 ;; (use-package mode-line-bell
-  ;; :if (ring-bell-function 'ignore)
-  ;; :config
-  ;; (mode-line-bell-mode))
+;; :if (ring-bell-function 'ignore)
+;; :config
+;; (mode-line-bell-mode))
 
 ;; add line numbers
 (global-display-line-numbers-mode t)
@@ -97,7 +97,7 @@
 
 ;; default font (modeline, minibuffer, default for applications, etc)
 (set-face-attribute 'default nil :font "Fira Code" :height 110)
-;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115)
+                                        ;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115)
 
 ;; fixed pitch font (code blocks, property, startup, etc (can add more))
 (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 110)
@@ -159,9 +159,9 @@
    '("?" . meow-cheatsheet))
   (meow-motion-overwrite-define-key
    ;; custom keybinding for motion state
+   ;; '("<escape>" . ignore)
    '("t" . previous-line)
-   '("p" . "H-t")
-   '("<escape>" . ignore))
+   '("p" . "H-t"))
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -319,9 +319,9 @@
 
   (evil-set-initial-state 'messages-buffer-mode 'normal)
   (evil-set-initial-state 'dashboard-mode 'normal))
-  ;;hook
-  ;; have these programs be in emacs-mode (C-z)
-  ;;(evil-mode-hook . mi/evil-hook)
+;;hook
+;; have these programs be in emacs-mode (C-z)
+;;(evil-mode-hook . mi/evil-hook)
 
 ;; evil collections
 (use-package evil-collection
@@ -350,7 +350,7 @@
 (use-package general
   ;; :after evil
   :config
-  ;(general-evil-setup t)
+                                        ;(general-evil-setup t)
 
   ;; 'global
 
@@ -359,10 +359,10 @@
   ;;   global-set-key or define-key.
   ;; (keymaps can be swapped with states)
   (general-create-definer ri/leader-keys
-    ;:keymaps '(normal insert visual emacs)
-    ;:keymaps '(normal insert visual emacs)
-    ;:prefix "SPC"
-    ;:global-prefix "C-SPC")
+                                        ;:keymaps '(normal insert visual emacs)
+                                        ;:keymaps '(normal insert visual emacs)
+                                        ;:prefix "SPC"
+                                        ;:global-prefix "C-SPC")
     :prefix "C-c")
 
   ;; ;; the modes under keymaps can be put under states, right?
@@ -399,10 +399,11 @@
 
 ;; maybe replace the first bind with replace kill line with crux?
 (use-package crux
-  :bind (("C-a" . crux-move-beginning-of-line))
+  :bind
+  ("C-a" . crux-move-beginning-of-line)
+  ("C-k" . crux-smart-kill-line)
   :config
-  (global-set-key [remap beginning-of-line] 'crux-move-beginning-of-line)
-  (global-set-key [remap kill-line] 'crux-smart-kill-line)
+  ;; (global-set-key [remap kill-line] 'crux-smart-kill-line)
   (ri/leader-keys
     "mc" 'crux-cleanup-buffer-or-region))
 
@@ -418,21 +419,20 @@
 
 (use-package ace-window
   :config
-  ;; (setq aw-scope 'frame)
-  (setq aw-scope 'global)
-  (setq aw-keys '(?a ?o ?e ?u))
+  (setq aw-scope 'frame)
+  (setq aw-keys '(?a ?o ?e ?u ?h ?t ?n ?g ?c ?r))
   (defvar aw-dispatch-alist
-    '((?x aw-delete-window "Delete Window")
-      (?m aw-swap-window "Swap Windows")
-      (?M aw-move-window "Move Window")
+    '((?d aw-delete-window "Delete Window")
+      (?1 delete-other-windows "Delete Other Windows")
+      (?s aw-split-window-horz "Split Horz Window")
+      (?v aw-split-window-vert "Split Vert Window")
+      (?, aw-split-window-fair "Split Fair Window")
+      (?o aw-flip-window "Other Window")
+      (?w aw-swap-window "Swap Windows")
+      (?m aw-move-window "Move Window")
       (?c aw-copy-window "Copy Window")
       (?b aw-switch-buffer-in-window "Select Buffer")
-      (?f aw-flip-window)
       (?B aw-switch-buffer-other-window "Switch Buffer Other Window")
-      (?s aw-split-window-fair "Split Fair Window")
-      (?3 aw-split-window-vert "Split Vert Window")
-      (?2 aw-split-window-horz "Split Horz Window")
-      (?1 delete-other-windows "Delete Other Windows")
       (?? aw-show-dispatch-help))
     "List of actions for `aw-dispatch-default'.")
   (global-set-key (kbd "M-o") 'ace-window))
@@ -475,7 +475,7 @@
   "bk" 'kill-this-buffer
   "bn" 'next-buffer
   "bp" 'previous-buffer
-  "bo" 'evil-switch-to-windows-last-buffer
+  "bo" 'meow-last-buffer
   "bb" 'counsel-switch-buffer)
 
 ;; ivy
@@ -506,8 +506,8 @@
 ;; counsel (enhanced standard emacs commands)
 (use-package counsel
   :bind (;("M-x" . counsel-M-x)
-         ;("C-x b" . counsel-ibuffer)
-         ;("C-x C-f" . counsel-find-file)
+                                        ;("C-x b" . counsel-ibuffer)
+                                        ;("C-x C-f" . counsel-find-file)
          ("C-M-j" . 'counsel-switch-buffer)
          ("s-c" . 'counsel-switch-buffer)
          :map minibuffer-local-map
@@ -535,10 +535,10 @@
   :bind (("C-h T" . ri/load-theme-and-font-setup))
   :init
   (load-theme 'doom-dracula t))
-  ;; (load-theme 'doom-palenight))
-  ;; (load-theme 'doom-laserwave t))
-  ;;(load-theme 'doom-monokai-spectrum t)
-  ;;(load-theme 'doom-snazzy t)
+;; (load-theme 'doom-palenight))
+;; (load-theme 'doom-laserwave t))
+;;(load-theme 'doom-monokai-spectrum t)
+;;(load-theme 'doom-snazzy t)
 
 (use-package ef-themes)
 
@@ -616,7 +616,7 @@
     ;; font for bullets
     (set-face-attribute (car face) nil :font "Fira Code" :weight 'regular :height (cdr face)))
 
-;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
   (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
   (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
@@ -643,7 +643,7 @@
 (use-package org
   :commands (org-capture org-agenda)
   :hook (org-mode . ri/org-mode-setup)
-  ;:custom ; do all setq's go in custom?
+                                        ;:custom ; do all setq's go in custom?
   :config
   (message "Org Mode loaded!")
 
@@ -671,8 +671,8 @@
   ;; org-refile ----
   ;; (add target locations for org-refile)
   (setq org-refile-targets
-    '(("Archive.org" :maxlevel . 1)
-      ("work.org" :maxlevel . 1)))
+        '(("Archive.org" :maxlevel . 1)
+          ("work.org" :maxlevel . 1)))
   ;; save org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
@@ -684,96 +684,96 @@
   ;; commonly known tasks to appear when counsel-org-tag ----
   ;; org-set-tags-command ?
   (setq org-tag-alist
-    '((:startgroup)
-      ; Put mutually exclusive tags here
-      (:endgroup)
-      ("@errand" . ?E)
-      ("@home" . ?H)
-      ("@work" . ?W)
-      ("agenda" . ?a)
-      ("planning" . ?p)
-      ("publish" . ?P)
-      ("batch" . ?b)
-      ("note" . ?n)
-      ("idea" . ?i)))
+        '((:startgroup)
+                                        ; Put mutually exclusive tags here
+          (:endgroup)
+          ("@errand" . ?E)
+          ("@home" . ?H)
+          ("@work" . ?W)
+          ("agenda" . ?a)
+          ("planning" . ?p)
+          ("publish" . ?P)
+          ("batch" . ?b)
+          ("note" . ?n)
+          ("idea" . ?i)))
 
   ;; Custom Agenda Views! ----
   ;; (easier with org-ql)
   (setq org-agenda-custom-commands
-   '(("d" "Dashboard"
-     ((agenda "" ((org-deadline-warning-days 7)))
-      (todo "NEXT"
-        ((org-agenda-overriding-header "Next Tasks")))
-      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+        '(("d" "Dashboard"
+           ((agenda "" ((org-deadline-warning-days 7)))
+            (todo "NEXT"
+                  ((org-agenda-overriding-header "Next Tasks")))
+            (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
 
-     ("n" "Next Tasks"
-      ((todo "NEXT"
-        ((org-agenda-overriding-header "Next Tasks")))))
+          ("n" "Next Tasks"
+           ((todo "NEXT"
+                  ((org-agenda-overriding-header "Next Tasks")))))
 
-     ("W" "Work Tasks" tags-todo "+work-email")
+          ("W" "Work Tasks" tags-todo "+work-email")
 
-     ;; Low-effort next actions
-     ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-      ((org-agenda-overriding-header "Low Effort Tasks")
-       (org-agenda-max-todos 20)
-       (org-agenda-files org-agenda-files)))
+          ;; Low-effort next actions
+          ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+           ((org-agenda-overriding-header "Low Effort Tasks")
+            (org-agenda-max-todos 20)
+            (org-agenda-files org-agenda-files)))
 
-     ("w" "Workflow Status"
-      ((todo "WAIT"
-             ((org-agenda-overriding-header "Waiting on External")
-              (org-agenda-files org-agenda-files)))
-       (todo "REVIEW"
-             ((org-agenda-overriding-header "In Review")
-              (org-agenda-files org-agenda-files)))
-       (todo "PLAN"
-             ((org-agenda-overriding-header "In Planning")
-              (org-agenda-todo-list-sublevels nil)
-              (org-agenda-files org-agenda-files)))
-       (todo "BACKLOG"
-             ((org-agenda-overriding-header "Project Backlog")
-              (org-agenda-todo-list-sublevels nil)
-              (org-agenda-files org-agenda-files)))
-       (todo "READY"
-             ((org-agenda-overriding-header "Ready for Work")
-              (org-agenda-files org-agenda-files)))
-       (todo "ACTIVE"
-             ((org-agenda-overriding-header "Active Projects")
-              (org-agenda-files org-agenda-files)))
-       (todo "COMPLETED"
-             ((org-agenda-overriding-header "Completed Projects")
-              (org-agenda-files org-agenda-files)))
-       (todo "CANC"
-             ((org-agenda-overriding-header "Cancelled Projects")
-              (org-agenda-files org-agenda-files)))))))
+          ("w" "Workflow Status"
+           ((todo "WAIT"
+                  ((org-agenda-overriding-header "Waiting on External")
+                   (org-agenda-files org-agenda-files)))
+            (todo "REVIEW"
+                  ((org-agenda-overriding-header "In Review")
+                   (org-agenda-files org-agenda-files)))
+            (todo "PLAN"
+                  ((org-agenda-overriding-header "In Planning")
+                   (org-agenda-todo-list-sublevels nil)
+                   (org-agenda-files org-agenda-files)))
+            (todo "BACKLOG"
+                  ((org-agenda-overriding-header "Project Backlog")
+                   (org-agenda-todo-list-sublevels nil)
+                   (org-agenda-files org-agenda-files)))
+            (todo "READY"
+                  ((org-agenda-overriding-header "Ready for Work")
+                   (org-agenda-files org-agenda-files)))
+            (todo "ACTIVE"
+                  ((org-agenda-overriding-header "Active Projects")
+                   (org-agenda-files org-agenda-files)))
+            (todo "COMPLETED"
+                  ((org-agenda-overriding-header "Completed Projects")
+                   (org-agenda-files org-agenda-files)))
+            (todo "CANC"
+                  ((org-agenda-overriding-header "Cancelled Projects")
+                   (org-agenda-files org-agenda-files)))))))
 
   ;; Org Capture Templates! ----
   ;; (basically quickly add new entries mindlessly)
   (setq org-capture-templates
-    `(("t" "Tasks / Projects")
-      ("tt" "Task" entry (file+olp "~/org/agenda/agenda.org" "Inbox")
+        `(("t" "Tasks / Projects")
+          ("tt" "Task" entry (file+olp "~/org/agenda/agenda.org" "Inbox")
            "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
 
-      ("j" "Journal Entries")
-      ("jj" "Journal" entry
+          ("j" "Journal Entries")
+          ("jj" "Journal" entry
            (file+olp+datetree "~/org/agenda/journal.org")
            "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
            ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
            :clock-in :clock-resume
            :empty-lines 1)
 
-      ("jm" "Meeting" entry
+          ("jm" "Meeting" entry
            (file+olp+datetree "~/org/agenda/journal.org")
            "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
            :clock-in :clock-resume
            :empty-lines 1)
 
-      ("w" "Workflows")
-      ("we" "Checking Email" entry (file+olp+datetree "~/org/agenda/journal.org")
+          ("w" "Workflows")
+          ("we" "Checking Email" entry (file+olp+datetree "~/org/agenda/journal.org")
            "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
 
-      ("m" "Metrics Capture")
-      ("mw" "Weight" table-line (file+headline "~/org/agenda/metrics.org" "Weight")
-       "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
+          ("m" "Metrics Capture")
+          ("mw" "Weight" table-line (file+headline "~/org/agenda/metrics.org" "Weight")
+           "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
   ;; set up org-fonts
   (ri/org-font-setup))
@@ -803,19 +803,19 @@
   "mQ" '(counsel-org-tag :which-key "set tags list menu")
   "mp" '(org-set-property :which-key "set property")
   "me" '(org-set-effort :which-key "set effort"))
-; C-c org schedule and deadline and time-stamp and org-tags, etc
-; for tag multi-add alt-enter!
+                                        ; C-c org schedule and deadline and time-stamp and org-tags, etc
+                                        ; for tag multi-add alt-enter!
 
 (use-package org-bullets
   :hook (org-mode . org-bullets-mode)
   :custom
-  ;(org-bullets-bullet-list '("⁖" "◉" "○" "✸" "✿")))
+                                        ;(org-bullets-bullet-list '("⁖" "◉" "○" "✸" "✿")))
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
 ;; replace list hyphen with dot
-;(font-lock-add-keywords 'org-mode
-;                        '(("^ *\\([-]\\) "
-;                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+                                        ;(font-lock-add-keywords 'org-mode
+                                        ;                        '(("^ *\\([-]\\) "
+                                        ;                           (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
 ;; visual-fill-mode (padding)
 (defun ri/org-mode-visual-fill ()
@@ -882,7 +882,7 @@
 ;; change these later...
 ;; prefix is the keys that come before?!?!
 ;; maybe i just don't have the right packages to make lsp-mode-map
-;(ri/ctrl-c-keys
+                                        ;(ri/ctrl-c-keys
 ;; (general-define-key
 ;;   :keymaps 'lsp-mode-map
 ;;   :prefix lsp-keymap-prefix
@@ -920,7 +920,7 @@
 
 ;; rust-analyzer required. gnu guix package?
 (use-package rustic
-  ;:ensure t ;; no need *
+                                        ;:ensure t ;; no need *
   :hook (rust-mode . lsp-deferred)
   :config
   (setq rustic-format-on-save nil)
@@ -942,10 +942,10 @@
   (lsp-ui-doc-enable t))
 
 (use-package python-mode
-  ;:ensure t ;; no need *
+                                        ;:ensure t ;; no need *
   :hook (python-mode . lsp-deferred)
   :custom
-   ;; NOTE: Set these if Python 3 is called "python3" on your system!
+  ;; NOTE: Set these if Python 3 is called "python3" on your system!
   ;; (python-shell-interpreter "python3")
   ;; (dap-python-executable "python3")
   (dap-python-debugger 'debugpy)
@@ -954,12 +954,13 @@
 
 (use-package company
   :hook (lsp-mode . company-mode)
-  :bind (:map company-active-map
+  :bind
+  ((:map company-active-map
          ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
+   (:map lsp-mode-map
          ("<tab>" . company-indent-or-complete-common))
-        (:map company-search-map
-         ("C-t" . company-select-previous-or-abort))
+   (:map company-search-map
+         ("C-t" . company-select-previous-or-abort)))
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0)
@@ -968,10 +969,10 @@
   :if (featurep 'evil-mode)
   :config
   (add-hook 'company-mode-hook
-   (lambda ()
-     (add-hook 'evil-normal-state-entry-hook
-               (lambda ()
-                 (company-abort))))))
+            (lambda ()
+              (add-hook 'evil-normal-state-entry-hook
+                        (lambda ()
+                          (company-abort))))))
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
@@ -985,12 +986,13 @@
 ;; (dir-locals are pretty cool)
 ;; (learn more about projectile for better project management)
 (use-package projectile
-  ;:defer 0
   :diminish projectile-mode
-  :config (projectile-mode)
+  :config
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (projectile-mode)
   :custom ((projectile-completion-system 'ivy)) ;; by default auto
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
+  ;; :bind-keymap
+  ;; ("C-c p" . projectile-command-map)
   :init
   (when (file-directory-p "~/Code/code")
     (setq projectile-project-search-path '("~/Code/code")))
@@ -1107,14 +1109,16 @@
   "fr" '(counsel-recentf :which-key "recent files")
   "ff" '(find-file :which-key "find-file")
   "fp" '(lambda () (interactive)
-         (find-file (expand-file-name "~/.dotfiles/.emacs.d/"))
-           :which-key "open Emacs.org"))
+          (find-file (expand-file-name "~/.dotfiles/.emacs.d/"))
+          :which-key "open Emacs.org"))
 
 ;; dired
 (use-package dired
   :ensure nil ; make sure use-package doesn't try to install it.
   :commands (dired dired-jump) ; defer loading of this config until a command is executed.
-  :bind (("C-c j" . dired-jump))
+  :bind
+  (:map dired-mode-map
+        ("z" . ri/dired-hide-dotfiles-mode--toggle))
   :custom
   (dired-listing-switches "-agho --group-directories-first")
   (dired-dwim-target t) ; auto select dir to move to if another dired window open.
@@ -1123,10 +1127,10 @@
   :if (featurep 'evil-mode)
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
-    "h" 'dired-single-up-directory
-    "l" 'dired-single-buffer
-    "f" 'dired-create-empty-file))
-  ;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
+                              "h" 'dired-single-up-directory
+                              "l" 'dired-single-buffer
+                              "f" 'dired-create-empty-file))
+;;     ^ Might not work if using two dired windows! (dired-up-directory, dired-find-file)
 
 ;; provides dired-single commands
 ;; HAS TO COME AFTER dired because using ":after dired"
@@ -1136,12 +1140,34 @@
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
 
+;; peep-dired helper function -- if peep-dired disabled, run dired-previous-line.
+;;   if else, run peep-dired-prev-file.
+(defun ri/peep-dired-helper-function ()
+    (interactive)
+    (if (equal peep-dired t)
+        ('peep-dired-prev-file)
+      ('dired-previous-line)))
+
+(use-package peep-dired
+  :after dired
+  :bind ((:map dired-mode-map
+               ("M-p" . peep-dired)))
+  ;; :bind* ((:map peep-dired-mode-map
+               ;; ([remap dired-previous-line] . peep-dired-prev-file)))
+  :config
+  (add-hook 'dired-mode-hook
+  ;; note: H-p is physically "p"
+  ;; (define-key peep-dired-mode-map 'dired-previous-line 'peep-dired-prev-file)
+  (define-key peep-dired-mode-map (kbd "n") 'peep-dired-next-file))
+
 (use-package dired-open
   :commands (dired dired-jump)
   :config
   (setq dired-open-extensions
-    '(("mkv" . "mpv")
-      ("png" . "feh"))))
+        '(("mkv" . "mpv")
+          ("png" . "feh"))))
+
+;; ----custom-function-----------
 
 ;; if enabled, when my-dired-mode-hook is run, re-enable dired-hide-dotfiles-mode
 (defvar ri/dired-hide-dotfiles-mode--persist 1)
@@ -1154,17 +1180,20 @@
     (dired-hide-dotfiles-mode 1))
   (setq ri/dired-hide-dotfiles-mode--persist dired-hide-dotfiles-mode))
 
+;; ------------------------------
+
 (use-package dired-hide-dotfiles
   :commands (dired dired-jump)
   :if (featurep 'evil-mode)
   :config
+  (define-key dired-mode-map (kbd "z") 'ri/dired-hide-dotfiles-mode--toggle)
   (evil-collection-define-key 'normal 'dired-mode-map
-   "H" 'ri/dired-hide-dotfiles-mode--toggle))
+                              "H" 'ri/dired-hide-dotfiles-mode--toggle))
 
 (defun my-dired-mode-hook ()
   (if ri/dired-hide-dotfiles-mode--persist
       (dired-hide-dotfiles-mode)))
-;
+                                        ;
 (add-hook 'dired-mode-hook #'my-dired-mode-hook)
 
 (ri/leader-keys
@@ -1247,7 +1276,8 @@
 
 (global-set-key (kbd "C-u") ctl-x-map)
 ;; (global-set-key (kbd "C-z") 'universal-argument)
-(global-set-key (kbd "C-M-u") 'universal-argument)
+;; (global-set-key (kbd "C-M-u") 'universal-argument)
+(global-set-key (kbd "C-M-g") 'universal-argument)
 
 ;; make gc pauses faster by decreaseing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
