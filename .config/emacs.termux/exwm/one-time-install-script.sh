@@ -30,21 +30,28 @@ setup_storage() {
 
 termux_properties() {
 
-    ## fix regex, might need awk
-    ## Place after "#########" after "# Extra keys"
-    ## if line blank or if new exists there
-
-    ## also fix simlinking
-    ## if file (not link), rm. then, sym regardless
-
     echo
     cd ~/.termux
     ls
-    echo -en "\nSetup termux.properties? \n> "
-    read in
-    if [[ "$in" == "y" ]]; then
-	#sed -i 's/# extra-keys\b/extra-keys/g' ~/.termux/termux.properties
-	echo "tofix"
+    prop_extra="extra-keys = [['TAB','ESC','PGUP','PGDN']]"
+
+    echo -e "\nLines to enter: \n\n$prop_extra\n"
+    if grep -qe "^$prop_extra" ~/.termux/termux.properties ; then
+	echo "Line already added to termux.properties."
+	echo -ne "\nPress enter to continue...\n> "
+	read in
+    else
+	echo "Not Found!!"
+	echo -en "\nAdd this line to the config? \n> "
+	read in
+	if [[ "$in" == "y" ]]; then
+	    sed -i "/### Settings for choosing which set of symbols to use for illustrating keys./i $prop_extra \n" ~/.termux/termux.properties
+	    echo "UPDATED FILE:"
+	    echo "#################\n"
+	    cat ~/.termux/termux.properties
+	    echo "##################\n"
+
+	fi
     fi
 
 }
@@ -98,6 +105,9 @@ symlinks_helper() {
     if [[ ! -L $dest ]]; then
 	echo "Enter to create symlink..."
 	$($full)
+    else
+	echo "Error how tf did this happen"
+	exit 1
     fi
 
 }
