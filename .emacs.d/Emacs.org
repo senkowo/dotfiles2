@@ -1975,26 +1975,6 @@ file management, etc
   (use-package all-the-icons-dired
     :hook (dired-mode . all-the-icons-dired-mode))
 
-  ;; peep-dired helper function -- if peep-dired disabled, run dired-previous-line.
-  ;;   if else, run peep-dired-prev-file.
-  (defun ri/peep-dired-helper-function ()
-      (interactive)
-      (if (equal peep-dired t)
-          ('peep-dired-prev-file)
-        ('dired-previous-line)))
-
-  (use-package peep-dired
-    :after dired
-    :bind ((:map dired-mode-map
-                 ("M-p" . peep-dired)))
-    ;; :bind* ((:map peep-dired-mode-map
-                 ;; ([remap dired-previous-line] . peep-dired-prev-file)))
-    :config
-    (add-hook 'dired-mode-hook
-    ;; note: H-p is physically "p"
-    ;; (define-key peep-dired-mode-map 'dired-previous-line 'peep-dired-prev-file)
-    (define-key peep-dired-mode-map (kbd "n") 'peep-dired-next-file))
-
   (use-package dired-open
     :commands (dired dired-jump)
     :config
