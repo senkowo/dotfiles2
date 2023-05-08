@@ -88,6 +88,7 @@
 
 ;; line number mode exceptions
 (dolist (mode '(org-mode-hook
+                dired-mode-hook
                 term-mode-hook
                 vterm-mode-hook
                 shell-mode-hook
@@ -125,6 +126,10 @@
 ;; all-the-icons
 ;; note: on a new machine, must run M-x all-the-icons-install-fonts
 (use-package all-the-icons)
+
+;; nerd-fonts (used by doom-modeline by default)
+;; note: on a new machine, must run M-x nerd-icons-install-fonts
+(use-package nerd-icons)
 
 (use-package auto-package-update
   :custom
@@ -348,30 +353,8 @@
 
 ;; general.el
 (use-package general
-  ;; :after evil
   :config
-                                        ;(general-evil-setup t)
-
-  ;; 'global
-
-  ;; the definer can be called to add new keybinds.
-  ;; far, far better than using a bunch of
-  ;;   global-set-key or define-key.
-  ;; (keymaps can be swapped with states)
   (general-create-definer ri/leader-keys
-                                        ;:keymaps '(normal insert visual emacs)
-                                        ;:keymaps '(normal insert visual emacs)
-                                        ;:prefix "SPC"
-                                        ;:global-prefix "C-SPC")
-    :prefix "C-c")
-
-  ;; ;; the modes under keymaps can be put under states, right?
-  ;; (general-create-definer ri/leader-keys-mode-map
-  ;;   :states '(normal insert visual emacs)
-  ;;   :prefix "SPC"
-  ;;   :global-prefix "C-SPC")
-
-  (general-create-definer ri/ctrl-c-keys
     :prefix "C-c"))
 
 (ri/leader-keys
@@ -557,8 +540,16 @@
   :init (doom-modeline-mode 1)
   :custom
   ;; (doom-modeline-height 50)
+  (doom-dracula-brighter-modeline t)
   (doom-modeline-height 40)
   (doom-modeline-hud nil))
+
+(use-package mini-modeline
+  ;; :custom
+  ;; (mini-modeline-r-format
+  ;; :config
+  ;; (mini-modeline-mode t)
+  )
 
 ;; rainbow delimiters
 (use-package rainbow-delimiters
@@ -1173,8 +1164,9 @@
 ;; ------------------------------
 
 (use-package dired-hide-dotfiles
-  :commands (dired dired-jump)
+  ;; :commands (dired dired-jump)
   :config
+  ;; Does this even work?!?!?!?!?!?
   (define-key dired-mode-map (kbd "z") 'ri/dired-hide-dotfiles-mode--toggle)
   :if (featurep 'evil-mode)
   :config
@@ -1208,7 +1200,9 @@
      ("t" "~/.local/share/Trash/files/"   "Trash")))
   :config
   ;; (define-key dirvish-mode-map (kbd "z") 'ri/dired-hide-dotfiles-mode--toggle)
-  (setq dired-listing-switches "-agho --group-directories-first")
+  (setq dired-listing-switches
+        ;; "-ahgo --group-directories-first"
+        "-l --almost-all --human-readable --group-directories-first --no-group") ; AhoG
   (setq dired-dwim-target t) ; auto select dir to move to if another dired window open.
   (setq delete-by-moving-to-trash t)
   (setq dirvish-attributes
@@ -1217,27 +1211,29 @@
   (:map dirvish-mode-map
         ("h" . dired-up-directory)
         ("r" . dired-sort-toggle-or-edit)
-        ("s" . dired-open-file)))
+        ("s" . dired-open-file)
+        ;; ("z" . 'ri/dired-hide-dotfiles-mode--toggle)
+        ))
 
- ;;  (("C-c f" . dirvish-fd)
- ;; :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
- ;; ("a"   . dirvish-quick-access)
- ;; ("f"   . dirvish-file-info-menu)
- ;; ("y"   . dirvish-yank-menu)
- ;; ("N"   . dirvish-narrow)
- ;; ("^"   . dirvish-history-last)
- ;; ("h"   . dirvish-history-jump) ; remapped `describe-mode'
- ;; ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
- ;; ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
- ;; ("TAB" . dirvish-subtree-toggle)
- ;; ("M-f" . dirvish-history-go-forward)
- ;; ("M-b" . dirvish-history-go-backward)
- ;; ("M-l" . dirvish-ls-switches-menu)
- ;; ("M-m" . dirvish-mark-menu)
- ;; ("M-t" . dirvish-layout-toggle)
- ;; ("M-s" . dirvish-setup-menu)
- ;; ("M-e" . dirvish-emerge-menu)
- ;; ("M-j" . dirvish-fd-jump)))
+;;  (("C-c f" . dirvish-fd)
+;; :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+;; ("a"   . dirvish-quick-access)
+;; ("f"   . dirvish-file-info-menu)
+;; ("y"   . dirvish-yank-menu)
+;; ("N"   . dirvish-narrow)
+;; ("^"   . dirvish-history-last)
+;; ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+;; ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+;; ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+;; ("TAB" . dirvish-subtree-toggle)
+;; ("M-f" . dirvish-history-go-forward)
+;; ("M-b" . dirvish-history-go-backward)
+;; ("M-l" . dirvish-ls-switches-menu)
+;; ("M-m" . dirvish-mark-menu)
+;; ("M-t" . dirvish-layout-toggle)
+;; ("M-s" . dirvish-setup-menu)
+;; ("M-e" . dirvish-emerge-menu)
+;; ("M-j" . dirvish-fd-jump)))
 
 ;; doesn't work... what is tramp?
 (use-package sudo-edit

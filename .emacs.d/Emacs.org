@@ -22,6 +22,7 @@
   - [[#shorten-y-n-prompt][shorten y-n prompt]]
 - [[#basic-functionality][Basic functionality]]
   - [[#all-the-icons][all-the-icons]]
+  - [[#nerd-fonts][nerd-fonts]]
   - [[#auto-update-packages][auto-update packages]]
   - [[#add-lisp-functions-dir-to-path][add lisp functions dir to path]]
 - [[#keybindings][Keybindings]]
@@ -43,6 +44,7 @@
   - [[#ivy--counsel][ivy + counsel]]
   - [[#doom-themes][(doom-)themes]]
   - [[#doom-modeline][doom-modeline]]
+  - [[#mini-modeline][mini-modeline]]
   - [[#rainbow-delimiters][rainbow-delimiters]]
   - [[#modus-themes][modus-themes]]
   - [[#which-key][which-key]]
@@ -328,6 +330,7 @@ Includes:
 
   ;; line number mode exceptions
   (dolist (mode '(org-mode-hook
+                  dired-mode-hook
                   term-mode-hook
                   vterm-mode-hook
                   shell-mode-hook
@@ -402,6 +405,16 @@ basic functionality
   ;; all-the-icons
   ;; note: on a new machine, must run M-x all-the-icons-install-fonts
   (use-package all-the-icons)
+
+#+end_src
+
+** nerd-fonts
+
+#+begin_src emacs-lisp
+  
+  ;; nerd-fonts (used by doom-modeline by default)
+  ;; note: on a new machine, must run M-x nerd-icons-install-fonts
+  (use-package nerd-icons)
 
 #+end_src
 
@@ -721,30 +734,8 @@ https://github.com/noctuid/general.el
 
   ;; general.el
   (use-package general
-    ;; :after evil
     :config
-                                          ;(general-evil-setup t)
-
-    ;; 'global
-
-    ;; the definer can be called to add new keybinds.
-    ;; far, far better than using a bunch of
-    ;;   global-set-key or define-key.
-    ;; (keymaps can be swapped with states)
     (general-create-definer ri/leader-keys
-                                          ;:keymaps '(normal insert visual emacs)
-                                          ;:keymaps '(normal insert visual emacs)
-                                          ;:prefix "SPC"
-                                          ;:global-prefix "C-SPC")
-      :prefix "C-c")
-
-    ;; ;; the modes under keymaps can be put under states, right?
-    ;; (general-create-definer ri/leader-keys-mode-map
-    ;;   :states '(normal insert visual emacs)
-    ;;   :prefix "SPC"
-    ;;   :global-prefix "C-SPC")
-
-    (general-create-definer ri/ctrl-c-keys
       :prefix "C-c"))
 
 #+end_src
@@ -1037,8 +1028,22 @@ Includes:
     :init (doom-modeline-mode 1)
     :custom
     ;; (doom-modeline-height 50)
+    (doom-dracula-brighter-modeline t)
     (doom-modeline-height 40)
     (doom-modeline-hud nil))
+
+#+end_src
+
+** mini-modeline
+
+#+begin_src emacs-lisp
+
+  (use-package mini-modeline
+    ;; :custom
+    ;; (mini-modeline-r-format
+    ;; :config
+    ;; (mini-modeline-mode t)
+    )
 
 #+end_src
 
