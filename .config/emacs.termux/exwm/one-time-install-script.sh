@@ -33,25 +33,20 @@ termux_properties() {
     echo
     cd ~/.termux
     ls
+    termux_prop_file="~/.termux/termux.properties"
     prop_extra="extra-keys = [['TAB','ESC','PGUP','PGDN']]"
-
     echo -e "\nLines to enter: \n\n$prop_extra\n"
-    if grep -qe "^$prop_extra" ~/.termux/termux.properties ; then
-	echo "Line already added to termux.properties."
-	echo -ne "\nPress enter to continue...\n> "
-	read in
-    else
-	echo "Not Found!!"
-	echo -en "\nAdd this line to the config? \n> "
-	read in
-	if [[ "$in" == "y" ]]; then
-	    sed -i "/### Settings for choosing which set of symbols to use for illustrating keys./i $prop_extra \n" ~/.termux/termux.properties
-	    echo "UPDATED FILE:"
-	    echo "#################\n"
-	    cat ~/.termux/termux.properties
-	    echo "##################\n"
+    echo -e "\nCurrent config: <Placeholder: Last few lines of file> \n<Keep symlink from termux dir to dotfiles? Consider simply keeping the file?>/n"
+    echo -en "\nAdd this line to the config? \n> "
+    read in
+    if [[ "$in" == "y" ]]; then
+	$($termux_prop_file << $(echo "##############"))
+	$($termux_prop_file << $prop_extra)
 
-	fi
+	echo "UPDATED FILE:"
+	echo "#################\n"
+	cat ~/.termux/termux.properties
+	echo "##################\n"
     fi
 
 }
@@ -104,6 +99,7 @@ symlinks_helper() {
     fi
     if [[ ! -L $dest ]]; then
 	echo "Enter to create symlink..."
+	read in
 	$($full)
     else
 	echo "Error how tf did this happen"
@@ -121,19 +117,23 @@ symlinks() {
 	# .bashrc
 	link1="ln -s ~/dotfiles2/.config/emacs.termux/exwm/.bashrc ~/.bashrc"
 
+	# termux.properties
+	link2="ln -s ~/dotfiles2/.config/emacs.termux/exwm/termux.properties ~/.termux/termux.properties"
+
 	# startdesktop command
-	link2="ln -s ~/dotfiles2/.config/emacs.termux/exwm/startdesktop ~/.local/bin/startdesktop"
+	link3="ln -s ~/dotfiles2/.config/emacs.termux/exwm/startdesktop ~/.local/bin/startdesktop"
 
 	# xstartup
-	link3="ln -s ~/dotfiles2/.config/emacs.termux/exwm/xstartup ~/.vnc/xstartup"
+	link4="ln -s ~/dotfiles2/.config/emacs.termux/exwm/xstartup ~/.vnc/xstartup"
 
 	# vnc-config
-	link4="ln -s ~/dotfiles2/.config/emacs.termux/exwm/vnc-config ~/.vnc/config"
+	link5="ln -s ~/dotfiles2/.config/emacs.termux/exwm/vnc-config ~/.vnc/config"
 
 	symlinks_helper "$link1"
 	symlinks_helper "$link2"
 	symlinks_helper "$link3"
 	symlinks_helper "$link4"
+	symlinks_helper "$link5"
 
     fi
 
