@@ -28,28 +28,28 @@ setup_storage() {
 
 }
 
-termux_properties() {
+# termux_properties() {
 
-    echo
-    cd ~/.termux
-    ls
-    termux_prop_file="~/.termux/termux.properties"
-    prop_extra="extra-keys = [['TAB','ESC','PGUP','PGDN']]"
-    echo -e "\nLines to enter: \n\n$prop_extra\n"
-    echo -e "\nCurrent config: <Placeholder: Last few lines of file> \n<Keep symlink from termux dir to dotfiles? Consider simply keeping the file?>/n"
-    echo -en "\nAdd this line to the config? \n> "
-    read in
-    if [[ "$in" == "y" ]]; then
-	$($termux_prop_file << $(echo "##############"))
-	$($termux_prop_file << $prop_extra)
+#     echo
+#     cd ~/.termux
+#     ls
+#     termux_prop_file="~/.termux/termux.properties"
+#     prop_extra="extra-keys = [['TAB','ESC','PGUP','PGDN']]"
+#     echo -e "\nLines to enter: \n\n$prop_extra\n"
+#     echo -e "\nCurrent config: <Placeholder: Last few lines of file> \n<Keep symlink from termux dir to dotfiles? Consider simply keeping the file?>/n"
+#     echo -en "\nAdd this line to the config? \n> "
+#     read in
+#     if [[ "$in" == "y" ]]; then
+# 	$($termux_prop_file << $(echo "##############"))
+# 	$($termux_prop_file << $prop_extra)
 
-	echo "UPDATED FILE:"
-	echo "#################\n"
-	cat ~/.termux/termux.properties
-	echo "##################\n"
-    fi
+# 	echo "UPDATED FILE:"
+# 	echo "#################\n"
+# 	cat ~/.termux/termux.properties
+# 	echo "##################\n"
+#     fi
 
-}
+# }
 
 git_clone() {
 
@@ -142,7 +142,6 @@ symlinks() {
 install_run() {
     repeatable
     setup_storage
-    termux_properties
     git_clone
     setup_vnc
     symlinks
