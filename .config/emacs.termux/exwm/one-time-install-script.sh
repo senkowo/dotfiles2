@@ -1,4 +1,4 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/bin/bash
 ##
 ## A bash script that installs the desktop
 ##
@@ -40,13 +40,13 @@ setup_storage() {
 #     echo -en "\nAdd this line to the config? \n> "
 #     read in
 #     if [[ "$in" == "y" ]]; then
-# 	$($termux_prop_file << $(echo "##############"))
-# 	$($termux_prop_file << $prop_extra)
+#	$($termux_prop_file << $(echo "##############"))
+#	$($termux_prop_file << $prop_extra)
 
-# 	echo "UPDATED FILE:"
-# 	echo "#################\n"
-# 	cat ~/.termux/termux.properties
-# 	echo "##################\n"
+#	echo "UPDATED FILE:"
+#	echo "#################\n"
+#	cat ~/.termux/termux.properties
+#	echo "##################\n"
 #     fi
 
 # }
@@ -85,26 +85,32 @@ symlinks_helper() {
     dest=$(echo $full | awk -v N=$4 '{print $4}')
     dir=$(echo $dest | sed 's|[^/]*$||')
 
-    echo "Symlink to create: $full"
+    echo -e "\nSymlink to create: \n\"$full\"\n"
 
-    if [[ -d $dir ]]; then
-	echo "Directory $dir doesn't exist. Enter to create..."
+    if ! [[ -d $dir ]]; then
+	echo -e "Directory \"$dir\" doesn't exist. \nEnter to create..."
 	read in
 	mkdir -p $dir
     fi
-    if [[ -f $dest ]]; then
-	echo "Regular file exists here. Enter to delete.,."
-	read in
-	rm $dest
-    fi
-    if [[ ! -L $dest ]]; then
+    if ! [[ -L $dest ]]; then
+
+	if [[ -f $dest ]]; then
+	    echo -e "Regular file exists here at \"$dest\". \nEnter to delete..."
+	    read in
+	    rm $dest
+	fi
+
+	echo "Symlink doesn't exist at \"$dest\""
 	echo "Enter to create symlink..."
 	read in
-	$($full)
+	$full
     else
-	echo "Error how tf did this happen"
-	exit 1
+	echo "Link does exist, enter to continue..."
+	read in
     fi
+
+    echo "#############"
+    echo
 
 }
 
@@ -115,19 +121,19 @@ symlinks() {
     read in
     if [[ "$in" == "y" ]]; then
 	# .bashrc
-	link1="ln -s ~/dotfiles2/.config/emacs.termux/exwm/.bashrc ~/.bashrc"
+	link1="ln -s ${HOME}/dotfiles2/.config/emacs.termux/exwm/.bashrc ${HOME}/.bashrc"
 
 	# termux.properties
-	link2="ln -s ~/dotfiles2/.config/emacs.termux/exwm/termux.properties ~/.termux/termux.properties"
+	link2="ln -s ${HOME}/dotfiles2/.config/emacs.termux/exwm/termux.properties ${HOME}/.termux/termux.properties"
 
 	# startdesktop command
-	link3="ln -s ~/dotfiles2/.config/emacs.termux/exwm/startdesktop ~/.local/bin/startdesktop"
+	link3="ln -s ${HOME}/dotfiles2/.config/emacs.termux/exwm/startdesktop ${HOME}/.local/bin/startdesktop"
 
 	# xstartup
-	link4="ln -s ~/dotfiles2/.config/emacs.termux/exwm/xstartup ~/.vnc/xstartup"
+	link4="ln -s ${HOME}/dotfiles2/.config/emacs.termux/exwm/xstartup ${HOME}/.vnc/xstartup"
 
 	# vnc-config
-	link5="ln -s ~/dotfiles2/.config/emacs.termux/exwm/vnc-config ~/.vnc/config"
+	link5="ln -s ${HOME}/dotfiles2/.config/emacs.termux/exwm/vnc-config ${HOME}/.vnc/config"
 
 	symlinks_helper "$link1"
 	symlinks_helper "$link2"
