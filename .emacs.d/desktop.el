@@ -108,10 +108,6 @@
   (ri/run-in-background "keepassxc")
   (exwm-workspace-switch-create 4))
 
-(ri/leader-keys
-  "-l" 'ri/run-librewolf
-  "-p" 'ri/run-keepassxc)
-
 ; -------
 
 ;; very annoying?

@@ -33,6 +33,7 @@
   - [[#evil-undo-system-undo-treefu][evil-undo-system (undo-tree/fu)]]
   - [[#generalel][general.el]]
   - [[#generalel-generic-binds][general.el generic binds]]
+  - [[#generalel-desktop][general.el desktop]]
   - [[#hydra][hydra]]
   - [[#crux][crux]]
   - [[#expand-region][expand region]]
@@ -335,6 +336,7 @@ Includes:
                   vterm-mode-hook
                   shell-mode-hook
                   eshell-mode-hook
+                  image-minor-mode-hook
                   treemacs-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
@@ -411,7 +413,7 @@ basic functionality
 ** nerd-fonts
 
 #+begin_src emacs-lisp
-  
+
   ;; nerd-fonts (used by doom-modeline by default)
   ;; note: on a new machine, must run M-x nerd-icons-install-fonts
   (use-package nerd-icons)
@@ -770,6 +772,16 @@ Quit emacs / session
 
 #+end_src
 
+** general.el desktop
+
+#+begin_src emacs-lisp
+
+  (ri/leader-keys
+    "-l" 'ri/run-librewolf
+    "-p" 'ri/run-keepassxc)
+
+#+end_src
+
 ** hydra
 
 Fast, transient keybinds
@@ -1029,12 +1041,18 @@ Includes:
     :custom
     ;; (doom-modeline-height 50)
     (doom-dracula-brighter-modeline t)
-    (doom-modeline-height 40)
+    (doom-modeline-height 45)
     (doom-modeline-hud nil))
 
 #+end_src
 
 ** mini-modeline
+
+https://github.com/kiennq/emacs-mini-modeline
+
+https://github.com/OldhamMade/emacs.d
+
+https://github.com/Malabarba/smart-mode-line/
 
 #+begin_src emacs-lisp
 
@@ -2085,16 +2103,16 @@ https://github.com/alexluigit/dirvish
     (setq dirvish-attributes
           '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
     :bind
-    (:map dirvish-mode-map
+    ("C-c d D" . dirvish)
+    ("C-c d f" . dirvish-fd)
+    (:map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
           ("h" . dired-up-directory)
           ("r" . dired-sort-toggle-or-edit)
           ("s" . dired-open-file)
-          ;; ("z" . 'ri/dired-hide-dotfiles-mode--toggle)
-          ))
+          ("z" . 'ri/dired-hide-dotfiles-mode--toggle)
 
-  ;;  (("C-c f" . dirvish-fd)
-  ;; :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-  ;; ("a"   . dirvish-quick-access)
+          ("a"   . dirvish-quick-access)))
+
   ;; ("f"   . dirvish-file-info-menu)
   ;; ("y"   . dirvish-yank-menu)
   ;; ("N"   . dirvish-narrow)

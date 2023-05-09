@@ -93,6 +93,7 @@
                 vterm-mode-hook
                 shell-mode-hook
                 eshell-mode-hook
+                image-minor-mode-hook
                 treemacs-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
@@ -367,6 +368,10 @@
   "q"  '(:ignore t :which-key "quit/session")
   "qq" '(save-buffers-kill-terminal :which-key "quit emacs"))
 
+(ri/leader-keys
+  "-l" 'ri/run-librewolf
+  "-p" 'ri/run-keepassxc)
+
 ;; hydra (fast, transient keybinds)
 (use-package hydra
   :defer t)
@@ -541,7 +546,7 @@
   :custom
   ;; (doom-modeline-height 50)
   (doom-dracula-brighter-modeline t)
-  (doom-modeline-height 40)
+  (doom-modeline-height 45)
   (doom-modeline-hud nil))
 
 (use-package mini-modeline
@@ -1208,16 +1213,16 @@
   (setq dirvish-attributes
         '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
   :bind
-  (:map dirvish-mode-map
+  ("C-c d D" . dirvish)
+  ("C-c d f" . dirvish-fd)
+  (:map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
         ("h" . dired-up-directory)
         ("r" . dired-sort-toggle-or-edit)
         ("s" . dired-open-file)
-        ;; ("z" . 'ri/dired-hide-dotfiles-mode--toggle)
-        ))
+        ("z" . 'ri/dired-hide-dotfiles-mode--toggle)
 
-;;  (("C-c f" . dirvish-fd)
-;; :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-;; ("a"   . dirvish-quick-access)
+        ("a"   . dirvish-quick-access)))
+
 ;; ("f"   . dirvish-file-info-menu)
 ;; ("y"   . dirvish-yank-menu)
 ;; ("N"   . dirvish-narrow)
