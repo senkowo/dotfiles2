@@ -30,7 +30,7 @@ set the user-init-file and user-emacs-directory to the location of the init file
 
 set up package and use-package.
 
-#+begin_src elisp
+#+begin_src elisp 
 
 (require 'package)
 
@@ -53,6 +53,33 @@ set up package and use-package.
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 (require 'use-package)
+
+#+end_src
+
+* straight.el
+
+#+begin_src elisp
+
+;; Bootstrap straight.el
+(defvar bootstrap-version)
+(let ((bootstrap-file
+      (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+	(url-retrieve-synchronously
+	"https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+;; Use straight.el for use-package expressions
+(straight-use-package 'use-package)
+
+;; Load the helper package for commands like `straight-x-clean-unused-repos'
+(require 'straight-x)
+
 
 #+end_src
 
@@ -499,6 +526,17 @@ shortcuts and improved interface.
 
 #+end_src
 
+* EXWM
+
+#+begin_src elisp
+
+    (use-package exwm
+      :ensure t
+      :config
+      (exwm-enable))
+
+#+end_src
+
 * scripts
 ** install-repeatable
 
@@ -507,8 +545,8 @@ shortcuts and improved interface.
   pkg upgrade
 
   # install common stuff, plus desktop utils
-  pkg install vim emacs git neofetch man openssh cmake libtool \
-      x11-repo termux-api tigervnc
+  pkg install vim emacs git neofetch man p7zip openssh cmake libtool \
+      x11-repo termux-api tigervnc xorg-server
 
   pip install yt-dlp
 
