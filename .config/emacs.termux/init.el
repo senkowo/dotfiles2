@@ -3,33 +3,11 @@
 (setq user-emacs-directory (file-name-directory
 			    user-init-file))
 
-(require 'package)
-
-(setq package-archives
-      '(("melpa" . "https://melpa.org/packages/")
-	("elpa" . "https://elpa.gnu.org/packages/")))
-
-;; fixes bug?
-(setq gnutls-algorithm-priority
-      "NORMAL:-VERS-TLS1.3")
-
-;; load all packages and activate
-(package-initialize)
-
-;; only refresh if package cache empty
-(unless package-archive-contents
-  package-refresh-contents)
-
-;; use-package
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-(require 'use-package)
-
 ;; Bootstrap straight.el
 (defvar bootstrap-version)
 (let ((bootstrap-file
       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
+      (bootstrap-version 6))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
 	(url-retrieve-synchronously
