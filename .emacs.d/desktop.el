@@ -5,29 +5,29 @@
 (defun ri/set-wallpaper ()
   (interactive)
   (start-process-shell-command
-    "feh" nil "feh --bg-fill ~/Pictures/wallpapers/oneshot-wallpaper1.jpg"))
+   "feh" nil "feh --bg-fill ~/Pictures/wallpapers/oneshot-wallpaper1.jpg"))
 
 (defun ri/position-window ()
   (let* ((pos (frame-position))
          (pos-x (car pos))
          (pos-y (cdr pos)))
 
-  (exwm-floating-move (- pos-x) (- pos y))))
+    (exwm-floating-move (- pos-x) (- pos y))))
 
 ;; also preview themes package
-;(defun ri/random-wallpaper ()
-;  (interactive))
+;; (defun ri/random-wallpaper ()
+;;   (interactive))
 
 ;; depends on nm-applet, pasystray(?), pavucontrol(?), and blueman
 (defun ri/exwm-init-hook ()
   ;; Make workspace 1 be the one where we land at startup
   (exwm-workspace-switch-create 0)
-  ;; Launch programs at startup 
-  ;(eshell)
-  ;; Run programs in background at startup 
-  ;(ri/run-in-background "nm-applet")
-  ;(ri/run-in-background "pasystray")
-  ;(ri/run-in-background "blueman-applet")
+  ;; Launch programs at startup
+  ;; (eshell)
+  ;; Run programs in background at startup
+  ;; (ri/run-in-background "nm-applet")
+  ;; (ri/run-in-background "pasystray")
+  ;; (ri/run-in-background "blueman-applet")
   )
 
 ;; switch to last workspace (hack)
@@ -80,15 +80,15 @@
     ("keepassxc" (exwm-workspace-move-window 4))
     ("discord" (exwm-workspace-move-window 2))
     ("mpv" (exwm-floating-toggle-floating)
-           (exwm-layout-toggle-mode-line))
+     (exwm-layout-toggle-mode-line))
     ("gimp" (exwm-workspace-move-window 1))))
-    ;; if game has trouble put it in exwm-input-release-keyboard, and then s-r to reset.
+;; if game has trouble put it in exwm-input-release-keyboard, and then s-r to reset.
 
 ;; run when startup floating window
 (defun ri/exwm-configure-floating-setup ()
   (exwm-layout-hide-mode-line))
 
-;; shrink and expand windows... 
+;; shrink and expand windows...
 
 ;; spawn mpv in corner of screen so can watch youtube video
 
@@ -96,29 +96,34 @@
 
 ;; move focus onto popup window
 
-; -------
+                                        ; -------
 
 (defun ri/run-librewolf ()
   (interactive)
   (ri/run-in-background "librewolf")
   (exwm-workspace-switch-create 3))
 ;;
-(defun ri/run-keepassxc()
+(defun ri/run-keepassxc ()
   (interactive)
   (ri/run-in-background "keepassxc")
   (exwm-workspace-switch-create 4))
+;;
+(defun ri/run-discord ()
+  (interactive)
+  (ri/run-in-background "discord")
+  (exwm-workspace-switch-create 2))
 
-; -------
+                                        ; -------
 
 ;; very annoying?
-;; makes the cursor visible? 
+;; makes the cursor visible?
 ;; only warp when on X window buffer!
 ;; warps useful when on EXWM-mode with pop-ups
 ;; when on EXWM, enable mouse. When on emacs, disable mouse.
 (use-package exwm-mff
   :config
   (exwm-mff-mode nil))
-  ;; ^ should already be nil...
+;; ^ should already be nil...
 
 ;; warp cursor to center when switch to a X window buffer.
 (add-hook 'exwm-manage-finish-hook (lambda () (exwm-mff-warp-to-selected)))
@@ -143,7 +148,7 @@
 
   (setq ivy-posframe-display-functions-alist
         '((swiper          . ivy-display-function-fallback)
-          ;(counsel-M-x    . ivy-posframe-display-at-window-bottom-left)
+         ;; (counsel-M-x    . ivy-posframe-display-at-window-bottom-left)
           (counsel-M-x     . ivy-display-function-fallback)
           (counsel-switch-buffer . ivy-display-function-fallback)
           (complete-symbol . ivy-posframe-display-at-point)
@@ -158,11 +163,10 @@
 ;; -------
 
 (use-package exwm
-  :bind 
-  ("C-M-h" . 'ri/exwm-workspace-switch-to-previous)
-  ("C-M-l" . 'ri/exwm-workspace-switch-to-next)
-  ("C-M-k" . 'ri/exwm-workspace-switch-to-last)
-  ;; (:map exwm-mode-map)
+  ;; :bind
+  ;; ("C-M-h" . 'ri/exwm-workspace-switch-to-previous)
+  ;; ("C-M-l" . 'ri/exwm-workspace-switch-to-next)
+  ;; ("C-M-k" . 'ri/exwm-workspace-switch-to-last)
   :custom
   ;; Systray addons
   (display-time-day-and-date t)
@@ -173,7 +177,7 @@
   :config
   (setq exwm-workspace-number 5 ; 0-5
         focus-follows-mouse nil
-        ;exwm-workspace-warp-cursor t ;?
+                                        ;exwm-workspace-warp-cursor t ;?
         exwm-debug nil) ;enable for debug mode
 
   ;; -------
@@ -198,19 +202,19 @@
   (defvar ri/exwm-workspace--switch-history-hack (cons exwm-workspace-current-index '()))
   ;;
   (add-hook 'exwm-workspace-switch-hook
-     (lambda ()
-       (setq ri/exwm-workspace--switch-history-hack
-              (cons exwm-workspace-current-index
-                (car ri/exwm-workspace--switch-history-hack)))))
+            (lambda ()
+              (setq ri/exwm-workspace--switch-history-hack
+                    (cons exwm-workspace-current-index
+                          (car ri/exwm-workspace--switch-history-hack)))))
 
   ;; --------
 
   ;; Sets up dvorak keybinds (also does ctrl:nocaps?)
-  ;(start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps")
+                                        ;(start-process-shell-command "setxkbmap qwerty,dvorak ctrl:nocaps" nil "setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps")
   ;;
-  ;; Rebind Ctrl to CapsLock 
-  ;; (start-process-shell-command "Xmodmap S-C Esc" nil 
-     ;; (concat "xmodmap " (concat user-emacs-directory "exwm/Xmodmap")))
+  ;; Rebind Ctrl to CapsLock
+  ;; (start-process-shell-command "Xmodmap S-C Esc" nil
+  ;; (concat "xmodmap " (concat user-emacs-directory "exwm/Xmodmap")))
 
   ;; set hold type startup and speed
   ;; (start-process-shell-command "xset typing speed" nil "xset r rate 300 40")
@@ -218,7 +222,7 @@
   ;; set cursor type (what if not enabled?)
   ;; (start-process-shell-command "xsetroot cursor" nil "xsetroot -cursor_name left_ptr")
 
-  ;; night light 
+  ;; night light
   (ri/run-in-background (expand-file-name "exwm/sct-auto-adjust.sh" user-emacs-directory))
 
   ;; -------
@@ -260,7 +264,7 @@
           ?\C-x
           ?\C-h
           ?\C-u
-          ?\C-\M-j  ;;  buffer list 
+          ?\C-\M-j  ;;  buffer list
           ?\C-\M-h  ;;  previous workspace
           ?\C-\M-l  ;;  next workspace
           ?\C-\M-k  ;;  last workspace
@@ -282,13 +286,13 @@
           ([?\s-n] . windmove-down)
           ([?\s-s] . windmove-right)
 
-          ;; Move windows 
+          ;; Move windows
           ([?\s-H] . windmove-swap-states-left)
           ([?\s-T] . windmove-swap-states-up)
           ([?\s-N] . windmove-swap-states-down)
           ([?\s-S] . windmove-swap-states-right)
 
-          ;; Shortcuts for windows 
+          ;; Shortcuts for windows
           ([?\s-g] . (lambda () (interactive) (other-window 1)))
           ([?\s-c] . (lambda () (interactive) (other-window -1)))
           ([?\s-d] . delete-window)
@@ -312,15 +316,18 @@
 
           ;; Special
           ([?\s-\C-\S-l] . (lambda () (interactive) (desktop-environment-lock-screen)))
+          ([?\s-\C-\S-h] . (lambda () (interactive)
+                             (start-process-shell-command "hibernate" nil
+                                                          "loginctl hibernate")))
 
           ;; Programs
 
           ;; Switch workspace
           ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
           ([?\s-w] . exwm-workspace-switch)
-          ([?\s-\M-c] . ri/exwm-workspace-switch-to-last)
-          ([?\s-\M-l] . (lambda () (interactive) (ri/exwm-workspace-switch-to-next)))
+          ([?\s-\M-t] . ri/exwm-workspace-switch-to-last)
           ([?\s-\M-h] . (lambda () (interactive) (ri/exwm-workspace-switch-to-previous)))
+          ([?\s-\M-s] . (lambda () (interactive) (ri/exwm-workspace-switch-to-next)))
 
           ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
           ,@(mapcar (lambda (i)
@@ -335,13 +342,14 @@
   (exwm-input-set-key (kbd "s-<return>") 'shell-pop)
   (exwm-input-set-key (kbd "s-l l") 'ri/run-librewolf)
   (exwm-input-set-key (kbd "s-l p") 'ri/run-keepassxc)
+  (exwm-input-set-key (kbd "s-l d") 'ri/run-discord)
 
   (exwm-enable))
 
 ;; depends on scrot (screenshot), brightnessctl (brightness), and playerctl (player)
 (use-package desktop-environment
   :after exwm
-  :config 
+  :config
   (setq desktop-environment-update-exwm-global-keys :prefix)
   (define-key desktop-environment-mode-map (kbd "s-l") nil) ;; what is this???
   (desktop-environment-mode)

@@ -102,12 +102,12 @@ xrandr --output eDP-1 --primary --mode 1920x1080 --pos 0x0 --rotate normal --out
 #exec dbus-launch --sh-syntax --exit-with-session dwm >/dev/null 2>&1
 #exec dbus-launch --sh-syntax --exit-with-session qtile start
 #exec dbus-launch --sh-syntax --exit-with-session bspwm
-#exec ~/.local/bin/dwm-start-script.sh
+exec ~/.local/bin/dwm-start-script.sh
 #exec dbus-launch --sh-syntax --exit-with-session leftwm 
 #exec dbus-launch --sh-syntax --exit-with-session xmonad >& /tmp/.xmonad-errors
 #emacs --daemon -f exwm-enable && exec dbus-launch --sh-syntax --exit-with-session emacsclient -c
 #exec i3
-exec dbus-launch --sh-syntax --exit-with-session emacs
+#exec dbus-launch --sh-syntax --exit-with-session emacs
 #exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.gnu/init.el" -mm --debug-init
 #exec dbus-launch --sh-syntax --exit-with-session $HOME/.cache/xmonad/xmonad-x86_64-linux >& /tmp/.xmonad-errors
 

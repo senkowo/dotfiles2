@@ -126,6 +126,7 @@
 
 ;; all-the-icons
 ;; note: on a new machine, must run M-x all-the-icons-install-fonts
+;; create a script to automatatically detect whether this has been run?
 (use-package all-the-icons)
 
 ;; nerd-fonts (used by doom-modeline by default)
@@ -234,6 +235,8 @@
    '("y" . meow-yank)
    '("z" . meow-pop-selection)
    '("'" . repeat)
+   '("/" . View-scroll-half-page-forward) ;; new keys
+   '("?" . View-scroll-half-page-backward) ;; new keys
    '("<escape>" . ignore)
 
    ;; Directional keys:
@@ -260,13 +263,11 @@
 (use-package meow
   :config
   (meow-setup)
-  ;; will "C-g" to meow-insert-exit mess anything up? Consider "C-z" or "C-M-g" instead
   ;; free-keys is very useful!
   (define-key meow-insert-state-keymap (kbd "C-g")  #'meow-insert-exit)
-  (define-key meow-insert-state-keymap (kbd "<f5>") #'meow-insert-exit)
-  (define-key meow-insert-state-keymap (kbd "<f6>") #'meow-insert-exit) ;; also useful
-  (define-key meow-insert-state-keymap (kbd "<f7>") #'meow-insert-exit) ;; fav
-  (define-key meow-insert-state-keymap (kbd "<f8>") #'meow-insert-exit) ;; somet easier 2 reach
+  ;; start up applications in insert mode
+  (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
+  (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
 
   (meow-global-mode 1))
 
@@ -345,6 +346,9 @@
 ;;   (setq undo-tree-history-directory-alist
 ;;    '(("." . (concat user-emacs-directory "var/undo-tree-his/")))))
 
+;; Whenever you C-/ it does the default undo. Not undo-fu-undo. So, maybe
+;;  bind C-/ to undo-fu-undo without overwriting? but maybe it's ok...
+
 (use-package undo-fu)
 
 (use-package undo-fu-session
@@ -370,7 +374,8 @@
 
 (ri/leader-keys
   "-l" 'ri/run-librewolf
-  "-p" 'ri/run-keepassxc)
+  "-p" 'ri/run-keepassxc
+  "-d" 'ri/run-discord)
 
 ;; hydra (fast, transient keybinds)
 (use-package hydra
@@ -404,6 +409,9 @@
 
 (use-package free-keys
   :commands free-keys)
+
+(ri/leader-keys
+  "sF" 'free-keys)
 
 (use-package ace-window
   :config
@@ -464,7 +472,8 @@
   "bn" 'next-buffer
   "bp" 'previous-buffer
   "bo" 'meow-last-buffer
-  "bb" 'counsel-switch-buffer)
+  "bb" 'counsel-switch-buffer
+  "br" 'read-only-mode)
 
 ;; ivy
 (use-package ivy
@@ -493,9 +502,9 @@
 
 ;; counsel (enhanced standard emacs commands)
 (use-package counsel
-  :bind (;("M-x" . counsel-M-x)
-                                        ;("C-x b" . counsel-ibuffer)
-                                        ;("C-x C-f" . counsel-find-file)
+  :bind (;; ("M-x" . counsel-M-x)
+         ;; ("C-x b" . counsel-ibuffer)
+         ;; ("C-x C-f" . counsel-find-file)
          ("C-M-j" . 'counsel-switch-buffer)
          ("s-c" . 'counsel-switch-buffer)
          :map minibuffer-local-map
@@ -605,10 +614,10 @@
                   (org-level-2 . 1.1)
                   (org-level-3 . 1.05)
                   (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
+                  (org-level-5 . 1.0)
+                  (org-level-6 . 1.0)
+                  (org-level-7 . 1.0)
+                  (org-level-8 . 1.0)))
     ;; font for bullets
     (set-face-attribute (car face) nil :font "Fira Code" :weight 'regular :height (cdr face)))
 
@@ -631,40 +640,36 @@
   (variable-pitch-mode 1)
   (visual-line-mode 1))
 
-(ri/leader-keys
-  "o"  '(:ignore t :which-key "org")
-  "ox" '(eval-last-sexp :which-key "eval-last-sexp")
-  "oX" '(eval-region :which-key "eval-region"))
-
 (use-package org
   :commands (org-capture org-agenda)
   :hook (org-mode . ri/org-mode-setup)
-                                        ;:custom ; do all setq's go in custom?
+  :custom
+  (org-directory "~/org")
+  (org-ellipsis " ▼ ")
+  (org-hide-emphasis-markers t) ; hide formatting chars (* / ~ = etc)
+  (doom-modeline-enable-word-count t)
   :config
+  ;; show message when loading (not necessary?)
   (message "Org Mode loaded!")
 
-  (setq org-ellipsis " ▼")
-  (setq org-hide-emphasis-markers t) ; hide formatting chars
-  (setq doom-modeline-enable-word-count t)
+  ;; --- org-agenda ------
+  (setq org-deadline-warning-days 14
+        org-agenda-start-with-log-mode t ; enable log-mode by def
+        org-log-done 'time
+        org-log-into-drawer t) ; ?
 
-  ;; org-agenda ----
-  (setq org-deadline-warning-days 14)
-  (setq org-agenda-start-with-log-mode t) ; enable log-mode by def
-  (setq org-log-done 'time)
-  (setq org-log-into-drawer t) ; ?
-
-  ;; agenda files ----
+  ;; --- agenda files ------
   (setq org-agenda-files
         '("~/org/agenda/agenda.org"
-          "~/org/agenda/work.org"
-          "~/org/agenda/habits.org"))
+          "~/org/agenda/work.org"))
+  ;; "~/org/agenda/habits.org"))
 
-  ;; todo keywords ----
+  ;; --- todo keywords ------
   (setq org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
           (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
-  ;; org-refile ----
+  ;; --- org-refile ------
   ;; (add target locations for org-refile)
   (setq org-refile-targets
         '(("Archive.org" :maxlevel . 1)
@@ -672,16 +677,16 @@
   ;; save org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
-  ;; org-habit ----
+  ;; --- org-habit ------
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
   (setq org-habit-graph-column 60)
 
-  ;; commonly known tasks to appear when counsel-org-tag ----
+  ;; --- commonly known tasks to appear when counsel-org-tag ------
   ;; org-set-tags-command ?
   (setq org-tag-alist
         '((:startgroup)
-                                        ; Put mutually exclusive tags here
+          ;; Put mutually exclusive tags here
           (:endgroup)
           ("@errand" . ?E)
           ("@home" . ?H)
@@ -693,7 +698,7 @@
           ("note" . ?n)
           ("idea" . ?i)))
 
-  ;; Custom Agenda Views! ----
+  ;; --- Custom Agenda Views! ------
   ;; (easier with org-ql)
   (setq org-agenda-custom-commands
         '(("d" "Dashboard"
@@ -742,7 +747,7 @@
                   ((org-agenda-overriding-header "Cancelled Projects")
                    (org-agenda-files org-agenda-files)))))))
 
-  ;; Org Capture Templates! ----
+  ;; --- Org Capture Templates! ------
   ;; (basically quickly add new entries mindlessly)
   (setq org-capture-templates
         `(("t" "Tasks / Projects")
@@ -771,8 +776,14 @@
           ("mw" "Weight" table-line (file+headline "~/org/agenda/metrics.org" "Weight")
            "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
-  ;; set up org-fonts
+  ;; --- set up org-fonts ------
   (ri/org-font-setup))
+
+;; misc
+(ri/leader-keys
+  "o"  '(:ignore t :which-key "org")
+  "ox" '(eval-last-sexp :which-key "eval-last-sexp")
+  "oX" '(eval-region :which-key "eval-region"))
 
 ;; keybinds! -----
 
@@ -823,6 +834,14 @@
   :hook (org-mode . ri/org-mode-visual-fill)
   :config
   (setq visual-fill-column-enable-sensible-window-split nil))
+
+;; --- org-journal ------
+(use-package org-journal
+  :config
+  (setq org-journal-dir "~/org/journal/"
+        ;; org-journal-date-format "%B %d, %Y (%A) "
+        ;; org-journal-file-format "%Y-%m-%d.org"
+        ))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
@@ -1066,8 +1085,6 @@
   (shell-pop-window-size 40)
   (shell-pop-window-position "bottom"))
 
-
-
 ;; eshell config
 (defun ri/configure-eshell ()
   ;; Save command history when commands are entered.
@@ -1102,8 +1119,8 @@
   (eshell-git-prompt-use-theme 'powerline))
 
 (ri/leader-keys
-  "ot" '(vterm :which-key "vterm")
-  "oe" '(eshell :which-key "eshell"))
+  "at" '(vterm :which-key "vterm")
+  "ae" '(eshell :which-key "eshell"))
 
 (ri/leader-keys
   "f"  '(:ignore t :which-key "files")
@@ -1247,6 +1264,12 @@
   :config
   (global-set-key (kbd "C-c C-r") 'sudo-edit))
 
+(use-package dired-toggle-sudo
+  :commands (dired dired-jump)
+  :bind
+  (:map dired-mode-map
+        ("C-c C-s" . dired-toggle-sudo)))
+
 ;; rss
 ;; maybe don't need, phone is enough?
 ;; maybe syncthing and import from database?
@@ -1292,6 +1315,7 @@
 
 ;; erc
 ;; make erc start after startup?
+;; good channels: ##furry #transchat-social
 (use-package erc
   :commands erc)
 

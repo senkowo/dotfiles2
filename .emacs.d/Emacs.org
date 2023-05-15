@@ -3,29 +3,29 @@
 #+startup: content
 
 * Table of Contents :TOC:
-- [[#notes-to-self][Notes to self]]
+- [[#notes-to-self][notes to self]]
   - [[#general-useful-keybinds][General Useful Keybinds]]
   - [[#configuration-notes][Configuration notes]]
   - [[#questions][Questions]]
   - [[#configuring-emacs-wo-evil-the-vanilla-way][Configuring Emacs w/o Evil, the Vanilla way]]
   - [[#package-research][Package research]]
-- [[#startup-performance][Startup performance]]
-- [[#package-management][Package management]]
-- [[#prevent-littering][Prevent littering]]
-- [[#identify-operating-system][Identify Operating system]]
-- [[#basic-ui][Basic UI]]
+- [[#startup-performance][startup performance]]
+- [[#package-management][package management]]
+- [[#prevent-littering][prevent littering]]
+- [[#identify-operating-system][identify operating system]]
+- [[#basics][basics]]
   - [[#disable-bell][disable bell]]
   - [[#line-numbers][line numbers]]
   - [[#fonts][fonts]]
   - [[#improved-scrolling][improved scrolling]]
   - [[#transparency][transparency]]
   - [[#shorten-y-n-prompt][shorten y-n prompt]]
-- [[#basic-functionality][Basic functionality]]
   - [[#all-the-icons][all-the-icons]]
   - [[#nerd-fonts][nerd-fonts]]
+- [[#basic-functionality][basic functionality]]
   - [[#auto-update-packages][auto-update packages]]
   - [[#add-lisp-functions-dir-to-path][add lisp functions dir to path]]
-- [[#keybindings][Keybindings]]
+- [[#keybindings][keybindings]]
   - [[#make-escape-quit][make escape quit]]
   - [[#meow][meow]]
   - [[#god-mode][god-mode]]
@@ -38,6 +38,7 @@
   - [[#crux][crux]]
   - [[#expand-region][expand region]]
   - [[#avy][avy]]
+  - [[#cheatsheet-add-here][cheatsheet (ADD HERE!!!!)]]
   - [[#free-keys][free-keys]]
   - [[#window-management][window management]]
   - [[#buffer-management][buffer management]]
@@ -55,6 +56,7 @@
   - [[#org--agenda][Org + agenda]]
   - [[#bullets][Bullets]]
   - [[#side-padding][side-padding]]
+  - [[#journal][journal]]
   - [[#org-babel][Org-babel]]
   - [[#toc][TOC]]
 - [[#development][Development]]
@@ -71,12 +73,12 @@
   - [[#vterm][vterm]]
   - [[#shell-mode][shell-mode]]
   - [[#shell-pop-pop-up][shell-pop (pop-up)]]
-  - [[#eat][eat]]
   - [[#eshell][Eshell]]
 - [[#files][Files]]
   - [[#dired][Dired]]
   - [[#dirvish][dirvish]]
   - [[#sudo-edit][sudo-edit]]
+  - [[#dired-toggle-sudo][dired-toggle-sudo]]
 - [[#programs][Programs]]
   - [[#elfeed][elfeed]]
   - [[#eww][eww]]
@@ -94,7 +96,7 @@
 - [[#dvorak-swap-x-and-u][DVORAK swap x and u]]
 - [[#runtime-performance][Runtime performance]]
 
-* Notes to self
+* notes to self
 
 Emacs Config
 
@@ -111,6 +113,7 @@ Notes:
 + emacs-lisp-mode-map for viewing local keybinds
 + org-lint to debug
 + C-c C-<SPC> to jump to previous location
+  + actually C-c & for some reason...
 + M-r to center cursor
 
 ** Configuration notes
@@ -191,7 +194,11 @@ crux to improve everything!
 
 mini-modeline try out?
 
-* Startup performance
+watch videos on org mode and further configurations for journaling (can sync with mobile with syncthing! (can also sync music on pc)
+
+cheatsheet package?
+
+* startup performance
 
 #+begin_src emacs-lisp
 
@@ -211,7 +218,7 @@ mini-modeline try out?
 
 #+end_src
 
-* Package management
+* package management
 
 package management, sources, auto, etc
 
@@ -242,7 +249,7 @@ package management, sources, auto, etc
 
 #+end_src
 
-* Prevent littering
+* prevent littering
 
 #+begin_src emacs-lisp
 
@@ -266,7 +273,7 @@ package management, sources, auto, etc
 
 #+end_src
 
-* Identify Operating system
+* identify operating system
 
 #+begin_src emacs-lisp
 
@@ -281,7 +288,7 @@ package management, sources, auto, etc
 
 #+end_src
 
-* Basic UI
+* basics
 
 Basic configuration of user interface.
 Includes:
@@ -396,16 +403,13 @@ General fonts for emacs.
 
 #+end_src
 
-* Basic functionality
-
-basic functionality
-
 ** all-the-icons
 
 #+begin_src emacs-lisp
 
   ;; all-the-icons
   ;; note: on a new machine, must run M-x all-the-icons-install-fonts
+  ;; create a script to automatatically detect whether this has been run?
   (use-package all-the-icons)
 
 #+end_src
@@ -419,6 +423,10 @@ basic functionality
   (use-package nerd-icons)
 
 #+end_src
+
+* basic functionality
+
+basic functionality
 
 ** auto-update packages
 
@@ -446,7 +454,7 @@ basic functionality
 
 #+end_src
 
-* Keybindings
+* keybindings
 
 Set keybind related things here.
 Includes:
@@ -472,25 +480,23 @@ Make <escape> quit.
 
 ** meow
 
-https://github.com/meow-edit/meow
+Commands list:
+[[https://github.com/meow-edit/meow/blob/master/COMMANDS.org][meow -- list of possible commands]]
 
-https://github.com/meow-edit/meow/blob/master/COMMANDS.org
-
-https://user-images.githubusercontent.com/11796018/144637798-f9dfa331-6c2d-4ae0-a11f-936af1a07d5d.png
-
-C-c ? For cheatsheet
+Variables that can be set:
+[[https://github.com/meow-edit/meow/blob/master/CUSTOMIZATIONS.org][meow -- variables that can be set]]
 
 things to implement:
-+ exit meow insert with a local mode map
-+ align the movement keys htns
-  + or maybe s --> S and p --> s
 + maybe h up, t left, n down, s right?
   + or stick close to native emacs keybinds...
-+ maybe swap m and w so that b and m is back and forth, and w is select?
 
 useful keybinds:
 - o - meow-block
 - O - meow-next-block
+
+To add:
+- half page scroll
+- replace one word
 
 #+begin_src emacs-lisp
 
@@ -580,6 +586,8 @@ useful keybinds:
      '("y" . meow-yank)
      '("z" . meow-pop-selection)
      '("'" . repeat)
+     '("/" . View-scroll-half-page-forward) ;; new keys
+     '("?" . View-scroll-half-page-backward) ;; new keys
      '("<escape>" . ignore)
 
      ;; Directional keys:
@@ -606,13 +614,11 @@ useful keybinds:
   (use-package meow
     :config
     (meow-setup)
-    ;; will "C-g" to meow-insert-exit mess anything up? Consider "C-z" or "C-M-g" instead
     ;; free-keys is very useful!
     (define-key meow-insert-state-keymap (kbd "C-g")  #'meow-insert-exit)
-    (define-key meow-insert-state-keymap (kbd "<f5>") #'meow-insert-exit)
-    (define-key meow-insert-state-keymap (kbd "<f6>") #'meow-insert-exit) ;; also useful
-    (define-key meow-insert-state-keymap (kbd "<f7>") #'meow-insert-exit) ;; fav
-    (define-key meow-insert-state-keymap (kbd "<f8>") #'meow-insert-exit) ;; somet easier 2 reach
+    ;; start up applications in insert mode
+    (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
+    (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
 
     (meow-global-mode 1))
 
@@ -719,6 +725,9 @@ https://github.com/apchamberlain/undo-tree.el
   ;;   (setq undo-tree-history-directory-alist
   ;;    '(("." . (concat user-emacs-directory "var/undo-tree-his/")))))
 
+  ;; Whenever you C-/ it does the default undo. Not undo-fu-undo. So, maybe
+  ;;  bind C-/ to undo-fu-undo without overwriting? but maybe it's ok...
+
   (use-package undo-fu)
 
   (use-package undo-fu-session
@@ -778,7 +787,8 @@ Quit emacs / session
 
   (ri/leader-keys
     "-l" 'ri/run-librewolf
-    "-p" 'ri/run-keepassxc)
+    "-p" 'ri/run-keepassxc
+    "-d" 'ri/run-discord)
 
 #+end_src
 
@@ -846,12 +856,19 @@ jump to any char or line
 
 #+end_src
 
+** cheatsheet (ADD HERE!!!!)
+
+untsoahusnot
+
 ** free-keys
 
 #+begin_src emacs-lisp
 
   (use-package free-keys
     :commands free-keys)
+
+  (ri/leader-keys
+    "sF" 'free-keys)
 
 #+end_src
 
@@ -928,7 +945,8 @@ https://github.com/abo-abo/ace-window
     "bn" 'next-buffer
     "bp" 'previous-buffer
     "bo" 'meow-last-buffer
-    "bb" 'counsel-switch-buffer)
+    "bb" 'counsel-switch-buffer
+    "br" 'read-only-mode)
 
 #+end_src
 
@@ -976,9 +994,9 @@ Includes:
 
   ;; counsel (enhanced standard emacs commands)
   (use-package counsel
-    :bind (;("M-x" . counsel-M-x)
-                                          ;("C-x b" . counsel-ibuffer)
-                                          ;("C-x C-f" . counsel-find-file)
+    :bind (;; ("M-x" . counsel-M-x)
+           ;; ("C-x b" . counsel-ibuffer)
+           ;; ("C-x C-f" . counsel-find-file)
            ("C-M-j" . 'counsel-switch-buffer)
            ("s-c" . 'counsel-switch-buffer)
            :map minibuffer-local-map
@@ -1152,6 +1170,12 @@ Configuration for org-mode
 Includes:
 + org-fonts
 + bullets, side-padding, tangle, toc, etc.
+Syntax notes:
+- you can do this! :: using "::" after a heading.
+
+Cheatsheets:
+[[https://emacsclub.github.io/html/org_tutorial.html][org -- generic tasks and syntax]]
+[[https://gist.github.com/drj42/1755992][org -- expansive keybind reference card]]
 
 ** Org-fonts
 
@@ -1165,10 +1189,10 @@ maybe move org-fonts below org-mode, then have a use-package org inside it to ru
                     (org-level-2 . 1.1)
                     (org-level-3 . 1.05)
                     (org-level-4 . 1.0)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-level-7 . 1.1)
-                    (org-level-8 . 1.1)))
+                    (org-level-5 . 1.0)
+                    (org-level-6 . 1.0)
+                    (org-level-7 . 1.0)
+                    (org-level-8 . 1.0)))
       ;; font for bullets
       (set-face-attribute (car face) nil :font "Fira Code" :weight 'regular :height (cdr face)))
 
@@ -1207,40 +1231,36 @@ to add tags to a heading,
     (variable-pitch-mode 1)
     (visual-line-mode 1))
 
-  (ri/leader-keys
-    "o"  '(:ignore t :which-key "org")
-    "ox" '(eval-last-sexp :which-key "eval-last-sexp")
-    "oX" '(eval-region :which-key "eval-region"))
-
   (use-package org
     :commands (org-capture org-agenda)
     :hook (org-mode . ri/org-mode-setup)
-                                          ;:custom ; do all setq's go in custom?
+    :custom
+    (org-directory "~/org")
+    (org-ellipsis " ▼ ")
+    (org-hide-emphasis-markers t) ; hide formatting chars (* / ~ = etc)
+    (doom-modeline-enable-word-count t)
     :config
+    ;; show message when loading (not necessary?)
     (message "Org Mode loaded!")
 
-    (setq org-ellipsis " ▼")
-    (setq org-hide-emphasis-markers t) ; hide formatting chars
-    (setq doom-modeline-enable-word-count t)
+    ;; --- org-agenda ------
+    (setq org-deadline-warning-days 14
+          org-agenda-start-with-log-mode t ; enable log-mode by def
+          org-log-done 'time
+          org-log-into-drawer t) ; ?
 
-    ;; org-agenda ----
-    (setq org-deadline-warning-days 14)
-    (setq org-agenda-start-with-log-mode t) ; enable log-mode by def
-    (setq org-log-done 'time)
-    (setq org-log-into-drawer t) ; ?
-
-    ;; agenda files ----
+    ;; --- agenda files ------
     (setq org-agenda-files
           '("~/org/agenda/agenda.org"
-            "~/org/agenda/work.org"
-            "~/org/agenda/habits.org"))
+            "~/org/agenda/work.org"))
+    ;; "~/org/agenda/habits.org"))
 
-    ;; todo keywords ----
+    ;; --- todo keywords ------
     (setq org-todo-keywords
           '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
             (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
 
-    ;; org-refile ----
+    ;; --- org-refile ------
     ;; (add target locations for org-refile)
     (setq org-refile-targets
           '(("Archive.org" :maxlevel . 1)
@@ -1248,16 +1268,16 @@ to add tags to a heading,
     ;; save org buffers after refiling!
     (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
-    ;; org-habit ----
+    ;; --- org-habit ------
     (require 'org-habit)
     (add-to-list 'org-modules 'org-habit)
     (setq org-habit-graph-column 60)
 
-    ;; commonly known tasks to appear when counsel-org-tag ----
+    ;; --- commonly known tasks to appear when counsel-org-tag ------
     ;; org-set-tags-command ?
     (setq org-tag-alist
           '((:startgroup)
-                                          ; Put mutually exclusive tags here
+            ;; Put mutually exclusive tags here
             (:endgroup)
             ("@errand" . ?E)
             ("@home" . ?H)
@@ -1269,7 +1289,7 @@ to add tags to a heading,
             ("note" . ?n)
             ("idea" . ?i)))
 
-    ;; Custom Agenda Views! ----
+    ;; --- Custom Agenda Views! ------
     ;; (easier with org-ql)
     (setq org-agenda-custom-commands
           '(("d" "Dashboard"
@@ -1318,7 +1338,7 @@ to add tags to a heading,
                     ((org-agenda-overriding-header "Cancelled Projects")
                      (org-agenda-files org-agenda-files)))))))
 
-    ;; Org Capture Templates! ----
+    ;; --- Org Capture Templates! ------
     ;; (basically quickly add new entries mindlessly)
     (setq org-capture-templates
           `(("t" "Tasks / Projects")
@@ -1347,8 +1367,14 @@ to add tags to a heading,
             ("mw" "Weight" table-line (file+headline "~/org/agenda/metrics.org" "Weight")
              "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
-    ;; set up org-fonts
+    ;; --- set up org-fonts ------
     (ri/org-font-setup))
+
+  ;; misc
+  (ri/leader-keys
+    "o"  '(:ignore t :which-key "org")
+    "ox" '(eval-last-sexp :which-key "eval-last-sexp")
+    "oX" '(eval-region :which-key "eval-region"))
 
 #+end_src
 
@@ -1420,6 +1446,21 @@ to add tags to a heading,
 
 #+end_src
 
+** journal
+
+https://github.com/bastibe/org-journal
+
+#+begin_src emacs-lisp
+
+  ;; --- org-journal ------
+  (use-package org-journal
+    :config
+    (setq org-journal-dir "~/org/journal/"
+          ;; org-journal-date-format "%B %d, %Y (%A) "
+          ;; org-journal-file-format "%Y-%m-%d.org"
+          ))
+
+#+end_src
 ** Org-babel
 
 code blocks and stuff
@@ -1883,15 +1924,6 @@ https://github.com/kyagi/shell-pop-el
 
 #+end_src
 
-** eat
-
-Emulate a terminal in Eshell!
-(non-gnu?)
-
-#+begin_src emacs-lisp
-
-#+end_src
-
 ** Eshell
 
 fix neofetch
@@ -1933,8 +1965,8 @@ fix neofetch
     (eshell-git-prompt-use-theme 'powerline))
 
   (ri/leader-keys
-    "ot" '(vterm :which-key "vterm")
-    "oe" '(eshell :which-key "eshell"))
+    "at" '(vterm :which-key "vterm")
+    "ae" '(eshell :which-key "eshell"))
 
 #+end_src
 
@@ -2145,6 +2177,18 @@ https://github.com/alexluigit/dirvish
 
 #+end_src
 
+** dired-toggle-sudo
+
+#+begin_src emacs-lisp
+
+  (use-package dired-toggle-sudo
+    :commands (dired dired-jump)
+    :bind
+    (:map dired-mode-map
+          ("C-c C-s" . dired-toggle-sudo)))
+
+#+end_src
+
 * Programs
 
 ** elfeed
@@ -2243,6 +2287,7 @@ https://github.com/alphapapa/ement.el
 
   ;; erc
   ;; make erc start after startup?
+  ;; good channels: ##furry #transchat-social
   (use-package erc
     :commands erc)
 

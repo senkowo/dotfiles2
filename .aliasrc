@@ -39,6 +39,15 @@ export XMONAD_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/xmonad"
 export XMONAD_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/xmonad"
 export XMONAD_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/xmonad"
 
+## GUIX
+## (Might be better to put in .bash_profile *and* .zprofile, because
+##  they only run when LOGGING into the shell at startup).
+# Basically the same as ". '$HOME/.guix-profile/etc/profile'"
+export GUIX_PROFILE="$HOME/.guix-profile"
+. "$GUIX_PROFILE/etc/profile"
+# Basically the same as ". '$HOME/.config/guix/current/etc/profile'"
+export GUIX_PROFILE="$HOME/.config/guix/current"
+. "$GUIX_PROFILE/etc/profile"
 
 ## MISC
 #
