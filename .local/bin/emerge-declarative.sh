@@ -3,58 +3,78 @@
 ## A declarative Portage package management setup ###
 
 APPLICATIONS="
-games-util/steam-launcher  ### Gaming ###
+##
+##[ -- APPLICATIONS -- ]##
+##
+#--- Gaming ----
+games-util/steam-launcher
 games-util/steam-meta
 games-util/gamemode
 media-libs/mesa
 media-libs/vulkan-loader
 games-emulation/dolphin
-media-gfx/gimp  ### Media ###
+#--- Media ----
+media-gfx/gimp
 media-gfx/mypaint
 media-gfx/nomacs
 media-gfx/sxiv
-www-client/librewolf  ### Web ###
-mail-client/thunderbird-bin
-net-im/discord
-app-emulation/qemu 
-app-emulation/virt-manager
-app-admin/keepassxc
-app-editors/emacs
-kde-misc/kdeconnect
-sys-apps/flatpak
 media-video/mpv
 www-client/w3m
-
+#--- Net ----
+www-client/librewolf
+mail-client/thunderbird-bin
+net-im/discord
+kde-misc/kdeconnect
+#--- Env ----
+app-editors/emacs
+sys-apps/flatpak
+app-emulation/qemu
+app-emulation/virt-manager
+#--- Misc ----
+app-admin/keepassxc
 "
 
 DESKTOP="
+##
+##[ -- DESKTOP -- ]##
+##
+#--- Xorg ----
 x11-base/xorg-server
+#--- Graphical ----
 x11-misc/polybar
-x11-misc/picom
-x11-misc/sct
+x11-misc/trayer
 app-misc/brightnessctl
+x11-misc/sct
+x11-misc/picom
+media-gfx/feh
+media-gfx/scrot
+media-gfx/flameshot
+x11-misc/arandr
+#--- Functional ----
 x11-misc/slock
 x11-misc/xss-lock
-x11-apps/setxkbmap
-media-gfx/feh
-media-gfx/flameshot
-media-gfx/scrot
-sys-power/acpi
 media-sound/mpd
 net-p2p/syncthing
-media-video/pipewire
-sys-apps/xdg-desktop-portal
-x11-misc/trayer
-sys-apps/firejail
-x11-apps/xrandr
-x11-misc/arandr
-x11-apps/xinput
-x11-apps/xsetroot
+app-admin/stow
+net-misc/yt-dlp
+#--- Utils ----
+x11-apps/setxkbmap # keyboard
 x11-apps/xmodmap
-
+x11-apps/xsetroot
+sys-power/acpi
+x11-apps/xrandr
+x11-apps/xinput
+#--- System ----
+media-video/pipewire
+sys-apps/firejail
+#--- Misc ----
+sys-apps/xdg-desktop-portal
 "
 
 FONTS="
+##
+##[ -- FONTS -- ]##
+##
 media-fonts/cantarell
 media-fonts/dejavu
 media-fonts/fira-code
@@ -65,102 +85,128 @@ media-fonts/jetbrains-mono
 media-fonts/liberation-fonts
 media-fonts/roboto
 media-fonts/terminus-font
-
 "
 
 TERMINAL="
+##
+##[ -- TERMINAL -- ]##
+##
+#--- Terminals ----
 x11-terms/rxvt-unicode
 x11-misc/urxvt-font-size
 x11-terms/alacritty
+#--- Editors ----
 app-editors/nano
 app-editors/vim
-app-misc/cmatrix
-app-admin/stow
-app-misc/neofetch
-app-misc/pfetch
-app-misc/queercat
-app-misc/ranger
-app-misc/uwufetch
+#--- Shells ----
 app-shells/fzf
 app-shells/zsh
 app-shells/zsh-syntax-highlighting
+#--- Fun ----
+app-misc/cmatrix
+app-misc/neofetch
+app-misc/pfetch
+app-misc/queercat
+app-misc/uwufetch
+#--- Tools ----
+app-misc/ranger
 app-text/tree
 sys-process/htop
+#--- Utils ----
 sys-apps/bat
 sys-apps/exa
 sys-apps/ripgrep
 sys-apps/fd
-
 "
 
 SYSTEM="
-app-laptop/laptop-mode-tools
-app-admin/sysklogd
-app-eselect/eselect-repository
-app-portage/cpuid2cpuflags
-app-portage/gentoolkit
-x11-drivers/xf86-input-evdev
-x11-drivers/xf86-video-intel
-sys-power/thermald
-dev-util/pkgdev
+##
+##[ -- SYSTEM -- ]
+##
+#--- Kernel ----
 sys-kernel/dracut
 sys-kernel/genkernel
 sys-kernel/gentoo-kernel-bin
 sys-kernel/gentoo-sources
 sys-kernel/linux-firmware
+sys-boot/grub
+sys-fs/dosfstools
+#--- Portage ----
+app-eselect/eselect-repository
+app-portage/gentoolkit
+app-portage/cpuid2cpuflags
+dev-util/pkgdev
+#--- System ----
+app-laptop/laptop-mode-tools
+app-admin/sysklogd
+sys-power/thermald
 sys-process/cronie
+x11-drivers/xf86-input-evdev # ? remove since unknown ?
+x11-drivers/xf86-video-intel # ? for transparency ?
+#--- Net ----
 net-firewall/ufw
 net-misc/chrony
 net-misc/dhcpcd
 net-wireless/iwd
 net-wireless/wpa_supplicant
-sys-boot/grub
-sys-fs/dosfstools
-
 "
 
 UTILS="
+##
+##[ -- UTILS -- ]##
+##
+#--- System ----
 app-admin/doas
 app-misc/trash-cli
-sys-power/powertop
 sys-power/suspend
+#--- Tools ----
 dev-vcs/git
 dev-vcs/lazygit
 dev-util/rust-analyzer
-net-misc/yt-dlp
-
 "
 
 ANALYSIS="
-dev-util/strace
-net-analyzer/ifstat
-net-analyzer/nethogs
-sys-apps/hwinfo
-sys-apps/i2c-tools
-sys-apps/mlocate
-sys-apps/nvme-cli
-sys-apps/pciutils
-sys-process/iotop
-sys-apps/smartmontools
-sys-apps/usbutils
-x11-apps/igt-gpu-tools
-
+##
+##[ -- ANALYSIS -- ]##
+##
+#--- Net ----
+net-analyzer/nethogs  ## identify process using bandwidth
+net-analyzer/ifstat  ## network device upload/download
+#--- SSD ----
+sys-apps/nvme-cli  ## userspace tooling (?)
+sys-process/iotop  ## process IO
+sys-apps/smartmontools  ## smartctl, ssd lifespan
+#--- Power ----
+sys-power/powertop  ## power consumption and cpu wakeups
+#--- Other ----
+sys-apps/hwinfo  ## describe all hardware devices
+sys-apps/i2c-tools  ## i2c tools like scan i2c bus for devices (?)
+sys-apps/pciutils  ## provides lspci (detects hardware connected to the pci bus)
+sys-apps/usbutils  ## provides lsusb
+x11-apps/igt-gpu-tools  ## userspace gpu tools (?)
+#--- Misc ----
+dev-util/strace  ## view command syscalls (useful for firejail troubleshooting)
 "
 
 MISC="
+##
+##[ -- MISC -- ]##
+##
 dev-lang/rust-bin
-dev-python/pip
-
 "
 
 MAYBE="
+##
+##[ -- MAYBE -- ]##
+##
 net-wireless/iw
 virtual/jdk
 sys-apps/system76-driver
 x11-misc/xdotool
 x11-misc/wmctrl
 x11-misc/xclip
-
+sys-apps/mlocate
+dev-python/pip  ## only using for hyfetch? (req. --user on run) (use guix instead??)
 "
 
 ########################
@@ -193,6 +239,7 @@ RUNSCRIPT () {
     echo "- analysis (y)"
     echo "- misc (m)"
     echo "- maybe"
+    echo "- all"
     echo
     
     echo -en "Enter package type to add to @world (e.g. desktop, d, etc): \n> "
@@ -218,7 +265,7 @@ RUNSCRIPT () {
 	    LIST=$SYSTEM
 	    ;;
 	utils | u)
-	    LIST=$utils
+	    LIST=$UTILS
 	    ;;
 	analysis | y)
 	    LIST=$ANALYSIS
@@ -229,6 +276,9 @@ RUNSCRIPT () {
 	maybe)
 	    LIST=$MAYBE
 	    ;;
+	all) # excludes $MAYBE
+	    LIST="$APPLICATIONS $DESKTOP $FONTS $TERMINAL $SYSTEM $UTILS $ANALYSIS $MISC"
+	    ;;
 	*)
 	    echo -e "\nInvalid input, please try again."
 	    sleep 1
@@ -238,14 +288,17 @@ RUNSCRIPT () {
 
     ## remove package category (before "/") and print packages 
     SHOW_LIST=$(sed 's|.*/||g' <<< "$LIST")
-    echo -e "\nCommand to run: \ndoas emerge -nw $SHOW_LIST\n"
+    echo -e "\nCommand to run: \ndoas emerge -nw \n$SHOW_LIST\n"
 
-    ## "pretty list" (remove \n and comments)
-    PLIST=$(sed 's|#.*||g' <<< "$LIST")
-    PLIST=$(echo $PLIST | tr -d '\n')
+    ## "final list" (remove \n and comments)
+    FLIST=$(sed 's|#.*||g' <<< "$LIST")
+    FLIST=$(echo $FLIST | tr -d '\n')
 
-    ## emerge the packages in "pretty list"
-    doas emerge -nw $PLIST
+    ## TEST
+    # echo $FLIST
+
+    ## emerge the packages in "final list"
+    doas emerge -nwp $FLIST
 
     return 0
 
@@ -255,7 +308,7 @@ RUNSCRIPT () {
 
 while true
 do    
-    RUNSCRIPT
+    RUNSCRIPT # returns 1 if error ; else 0
 
     if [ $? -eq 0 ]; then
 	exit  

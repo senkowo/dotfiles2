@@ -11,7 +11,7 @@ setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps
 #xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
 
 # set hold type startup and speed (delay rate)
-xset r rate 270 50
+xset r rate 240 60
 
 # set cursor type (what if not enabled?)
 xsetroot -cursor_name left_ptr
@@ -24,3 +24,4 @@ xss-lock -- slock &
 
 # Start Emacs w/ EXWM
 exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.d/init.el" -mm --debug-init -l ~/.emacs.d/desktop.el
+# exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.d/init.el" -mm --debug-init --start-exwm

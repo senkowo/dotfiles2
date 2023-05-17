@@ -12,6 +12,7 @@
 - [[#startup-performance][startup performance]]
 - [[#package-management][package management]]
 - [[#prevent-littering][prevent littering]]
+- [[#desktop-environment][desktop environment]]
 - [[#identify-operating-system][identify operating system]]
 - [[#basics][basics]]
   - [[#disable-bell][disable bell]]
@@ -40,6 +41,7 @@
   - [[#avy][avy]]
   - [[#cheatsheet-add-here][cheatsheet (ADD HERE!!!!)]]
   - [[#free-keys][free-keys]]
+  - [[#custom-keybinds][custom keybinds]]
   - [[#window-management][window management]]
   - [[#buffer-management][buffer management]]
 - [[#ui-configuration][UI Configuration]]
@@ -198,6 +200,15 @@ watch videos on org mode and further configurations for journaling (can sync wit
 
 cheatsheet package?
 
+get emacs provide ri-desktop to properly work (refer to sys-crafters config?
+
+enable transparency only on scratch and startup buffers.
+
+C-M-<return> bind to create new bullet shifted one right
+(maybe find a package that implements this, plus impromevents for org mode and bullets?)
+
+watch org mode config videos to set up quick, instant notes from anywhere, and org-journal.
+
 * startup performance
 
 #+begin_src emacs-lisp
@@ -270,6 +281,18 @@ package management, sources, auto, etc
 
   (setq backup-directory-alist
         `(("." . ,(expand-file-name ".backup/" user-emacs-directory))))
+
+#+end_src
+
+* desktop environment
+
+#+begin_src emacs-lisp
+
+  (setq ri/exwm-enabled (and (eq window-system 'x)
+                             (seq-contains command-line-args "--start-exwm")))
+
+  (when ri/exwm-enabled
+    (require 'ri-desktop))
 
 #+end_src
 
@@ -358,7 +381,7 @@ General fonts for emacs.
 
   ;; default font (modeline, minibuffer, default for applications, etc)
   (set-face-attribute 'default nil :font "Fira Code" :height 110)
-                                          ;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115)
+  ;; (set-face-attribute 'default nil :font "JetBrains Mono" :height 115)
 
   ;; fixed pitch font (code blocks, property, startup, etc (can add more))
   (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 110)
@@ -386,13 +409,22 @@ General fonts for emacs.
 
 #+begin_src emacs-lisp
 
-  ;; Set frame transparency and maximize windows by default.
-  (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
-  (add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+  ;; maximize windows by default
   (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
   (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-#+end_src
+  ;; Set frame transparency
+  (defun ri/enable-transparency ()
+    (interactive)
+    (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+    (add-to-list 'default-frame-alist '(alpha . (90 . 90))))
+
+  (defun ri/disable-transparency ()
+    (interactive)
+    (set-frame-parameter (selected-frame) 'alpha '(100 . 100))
+    (add-to-list 'default-frame-alist '(alpha . (100 . 100))))
+
+  #+end_src
 
 ** shorten y-n prompt
 
@@ -517,7 +549,7 @@ To add:
      '("?" . meow-cheatsheet))
     (meow-motion-overwrite-define-key
      ;; custom keybinding for motion state
-     ;; '("<escape>" . ignore)
+     '("<escape>" . ignore)
      '("t" . previous-line)
      '("p" . "H-t"))
     (meow-normal-define-key
@@ -588,7 +620,7 @@ To add:
      '("'" . repeat)
      '("/" . View-scroll-half-page-forward) ;; new keys
      '("?" . View-scroll-half-page-backward) ;; new keys
-     '("<escape>" . ignore)
+     '("<escape>" .  keyboard-escape-quit)
 
      ;; Directional keys:
 
@@ -872,6 +904,18 @@ untsoahusnot
 
 #+end_src
 
+** custom keybinds
+
+#+begin_src emacs-lisp
+
+  ;;keep cursor at same position when scrolling
+  (setq scroll-preserve-screen-position 1)
+  ;;scroll window up/down by one line
+  (global-set-key (kbd "M-n") (kbd "C-M-g 1 C-v"))
+  (global-set-key (kbd "M-p") (kbd "C-M-g 1 M-v"))
+  
+#+end_src
+
 ** window management
 
 Ace-window (M-o) documentation
@@ -1029,11 +1073,13 @@ Includes:
   (use-package doom-themes
     :bind (("C-h T" . ri/load-theme-and-font-setup))
     :init
-    (load-theme 'doom-dracula t))
-  ;; (load-theme 'doom-palenight))
-  ;; (load-theme 'doom-laserwave t))
-  ;;(load-theme 'doom-monokai-spectrum t)
-  ;;(load-theme 'doom-snazzy t)
+    ;; (load-theme 'modus-vivendi t)
+    (load-theme 'ef-dark t)
+    ;; (load-theme 'ef-duo-dark t)
+    ;; (load-theme 'doom-dracula t)
+    ;; (load-theme 'doom-laserwave t)
+    ;; (load-theme 'doom-snazzy t)
+    )
 
   (use-package ef-themes)
 
@@ -1057,9 +1103,9 @@ Includes:
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     :custom
-    ;; (doom-modeline-height 50)
-    (doom-dracula-brighter-modeline t)
-    (doom-modeline-height 45)
+    (doom-dracula-brighter-modeline nil)
+    ;; (doom-modeline-height 45) ; 40?
+    (doom-modeline-height 20)
     (doom-modeline-hud nil))
 
 #+end_src
@@ -1075,8 +1121,9 @@ https://github.com/Malabarba/smart-mode-line/
 #+begin_src emacs-lisp
 
   (use-package mini-modeline
+    :disabled
     ;; :custom
-    ;; (mini-modeline-r-format
+    ;; (mini-modeline-r-format)
     ;; :config
     ;; (mini-modeline-mode t)
     )
@@ -1461,6 +1508,7 @@ https://github.com/bastibe/org-journal
           ))
 
 #+end_src
+
 ** Org-babel
 
 code blocks and stuff
@@ -2202,7 +2250,14 @@ an rss feed reader for emacs
   ;; maybe syncthing and import from database?
   ;; dont use commands elfeed, scan at startup?
   (use-package elfeed
-    :commands elfeed)
+    :commands elfeed
+    :config
+    (setq elfeed-feeds
+          '("http://pragmaticemacs.com/feed/")
+          ))
+
+  (ri/leader-keys
+    "ar" 'elfeed)
 
 #+end_src
 
@@ -2213,6 +2268,7 @@ Consider emacs-w3m, where it's faster and better!
 #+begin_src emacs-lisp
 
   ;; eww is shite, also SPC and h trigger prefix. w3 browser?
+  ;; disable cookies, or delete history after closing?
   (setq browse-url-browser-function 'eww-browse-url)
 
   (use-package eww

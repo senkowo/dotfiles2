@@ -386,3 +386,6 @@
 ;;   (xclip-mode 1))
 
 
+
+;; THIS DOESN'T WORK!
+(provide 'ri-desktop)

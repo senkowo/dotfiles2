@@ -434,7 +434,7 @@ notes:
   #xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
 
   # set hold type startup and speed (delay rate)
-  xset r rate 270 50
+  xset r rate 240 60
 
   # set cursor type (what if not enabled?)
   xsetroot -cursor_name left_ptr
@@ -447,6 +447,7 @@ notes:
 
   # Start Emacs w/ EXWM
   exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.d/init.el" -mm --debug-init -l ~/.emacs.d/desktop.el
+  # exec dbus-launch --sh-syntax --exit-with-session emacs -q --load "~/.emacs.d/init.el" -mm --debug-init --start-exwm
 
 #+end_src
 
@@ -521,5 +522,14 @@ For login manager
   Type=Application
   X-LightDM-DesktopName=exwm
   DesktopName=exwm
+
+#+end_src
+
+* Provide the ri-desktop package
+
+#+begin_src emacs-lisp
+
+  ;; THIS DOESN'T WORK!
+  (provide 'ri-desktop)
 
 #+end_src

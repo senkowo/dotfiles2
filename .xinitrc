@@ -58,10 +58,10 @@ fi
 ## Start userspace utils (NOT EXWM (Emacs))
 
 xsetroot -cursor_name left_ptr & # cursor
-setxkbmap -layout "us,us" -variant ",dvorak" -option grp:alts_toggle ctrl:nocaps
-#setxkbmap -layout "us,us" -variant ",dvp" -option grp:alts_toggle ctrl:nocaps
+setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps
+#setxkbmap -layout "us,us" -variant "dvp," -option grp:alts_toggle ctrl:nocaps
 #setxkbmap -option caps:escape
-xset r rate 300 40
+xset r rate 240 60
 xmodmap ~/.Xmodmap
 #sh ~/.local/bin/sct-auto-adjust.sh & # redshift
 xrdb ~/.Xresources &

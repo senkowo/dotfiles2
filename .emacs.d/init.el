@@ -53,6 +53,12 @@
 (setq backup-directory-alist
       `(("." . ,(expand-file-name ".backup/" user-emacs-directory))))
 
+(setq ri/exwm-enabled (and (eq window-system 'x)
+                           (seq-contains command-line-args "--start-exwm")))
+
+(when ri/exwm-enabled
+  (require 'ri-desktop))
+
 (setq ri/is-guix-system (and (eq system-type 'gnu/linux)
                              (require 'f)
                              (string-equal (f-read "/etc/issue")
@@ -99,7 +105,7 @@
 
 ;; default font (modeline, minibuffer, default for applications, etc)
 (set-face-attribute 'default nil :font "Fira Code" :height 110)
-                                        ;(set-face-attribute 'default nil :font "JetBrains Mono" :height 115)
+;; (set-face-attribute 'default nil :font "JetBrains Mono" :height 115)
 
 ;; fixed pitch font (code blocks, property, startup, etc (can add more))
 (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 110)
@@ -115,11 +121,20 @@
 (setq scroll-step 1) ;; keyboard scroll one line at a time
 (setq use-dialog-box nil) ;; (change to nil) make things like yes or no prompts dialogue boxes
 
-;; Set frame transparency and maximize windows by default.
-(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
-(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+;; maximize windows by default
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+;; Set frame transparency
+(defun ri/enable-transparency ()
+  (interactive)
+  (set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+  (add-to-list 'default-frame-alist '(alpha . (90 . 90))))
+
+(defun ri/disable-transparency ()
+  (interactive)
+  (set-frame-parameter (selected-frame) 'alpha '(100 . 100))
+  (add-to-list 'default-frame-alist '(alpha . (100 . 100))))
 
 ;; shorten y-n prompt
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -166,7 +181,7 @@
    '("?" . meow-cheatsheet))
   (meow-motion-overwrite-define-key
    ;; custom keybinding for motion state
-   ;; '("<escape>" . ignore)
+   '("<escape>" . ignore)
    '("t" . previous-line)
    '("p" . "H-t"))
   (meow-normal-define-key
@@ -237,7 +252,7 @@
    '("'" . repeat)
    '("/" . View-scroll-half-page-forward) ;; new keys
    '("?" . View-scroll-half-page-backward) ;; new keys
-   '("<escape>" . ignore)
+   '("<escape>" .  keyboard-escape-quit)
 
    ;; Directional keys:
 
@@ -413,6 +428,12 @@
 (ri/leader-keys
   "sF" 'free-keys)
 
+;;keep cursor at same position when scrolling
+(setq scroll-preserve-screen-position 1)
+;;scroll window up/down by one line
+(global-set-key (kbd "M-n") (kbd "C-M-g 1 C-v"))
+(global-set-key (kbd "M-p") (kbd "C-M-g 1 M-v"))
+
 (use-package ace-window
   :config
   (setq aw-scope 'frame)
@@ -531,11 +552,13 @@
 (use-package doom-themes
   :bind (("C-h T" . ri/load-theme-and-font-setup))
   :init
-  (load-theme 'doom-dracula t))
-;; (load-theme 'doom-palenight))
-;; (load-theme 'doom-laserwave t))
-;;(load-theme 'doom-monokai-spectrum t)
-;;(load-theme 'doom-snazzy t)
+  ;; (load-theme 'modus-vivendi t)
+  (load-theme 'ef-dark t)
+  ;; (load-theme 'ef-duo-dark t)
+  ;; (load-theme 'doom-dracula t)
+  ;; (load-theme 'doom-laserwave t)
+  ;; (load-theme 'doom-snazzy t)
+  )
 
 (use-package ef-themes)
 
@@ -553,14 +576,15 @@
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom
-  ;; (doom-modeline-height 50)
-  (doom-dracula-brighter-modeline t)
-  (doom-modeline-height 45)
+  (doom-dracula-brighter-modeline nil)
+  ;; (doom-modeline-height 45) ; 40?
+  (doom-modeline-height 20)
   (doom-modeline-hud nil))
 
 (use-package mini-modeline
+  :disabled
   ;; :custom
-  ;; (mini-modeline-r-format
+  ;; (mini-modeline-r-format)
   ;; :config
   ;; (mini-modeline-mode t)
   )
@@ -1275,9 +1299,17 @@
 ;; maybe syncthing and import from database?
 ;; dont use commands elfeed, scan at startup?
 (use-package elfeed
-  :commands elfeed)
+  :commands elfeed
+  :config
+  (setq elfeed-feeds
+        '("http://pragmaticemacs.com/feed/")
+        ))
+
+(ri/leader-keys
+  "ar" 'elfeed)
 
 ;; eww is shite, also SPC and h trigger prefix. w3 browser?
+;; disable cookies, or delete history after closing?
 (setq browse-url-browser-function 'eww-browse-url)
 
 (use-package eww
