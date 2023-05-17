@@ -12,4 +12,14 @@ dwm/*
 !.config/xmonad/cabal.project
 
 .config/xmobar/xmobar/*
+# (.config/xmobar/* is unaffected)
+
+.config/guix/*
+!.config/guix/config.scm
+
+.config/syncthing/*
+# (add !something here later)
+
+
+## Emacs .gitignore in another file
 
