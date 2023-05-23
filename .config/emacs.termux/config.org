@@ -20,10 +20,12 @@
 set the user-init-file and user-emacs-directory to the location of the init file.
 
 #+begin_src elisp
-(setq user-init-file (or load-file-name
-			 (buffer-file-name)))
-(setq user-emacs-directory (file-name-directory
-			    user-init-file))
+
+  (setq user-init-file (or load-file-name
+			   (buffer-file-name)))
+  (setq user-emacs-directory (file-name-directory
+			      user-init-file))
+  
 #+end_src
 
 * packages
@@ -96,8 +98,8 @@ emacs settings.
   ;; will it put misc cache in .emacs.d?
   ;;  maybe good if sync?
   ;;  Puts stuff in home dir, plus .bak thrown around
-  (use-package no-littering
-    :ensure t)
+  (use-package no-littering)
+    ;; :ensure t)
 
   ;; keep custom settings in temp file
   ;; (setq custom-file
@@ -113,7 +115,7 @@ emacs settings.
   (load custom-file t)
 
   (use-package keyfreq
-    :ensure t
+    ;; :ensure t
     :config
     (keyfreq-mode 1)
     (keyfreq-autosave-mode 1))
@@ -136,8 +138,8 @@ shortcuts and improved interface.
 
   (global-set-key (kbd "C-c v") 'magit)
 
-  (use-package recentf
-    :ensure t)
+  (use-package recentf)
+    ;; :ensure t)
 
   ;; shorten y-n prompt
   (defalias 'yes-or-no-p 'y-or-n-p)
@@ -157,7 +159,7 @@ shortcuts and improved interface.
   (use-package which-key
     :init (which-key-mode)
     ;; :diminish which-key-mode ;; not installed?
-    :ensure t
+    ;; :ensure t
     :config
     (setq which-key-idle-delay 0.3))
 
@@ -167,7 +169,7 @@ shortcuts and improved interface.
   ;; Collection of Ridiculously Useful eXtensions
   ;;  (auto-aligns elisp!)
   (use-package crux
-    :ensure t
+    ;; :ensure t
     :bind (("C-a" . crux-move-beginning-of-line)
 	   ("M-o" . crux-other-window-or-switch-buffer)
 	   ("C-k" . crux-smart-kill-line)
@@ -186,7 +188,7 @@ shortcuts and improved interface.
 
   ;; god mode
   (use-package god-mode
-    :ensure t
+    ;; :ensure t
     :disabled
     :bind (("C-z" . god-local-mode)
 	   ("C-x C-1" . delete-other-windows)
@@ -231,7 +233,7 @@ shortcuts and improved interface.
   ;; meow
   ;;  On PC, meow-motion-overwrite-define-key set to make t move-down
   (use-package meow
-    :ensure t
+    ;; :ensure t
     :config
     (defun meow-setup ()
       (setq meow-cheatsheet-layout
@@ -345,18 +347,18 @@ shortcuts and improved interface.
 
 
   ;; jump to any char or line
-  (use-package avy
-    :ensure t)
+  (use-package avy)
+    ;; :ensure t)
 
   ;; window navigation shortcuts
   (use-package ace-window
-    :ensure t
+    ;; :ensure t
     :config
     (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
   ;; expands the region around the cursor semantically
   (use-package expand-region
-    :ensure t
+    ;; :ensure t
     :bind ("C-=" . er/expand-region))
 
 #+end_src
@@ -367,7 +369,7 @@ shortcuts and improved interface.
 
   ;; completion framework that uses minibuffer
   (use-package ivy
-    :ensure t
+    ;; :ensure t
     :config
     ;; disable "^" in prompt
     (setq ivy-initial-inputs-alist nil)
@@ -375,20 +377,20 @@ shortcuts and improved interface.
 
   ;; ivy enhanced common emacs commands
   (use-package counsel
-    :ensure t
+    ;; :ensure t
     :bind (("M-x" . counsel-M-x)))
 
   ;; sorting and filtering library and ivy sort
-  (use-package prescient
-    :ensure t)
+  (use-package prescient)
+  ;;   :ensure t
   (use-package ivy-prescient
-    :ensure t
+    ;; :ensure t
     :config
     (ivy-prescient-mode t))
 
   ;; ivy enhanced isearch
   (use-package swiper
-    :ensure t
+    ;; :ensure t
     :bind (("M-s" . counsel-grep-or-swiper)))
 
 #+end_src
@@ -397,51 +399,51 @@ shortcuts and improved interface.
 
 #+begin_src elisp
 
-;;
-;; appearance --------
-;;
+  ;;
+  ;; appearance --------
+  ;;
 
-;; what are the available terminal fonts?
-;; (set-frame-font "Operator Mono 12" nil t)
+  ;; what are the available terminal fonts?
+  ;; (set-frame-font "Operator Mono 12" nil t)
 
-(use-package solarized-theme
-  :ensure t
-  :disabled
-  :config
-  (load-theme 'solarized-light t))
+  (use-package solarized-theme
+    ;; :ensure t
+    :disabled
+    :config
+    (load-theme 'solarized-light t))
 
-(load-theme 'modus-vivendi t)
+  (load-theme 'modus-vivendi t)
 
-(use-package feebleline
-  :ensure t
-  :disabled
-  :config
-  (setq feebleline-msg-functions
-	'((feebleline-line-number
-	   :post "" :fmt "%5s")
-	  (feebleline-column-number
-	   :pre ":" :fmt "%-2s")
-	  (feebleline-file-directory
-	   :face feebleline-dir-face :post "")
-	  (feebleline-file-or-buffer-name
-	   :face font-lock-keyword-face
-	   :post "")
-	  (feebleline-file-modified-star
-	   :face font-lock-warning-face
-	   :post "")
-	  (feebleline-git-branch
-	   :face feebleline-git-face
-	   :pre " : ")
-	  (feebleline-project-name
-	   :align right)))
-  (feebleline-mode 1))
+  (use-package feebleline
+    ;; :ensure t
+    :disabled
+    :config
+    (setq feebleline-msg-functions
+	  '((feebleline-line-number
+	     :post "" :fmt "%5s")
+	    (feebleline-column-number
+	     :pre ":" :fmt "%-2s")
+	    (feebleline-file-directory
+	     :face feebleline-dir-face :post "")
+	    (feebleline-file-or-buffer-name
+	     :face font-lock-keyword-face
+	     :post "")
+	    (feebleline-file-modified-star
+	     :face font-lock-warning-face
+	     :post "")
+	    (feebleline-git-branch
+	     :face feebleline-git-face
+	     :pre " : ")
+	    (feebleline-project-name
+	     :align right)))
+    (feebleline-mode 1))
 
-;; I'm activating mini-modeline after smart-mode-line
-(use-package mini-modeline
-  :ensure t
-  :disabled
-  :config
-  (mini-modeline-mode t))
+  ;; I'm activating mini-modeline after smart-mode-line
+  (use-package mini-modeline
+    ;; :ensure t
+    :disabled
+    :config
+    (mini-modeline-mode t))
 
 #+end_src
 
@@ -449,53 +451,53 @@ shortcuts and improved interface.
 
 #+begin_src elisp
 
-;;
-;; org-mode
-;;
+  ;;
+  ;; org-mode
+  ;;
 
-(defun mi/org-mode-setup ()
-  )
+  (defun mi/org-mode-setup ()
+    )
 
-(use-package org
-  :ensure t
-  :defer t
-  :hook (org-mode . mi/org-mode-setup)
-  :config
-  (setq org-directory
-	(expand-file-name "org/" user-emacs-directory)))
+  (use-package org
+    ;; :ensure t
+    :defer t
+    :hook (org-mode . mi/org-mode-setup)
+    :config
+    (setq org-directory
+	  (expand-file-name "org/" user-emacs-directory)))
 
 
-;; (setq org-startup-indented 'f)
-;; (setq org-directory "~/org")
-;; (setq org-special-ctrl-a/e 't)
-;; (setq org-default-notes-file (concat org-directory "/notes.org"))
-;; (define-key global-map "\C-cc" 'org-capture)
-;; (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
-;; (setq org-src-fontify-natively 't)
-;; (setq org-src-tab-acts-natively t)
-;; (setq org-src-window-setup 'current-window)
+  ;; (setq org-startup-indented 'f)
+  ;; (setq org-directory "~/org")
+  ;; (setq org-special-ctrl-a/e 't)
+  ;; (setq org-default-notes-file (concat org-directory "/notes.org"))
+  ;; (define-key global-map "\C-cc" 'org-capture)
+  ;; (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+  ;; (setq org-src-fontify-natively 't)
+  ;; (setq org-src-tab-acts-natively t)
+  ;; (setq org-src-window-setup 'current-window)
 
-;; (let*
-;;     ((base-font-color
-;;       (face-foreground 'default nil 'default))
-;;      (headline
-;;       `(:foreground ,base-font-color)))
-;;   (custom-theme-set-faces
-;;    'user
-;;    `(org-level-8 ((t (,@headline))))
-;;    `(org-level-7 ((t (,@headline))))
-;;    `(org-level-6 ((t (,@headline))))
-;;    `(org-level-5 ((t (,@headline))))
-;;    `(org-level-4 ((t (,@headline))))
-;;    `(org-level-3 ((t (,@headline :height 1.3))))
-;;    `(org-level-2 ((t (,@headline :height 1.3))))
-;;    `(org-level-1 ((t (,@headline :height 1.3 ))))
-;;    `(org-document-title ((t (,@headline :height 1))))))
+  ;; (let*
+  ;;     ((base-font-color
+  ;;       (face-foreground 'default nil 'default))
+  ;;      (headline
+  ;;       `(:foreground ,base-font-color)))
+  ;;   (custom-theme-set-faces
+  ;;    'user
+  ;;    `(org-level-8 ((t (,@headline))))
+  ;;    `(org-level-7 ((t (,@headline))))
+  ;;    `(org-level-6 ((t (,@headline))))
+  ;;    `(org-level-5 ((t (,@headline))))
+  ;;    `(org-level-4 ((t (,@headline))))
+  ;;    `(org-level-3 ((t (,@headline :height 1.3))))
+  ;;    `(org-level-2 ((t (,@headline :height 1.3))))
+  ;;    `(org-level-1 ((t (,@headline :height 1.3 ))))
+  ;;    `(org-document-title ((t (,@headline :height 1))))))
 
-(use-package org-auto-tangle
-  :ensure t
-  :defer t
-  :hook (org-mode . org-auto-tangle-mode))
+  (use-package org-auto-tangle
+    ;; :ensure t
+    :defer t
+    :hook (org-mode . org-auto-tangle-mode))
 
 #+end_src
 
@@ -517,11 +519,11 @@ shortcuts and improved interface.
   ;;
 
   (use-package magit
-    :ensure t
+    ;; :ensure t
     :commands magit)
 
   (use-package vterm
-    :ensure t
+    ;; :ensure t
     :commands vterm)
 
 #+end_src
@@ -530,10 +532,10 @@ shortcuts and improved interface.
 
 #+begin_src elisp
 
-    (use-package exwm
-      :ensure t
-      :config
-      (exwm-enable))
+  (use-package exwm
+    ;; :ensure t
+    :config
+    (exwm-enable))
 
 #+end_src
 

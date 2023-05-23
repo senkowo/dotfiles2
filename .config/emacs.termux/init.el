@@ -6,13 +6,13 @@
 ;; Bootstrap straight.el
 (defvar bootstrap-version)
 (let ((bootstrap-file
-      (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
       (bootstrap-version 6))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
 	(url-retrieve-synchronously
-	"https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-	'silent 'inhibit-cookies)
+	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
@@ -30,8 +30,8 @@
 ;; will it put misc cache in .emacs.d?
 ;;  maybe good if sync?
 ;;  Puts stuff in home dir, plus .bak thrown around
-(use-package no-littering
-  :ensure t)
+(use-package no-littering)
+  ;; :ensure t)
 
 ;; keep custom settings in temp file
 ;; (setq custom-file
@@ -47,7 +47,7 @@
 (load custom-file t)
 
 (use-package keyfreq
-  :ensure t
+  ;; :ensure t
   :config
   (keyfreq-mode 1)
   (keyfreq-autosave-mode 1))
@@ -62,8 +62,8 @@
 
 (global-set-key (kbd "C-c v") 'magit)
 
-(use-package recentf
-  :ensure t)
+(use-package recentf)
+  ;; :ensure t)
 
 ;; shorten y-n prompt
 (defalias 'yes-or-no-p 'y-or-n-p)
@@ -76,7 +76,7 @@
 (use-package which-key
   :init (which-key-mode)
   ;; :diminish which-key-mode ;; not installed?
-  :ensure t
+  ;; :ensure t
   :config
   (setq which-key-idle-delay 0.3))
 
@@ -86,7 +86,7 @@
 ;; Collection of Ridiculously Useful eXtensions
 ;;  (auto-aligns elisp!)
 (use-package crux
-  :ensure t
+  ;; :ensure t
   :bind (("C-a" . crux-move-beginning-of-line)
 	 ("M-o" . crux-other-window-or-switch-buffer)
 	 ("C-k" . crux-smart-kill-line)
@@ -99,7 +99,7 @@
 
 ;; god mode
 (use-package god-mode
-  :ensure t
+  ;; :ensure t
   :disabled
   :bind (("C-z" . god-local-mode)
 	 ("C-x C-1" . delete-other-windows)
@@ -138,7 +138,7 @@
 ;; meow
 ;;  On PC, meow-motion-overwrite-define-key set to make t move-down
 (use-package meow
-  :ensure t
+  ;; :ensure t
   :config
   (defun meow-setup ()
     (setq meow-cheatsheet-layout
@@ -245,23 +245,23 @@
   (meow-global-mode 1))
 
 ;; jump to any char or line
-(use-package avy
-  :ensure t)
+(use-package avy)
+  ;; :ensure t)
 
 ;; window navigation shortcuts
 (use-package ace-window
-  :ensure t
+  ;; :ensure t
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
 ;; expands the region around the cursor semantically
 (use-package expand-region
-  :ensure t
+  ;; :ensure t
   :bind ("C-=" . er/expand-region))
 
 ;; completion framework that uses minibuffer
 (use-package ivy
-  :ensure t
+  ;; :ensure t
   :config
   ;; disable "^" in prompt
   (setq ivy-initial-inputs-alist nil)
@@ -269,20 +269,20 @@
 
 ;; ivy enhanced common emacs commands
 (use-package counsel
-  :ensure t
+  ;; :ensure t
   :bind (("M-x" . counsel-M-x)))
 
 ;; sorting and filtering library and ivy sort
-(use-package prescient
-  :ensure t)
+(use-package prescient)
+;;   :ensure t
 (use-package ivy-prescient
-  :ensure t
+  ;; :ensure t
   :config
   (ivy-prescient-mode t))
 
 ;; ivy enhanced isearch
 (use-package swiper
-  :ensure t
+  ;; :ensure t
   :bind (("M-s" . counsel-grep-or-swiper)))
 
 ;;
@@ -293,7 +293,7 @@
 ;; (set-frame-font "Operator Mono 12" nil t)
 
 (use-package solarized-theme
-  :ensure t
+  ;; :ensure t
   :disabled
   :config
   (load-theme 'solarized-light t))
@@ -301,7 +301,7 @@
 (load-theme 'modus-vivendi t)
 
 (use-package feebleline
-  :ensure t
+  ;; :ensure t
   :disabled
   :config
   (setq feebleline-msg-functions
@@ -326,7 +326,7 @@
 
 ;; I'm activating mini-modeline after smart-mode-line
 (use-package mini-modeline
-  :ensure t
+  ;; :ensure t
   :disabled
   :config
   (mini-modeline-mode t))
@@ -339,7 +339,7 @@
   )
 
 (use-package org
-  :ensure t
+  ;; :ensure t
   :defer t
   :hook (org-mode . mi/org-mode-setup)
   :config
@@ -375,7 +375,7 @@
 ;;    `(org-document-title ((t (,@headline :height 1))))))
 
 (use-package org-auto-tangle
-  :ensure t
+  ;; :ensure t
   :defer t
   :hook (org-mode . org-auto-tangle-mode))
 
@@ -387,14 +387,14 @@
 ;;
 
 (use-package magit
-  :ensure t
+  ;; :ensure t
   :commands magit)
 
 (use-package vterm
-  :ensure t
+  ;; :ensure t
   :commands vterm)
 
 (use-package exwm
-  :ensure t
+  ;; :ensure t
   :config
   (exwm-enable))
