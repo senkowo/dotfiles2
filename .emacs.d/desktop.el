@@ -96,7 +96,7 @@
 
 ;; move focus onto popup window
 
-                                        ; -------
+;; -------
 
 (defun ri/run-librewolf ()
   (interactive)
@@ -113,7 +113,7 @@
   (ri/run-in-background "discord")
   (exwm-workspace-switch-create 2))
 
-                                        ; -------
+;; -------
 
 ;; very annoying?
 ;; makes the cursor visible?
@@ -132,35 +132,6 @@
 (use-package balanced-windows
   :config
   (balanced-windows-mode))
-
-;; -------
-
-;; for floating minibuffer...
-;; ; show minibuffer in separate frame?
-;; ; show minibuffer on polybar? make it pop up from under polybar?
-;; ; auto-hiding minibuffer at top of screen, and posframe for all else but quit.
-;; ; polybar at top, print minibuffer messages, stable, bottom is only modeline
-
-(use-package ivy-posframe
-  :config
-  (setq ivy-posframe-height-alist '((swiper . 20)
-                                    (counsel-M-x . 40)))
-
-  (setq ivy-posframe-display-functions-alist
-        '((swiper          . ivy-display-function-fallback)
-         ;; (counsel-M-x    . ivy-posframe-display-at-window-bottom-left)
-          (counsel-M-x     . ivy-display-function-fallback)
-          (counsel-switch-buffer . ivy-display-function-fallback)
-          (complete-symbol . ivy-posframe-display-at-point)
-          (t               . ivy-posframe-display)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
-  (ivy-posframe-mode 0))
-
-;; -------
 
 (use-package exwm
   ;; :bind
@@ -273,6 +244,9 @@
   ;; C-q to send next key to X-applicaiton
   (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
 
+  ;; Uncomment after checking mode-map if C-c is occupied
+  (define-key exwm-mode-map [?\C-c] 'exwm-input-send-next-key)
+
   ;; Set up global key bindings.  These always work, no matter the input state!
   ;; Keep in mind that changing this list after EXWM initializes has no effect.
   (setq exwm-input-global-keys
@@ -372,11 +346,33 @@
   ;; screenshot
   (desktop-environment-screenshot-command "flameshot gui"))
 
-;; ivy-posframe to have a floating minibuffer.
-;; maybe have disappearing minibuffer above the modeline?
+;; for floating minibuffer...
+;; ; maybe have disappearing minibuffer above the modeline?
+;; ; show minibuffer in separate frame?
+;; ; show minibuffer on polybar? make it pop up from under polybar?
+;; ; auto-hiding minibuffer at top of screen, and posframe for all else but quit.
+;; ; polybar at top, print minibuffer messages, stable, bottom is only modeline
+
 (use-package ivy-posframe
   :disabled
-  :after exwm)
+  :after (exwm)
+  :config
+  (setq ivy-posframe-height-alist '((swiper . 20)
+                                    (counsel-M-x . 40)))
+
+  (setq ivy-posframe-display-functions-alist
+        '((swiper          . ivy-display-function-fallback)
+         ;; (counsel-M-x    . ivy-posframe-display-at-window-bottom-left)
+          (counsel-M-x     . ivy-display-function-fallback)
+          (counsel-switch-buffer . ivy-display-function-fallback)
+          (complete-symbol . ivy-posframe-display-at-point)
+          (t               . ivy-posframe-display)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  (ivy-posframe-mode 0))
 
 ;; copy cuts to system clipboard
 ;;  security concerns? private emacs better? make a keybind?
@@ -384,8 +380,6 @@
 ;;   :after exwm
 ;;   :config
 ;;   (xclip-mode 1))
-
-
 
 ;; THIS DOESN'T WORK!
 (provide 'ri-desktop)

@@ -136,6 +136,8 @@
   (set-frame-parameter (selected-frame) 'alpha '(100 . 100))
   (add-to-list 'default-frame-alist '(alpha . (100 . 100))))
 
+(ri/enable-transparency)
+
 ;; shorten y-n prompt
 (defalias 'yes-or-no-p 'y-or-n-p)
 
@@ -159,6 +161,9 @@
 
 (add-to-list 'load-path (concat user-emacs-directory "lisp/"))
 
+;; do i have to load a file afterwards?
+(load-file (concat user-emacs-directory "lisp/generic-functions.el"))
+
 ;; ESC to quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 ;; (global-set-key (kbd "<escape>") #'god-mode-all)
@@ -166,7 +171,15 @@
 
 (defun meow-setup ()
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
+  (meow-motion-overwrite-define-key
+   ;; custom keybinding for motion state
+   '("<escape>" . ignore)
+   '("t" . "p") ; improved solution?
+   )
   (meow-leader-define-key
+   '("t" . "H-t")
+   ;; '("p" . "H-p")
+   ;; '("u" . ctl-x-map)
    '("1" . meow-digit-argument)
    '("2" . meow-digit-argument)
    '("3" . meow-digit-argument)
@@ -179,11 +192,6 @@
    '("0" . meow-digit-argument)
    '("/" . meow-keypad-describe-key)
    '("?" . meow-cheatsheet))
-  (meow-motion-overwrite-define-key
-   ;; custom keybinding for motion state
-   '("<escape>" . ignore)
-   '("t" . previous-line)
-   '("p" . "H-t"))
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -231,7 +239,7 @@
    '("p" . meow-prev)
    '("P" . meow-prev-expand)
    '("q" . meow-quit)
-   '("Q" . kill-this-buffer)
+   '("Q" . kill-buffer-and-window)
    ;; '("Q" . meow-goto-line) ;; move to " : "
    '("r" . meow-replace)
    '("R" . meow-swap-grab)
@@ -250,29 +258,41 @@
    '("y" . meow-yank)
    '("z" . meow-pop-selection)
    '("'" . repeat)
-   '("/" . View-scroll-half-page-forward) ;; new keys
-   '("?" . View-scroll-half-page-backward) ;; new keys
+   '("/" . ri/scroll-down-half-page) ;; new keys
+   '("?" . ri/scroll-up-half-page) ;; new keys
    '("<escape>" .  keyboard-escape-quit)
 
    ;; Directional keys:
 
-   ;; is this swap in h and p really better?
+   ;; <-  ^  v  ->
+   ;; '("h" . meow-left)
+   ;; '("H" . meow-left-expand)
+   ;; '("t" . meow-prev)
+   ;; '("T" . meow-prev-expand)
+   ;; '("n" . meow-next)
+   ;; '("N" . meow-next-expand)
+   ;; '("s" . meow-right) 
+   ;; '("S" . meow-right-expand)
 
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   ;; '("h" . meow-prev)
-   ;; '("H" . meow-prev-expand)
-
-   '("t" . meow-prev)
-   '("T" . meow-prev-expand)
-   ;; '("t" . meow-left)
-   ;; '("T" . meow-left-expand)
-
+   ;; ^  <-  v  ->
+   '("h" . meow-prev)
+   '("H" . meow-prev-expand)
+   '("t" . meow-left)
+   '("T" . meow-left-expand)
    '("n" . meow-next)
    '("N" . meow-next-expand)
-
-   '("s" . meow-right) ;; Directional, s is ->
+   '("s" . meow-right) 
    '("S" . meow-right-expand)
+
+   ;; ^  /  <-  ->  v
+   ;; '("h" . meow-left)
+   ;; '("H" . meow-left-expand)
+   ;; '("t" . meow-right)
+   ;; '("T" . meow-right-expand)
+   ;; '("n" . meow-prev)
+   ;; '("N" . meow-prev-expand)
+
+
    ))
 
 (use-package meow
@@ -283,8 +303,27 @@
   ;; start up applications in insert mode
   (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
   (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
-
   (meow-global-mode 1))
+
+;; if on specific buffers, disable the changes made in meow-motion-overwrite-define-key
+;; hmmm, can i remove these define keys somehow?
+;; github issue above
+
+;; (defun ri/meow-use-default-motion-keys ()
+;;   (interactive)
+;;   (meow-motion-overwrite-define-key
+;;    ;; custom keybinding for motion state
+;;    '("<escape>" . ignore)
+;;    '("t" . ignore)
+;;    '("p" . ignore)
+;;    ;; '("t" . previous-line)
+;;    ;; '("p" . "H-t")
+;;    ))
+
+
+;; (dolist (mode '(Info-mode-hook
+;;                 ))
+;;   (add-hook mode (lambda () (ri/meow-use-default-motion-keys))))
 
 (use-package god-mode
   :disabled
@@ -377,8 +416,9 @@
   (general-create-definer ri/leader-keys
     :prefix "C-c"))
 
-(ri/leader-keys
-  "t" '(:ignore t :which-key "toggles"))
+;; change to another
+;; (ri/leader-keys
+;;  "t" '(:ignore t :which-key "toggles"))
 
 (ri/leader-keys
   "s" '(:ignore t :which-key "special"))
@@ -402,8 +442,9 @@
   ("k" text-scale-increase "in")
   ("f" nil "finished" :exit t))
 
-(ri/leader-keys
-  "ts" '(hydra-text-scale/body :which-key "scale text"))
+;; use another keys
+;; (ri/leader-keys
+;;  "ts" '(hydra-text-scale/body :which-key "scale text"))
 
 ;; maybe replace the first bind with replace kill line with crux?
 (use-package crux
@@ -421,6 +462,24 @@
 (use-package avy
   :bind ("C-:" . 'avy-goto-char)
   :commands avy)
+
+(use-package cheatsheet
+  :bind (("C-h /" . cheatsheet-show)
+         :map cheatsheet-mode-map
+         ("q" . kill-buffer-and-window))
+  :config
+  (setq cheatsheet--cheat-list nil)
+  (cheatsheet-add-group 'org
+                        '(:key "C-c TAB" :description "close current heading"))
+  (cheatsheet-add-group 'generic
+                        '(:key "C-c C-SPC" :description "jump to previous location in buffer")
+                        '(:key "C-c &" :description "jump to previous location any buffer")
+                        '(:key "C-x r SPC <k>" :description "save point to registor")
+                        '(:key "C-x r SPC <k>" :description "jump to registor"))
+  (cheatsheet-add-group 'commands
+                        '(:key "org-lint" :description "debug an org file"))
+  (cheatsheet-add-group 'general-notes
+                        '(:key "emacs-lisp-mode-map" :description "for viewing local keybinds")))
 
 (use-package free-keys
   :commands free-keys)
@@ -502,7 +561,9 @@
   :diminish ; hide ivy minor-mode on modeline
   :bind (("C-s" . swiper) ;; fuzzy search tool
          :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
+         ("TAB" . ivy-partial-or-done)
+         ("C-M-d" . ivy-immediate-done)
+         ;; Evil mode: 
          ("C-l" . ivy-alt-done)
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
@@ -522,7 +583,7 @@
   :init
   (ivy-rich-mode 1))
 
-;; counsel (enhanced standard emacs commands)
+;; counsel (ivy-enhanced standard emacs commands)
 (use-package counsel
   :bind (;; ("M-x" . counsel-M-x)
          ;; ("C-x b" . counsel-ibuffer)
@@ -548,22 +609,23 @@
   (prescient-persist-mode 1)
   (ivy-prescient-mode 1))
 
+(use-package ef-themes)
+
+(use-package catppuccin-theme) ; no use?
+
 ;; doom-themes
-;; recommended: henna, palenight, snazzy
 (use-package doom-themes
   :bind (("C-h T" . ri/load-theme-and-font-setup))
   :init
-  ;; (load-theme 'modus-vivendi t)
-  (load-theme 'ef-dark t)
-  ;; (load-theme 'ef-duo-dark t)
-  ;; (load-theme 'doom-dracula t)
-  ;; (load-theme 'doom-laserwave t)
+  ;; (load-theme 'ef-dark t)
+  ;; (load-theme 'ef-trio-dark t)
+  ;; (load-theme 'ef-cherie t)
+  ;; (load-theme 'ef-winter t)
+  (load-theme 'doom-dracula t)
+
   ;; (load-theme 'doom-snazzy t)
+  ;; (load-theme 'doom-laserwave t)
   )
-
-(use-package ef-themes)
-
-(use-package catppuccin-theme)
 
 (defun ri/load-theme-and-font-setup ()
   (interactive)
@@ -668,6 +730,9 @@
 (use-package org
   :commands (org-capture org-agenda)
   :hook (org-mode . ri/org-mode-setup)
+  :bind
+  (:map org-mode-map
+        ("C-M-<return>" . org-insert-subheading))
   :custom
   (org-directory "~/org")
   (org-ellipsis " ▼ ")
@@ -687,7 +752,7 @@
   (setq org-agenda-files
         '("~/org/agenda/agenda.org"
           "~/org/agenda/work.org"))
-  ;; "~/org/agenda/habits.org"))
+  ;; "~/org/agenda/habits.org"
 
   ;; --- todo keywords ------
   (setq org-todo-keywords
@@ -956,7 +1021,7 @@
 (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
 (ri/leader-keys
-  "ml" 'org-lint)
+  "ol" 'org-lint)
 
 ;; rust-analyzer required. gnu guix package?
 (use-package rustic
@@ -1094,6 +1159,8 @@
 
 (use-package vterm
   :commands vterm
+  :bind ((:map vterm-mode-map
+               ("C-," . vterm-send-next-key)))
   :config
   ;; vv already set vv
   ;;(setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *")
@@ -1299,11 +1366,14 @@
 ;; maybe don't need, phone is enough?
 ;; maybe syncthing and import from database?
 ;; dont use commands elfeed, scan at startup?
+;; expand upon this to make it usable (copy over old configs)
 (use-package elfeed
   :commands elfeed
   :config
   (setq elfeed-feeds
         '("http://pragmaticemacs.com/feed/")
+        '("https://blog.privacyguides.org/feed_rss_created.xml")
+        '("https://www.cozynet.org/feed/feed.xml")
         ))
 
 (ri/leader-keys
@@ -1313,14 +1383,7 @@
 ;; disable cookies, or delete history after closing?
 (setq browse-url-browser-function 'eww-browse-url)
 
-(use-package eww
-  :bind (:map eww-mode-map
-              ("n" . next-line) ;; orig next-url
-              ("]" . eww-next-url)
-              ("[" . eww-previous-url)
-              ("T" . eww-top-url)
-              ("t" . nil)
-              ("H-t" . previous-line))) ;; (physically "p")
+(use-package eww)
 
 (use-package gnus
   :commands gnus
@@ -1348,9 +1411,25 @@
 
 ;; erc
 ;; make erc start after startup?
-;; good channels: ##furry #transchat-social
 (use-package erc
-  :commands erc)
+  :commands erc
+  :config
+  (setq erc-prompt (lambda () (concat "[" (buffer-name) "]"))
+        erc-server "irc.libera.chat"
+        erc-nick "senko"
+        erc-user-full-name "artemis"
+        ;; erc-autojoin-channels-alist '(("irc.libera.chat" "#emacs" "#linux"))
+        ;; By default, ERC selects the channel buffers when it reconnects. If you'd like it to connect to channels in the background, use this:
+        erc-auto-query 'bury
+        erc-kill-buffer-on-part t ; if nil, will reuse buffers if rejoin.
+        erc-fill-static-center 27 ; def: 27
+        ;; erc-fill-function 'erc-fill-static ; def: erc-fill-variable
+        erc-fill-function 'erc-fill-variable ; the def ^^^
+        erc-fill-column 80 ; def: 78
+        ))
+
+(ri/leader-keys
+  "ai" 'erc-ssl)
 
 (use-package mastodon
   :commands mastodon)
@@ -1364,14 +1443,12 @@
 
 ;; org binding on M-t so make all t key bindings translate to p ?
 
-;; also god mode
+;; swap ctrl and alt keys, since it's easier to press ctrl with the thumb
 
-;(global-set-key (kbd "C-h") 'backward-kill-word)
 (global-set-key (kbd "C-t") 'previous-line)
 
 (global-set-key (kbd "C-u") ctl-x-map)
-;; (global-set-key (kbd "C-z") 'universal-argument)
-;; (global-set-key (kbd "C-M-u") 'universal-argument)
+(global-set-key (kbd "C-z") 'universal-argument)
 (global-set-key (kbd "C-M-g") 'universal-argument)
 
 ;; make gc pauses faster by decreaseing the threshold.

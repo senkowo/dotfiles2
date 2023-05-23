@@ -50,6 +50,7 @@ media-gfx/feh
 media-gfx/scrot
 media-gfx/flameshot
 x11-misc/arandr
+x11-misc/dunst
 #--- Functional ----
 x11-misc/slock
 x11-misc/xss-lock

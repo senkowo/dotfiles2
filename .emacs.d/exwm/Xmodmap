@@ -1,2 +1,4 @@
-clear lock
-keycode 66 = Control_L Escape
+# clear lock
+# keycode 66 = Control_L Escape
+
+keysym Menu = Super_R

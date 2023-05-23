@@ -9,6 +9,7 @@ setxkbmap -layout 'us,us' -variant 'dvorak,' -option grp:alts_toggle ctrl:nocaps
 # bind S-<enter> to escape
 # Breaks C-S-c !
 #xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
+xmodmap -e "keysym Menu = Super_R"
 
 # set hold type startup and speed (delay rate)
 xset r rate 240 60

@@ -17,9 +17,14 @@ https://github.com/ch11ng/exwm/wiki
 notes:
 - exwm-input-release-keyboard for char mode, manage-finish-hook, make a program auto.
 
-** Main configuration
+to implement:
+- make it so you can access and jump to any exwm buffer from any workspace
 
-#+begin_src emacs-lisp
+** Lisp functions
+
+Organize these functions! Order doesn't matter here because they're all just functions! Maybe create subheadings for greater organization? Yeah let's do that. I like the feeling of complete organization
+
+#+begin_src emacs-lisp emacs-lisp
 
   (defun ri/run-in-background (command)
     (let ((command-parts (split-string command "[ ]+")))
@@ -119,7 +124,7 @@ notes:
 
   ;; move focus onto popup window
 
-                                          ; -------
+  ;; -------
 
   (defun ri/run-librewolf ()
     (interactive)
@@ -136,7 +141,7 @@ notes:
     (ri/run-in-background "discord")
     (exwm-workspace-switch-create 2))
 
-                                          ; -------
+  ;; -------
 
   ;; very annoying?
   ;; makes the cursor visible?
@@ -156,34 +161,11 @@ notes:
     :config
     (balanced-windows-mode))
 
-  ;; -------
+#+end_src
 
-  ;; for floating minibuffer...
-  ;; ; show minibuffer in separate frame?
-  ;; ; show minibuffer on polybar? make it pop up from under polybar?
-  ;; ; auto-hiding minibuffer at top of screen, and posframe for all else but quit.
-  ;; ; polybar at top, print minibuffer messages, stable, bottom is only modeline
+** EXWM main config
 
-  (use-package ivy-posframe
-    :config
-    (setq ivy-posframe-height-alist '((swiper . 20)
-                                      (counsel-M-x . 40)))
-
-    (setq ivy-posframe-display-functions-alist
-          '((swiper          . ivy-display-function-fallback)
-           ;; (counsel-M-x    . ivy-posframe-display-at-window-bottom-left)
-            (counsel-M-x     . ivy-display-function-fallback)
-            (counsel-switch-buffer . ivy-display-function-fallback)
-            (complete-symbol . ivy-posframe-display-at-point)
-            (t               . ivy-posframe-display)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
-    (ivy-posframe-mode 0))
-
-  ;; -------
+#+begin_src emacs-lisp
 
   (use-package exwm
     ;; :bind
@@ -296,6 +278,9 @@ notes:
     ;; C-q to send next key to X-applicaiton
     (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
 
+    ;; Uncomment after checking mode-map if C-c is occupied
+    (define-key exwm-mode-map [?\C-c] 'exwm-input-send-next-key)
+
     ;; Set up global key bindings.  These always work, no matter the input state!
     ;; Keep in mind that changing this list after EXWM initializes has no effect.
     (setq exwm-input-global-keys
@@ -369,6 +354,12 @@ notes:
 
     (exwm-enable))
 
+#+end_src
+
+** package desktop-environment
+
+#+begin_src emacs-lisp
+
   ;; depends on scrot (screenshot), brightnessctl (brightness), and playerctl (player)
   (use-package desktop-environment
     :after exwm
@@ -395,11 +386,50 @@ notes:
     ;; screenshot
     (desktop-environment-screenshot-command "flameshot gui"))
 
-  ;; ivy-posframe to have a floating minibuffer.
-  ;; maybe have disappearing minibuffer above the modeline?
+#+end_src
+
+** Ivy-posframe
+:PROPERTIES:
+:VISIBILITY: folded
+:END:
+
+# visibility options: folded, children, content, all
+
+#+begin_src emacs-lisp
+
+  ;; for floating minibuffer...
+  ;; ; maybe have disappearing minibuffer above the modeline?
+  ;; ; show minibuffer in separate frame?
+  ;; ; show minibuffer on polybar? make it pop up from under polybar?
+  ;; ; auto-hiding minibuffer at top of screen, and posframe for all else but quit.
+  ;; ; polybar at top, print minibuffer messages, stable, bottom is only modeline
+
   (use-package ivy-posframe
     :disabled
-    :after exwm)
+    :after (exwm)
+    :config
+    (setq ivy-posframe-height-alist '((swiper . 20)
+                                      (counsel-M-x . 40)))
+
+    (setq ivy-posframe-display-functions-alist
+          '((swiper          . ivy-display-function-fallback)
+           ;; (counsel-M-x    . ivy-posframe-display-at-window-bottom-left)
+            (counsel-M-x     . ivy-display-function-fallback)
+            (counsel-switch-buffer . ivy-display-function-fallback)
+            (complete-symbol . ivy-posframe-display-at-point)
+            (t               . ivy-posframe-display)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
+    ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+    (ivy-posframe-mode 0))
+
+#+end_src
+
+** Misc
+
+#+begin_src emacs-lisp
 
   ;; copy cuts to system clipboard
   ;;  security concerns? private emacs better? make a keybind?
@@ -410,14 +440,7 @@ notes:
 
 #+end_src
 
-** After Load
-
-#+begin_src emacs-lisp
-
-#+end_src
-
 * Desktop Environment
-
 ** EXWM Launcher
 
 #+begin_src shell :tangle exwm/start-exwm.sh :shebang #!/bin/sh
@@ -432,6 +455,7 @@ notes:
   # bind S-<enter> to escape
   # Breaks C-S-c !
   #xmodmap ~/.dotfiles/.emacs*/exwm/Xmodmap
+  xmodmap -e "keysym Menu = Super_R"
 
   # set hold type startup and speed (delay rate)
   xset r rate 240 60
@@ -487,8 +511,10 @@ fi
 
 #+begin_src conf-unix :tangle exwm/Xmodmap
 
-  clear lock
-  keycode 66 = Control_L Escape
+  # clear lock
+  # keycode 66 = Control_L Escape
+
+  keysym Menu = Super_R
 
 #+end_src
 
